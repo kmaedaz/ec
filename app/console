@@ -1,0 +1,47 @@
+#!/usr/bin/env php
+<?php
+require_once __DIR__.'/../autoload.php';
+
+    $ADMIN_ROUTE = getenv('ADMIN_ROUTE');
+    $TEMPLATE_CODE = 'default';
+    $USER_DATA_ROUTE = 'user_data';
+    $ROOT_DIR = realpath(__DIR__);
+    $ROOT_URLPATH = getenv('ROOT_URLPATH');
+    $ROOT_PUBLIC_URLPATH = $ROOT_URLPATH.RELATIVE_PUBLIC_DIR_PATH;
+
+set_time_limit(0);
+
+$app = \Eccube\Application::getInstance();
+$app->initialize();
+
+// Console
+$app->register(
+    new \Knp\Provider\ConsoleServiceProvider(),
+    array(
+        'console.name' => 'EC-CUBE',
+        'console.version' => \Eccube\Common\Constant::VERSION,
+        'console.project_directory' => __DIR__."/.."
+    )
+);
+
+
+// Migration
+$app->register(new \Dbtlr\MigrationProvider\Provider\MigrationServiceProvider(), array(
+    'db.migrations.path' => __DIR__.'/../src/Eccube/Resource/doctrine/migration',
+));
+
+$app->initializePlugin();
+
+$app->boot();
+
+$console = $app["console"];
+
+//ヘルパー追加
+$console->getHelperSet()->set(new \Symfony\Component\Console\Helper\QuestionHelper(), 'question');
+
+$console->add(new Eccube\Command\RouterCommand());
+$console->add(new Eccube\Command\CacheClearCommand());
+$console->add(new Eccube\Command\PluginCommand());
+$console->add(new Eccube\Command\ConfigCommand());
+
+$console->run();
