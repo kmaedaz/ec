@@ -54,7 +54,9 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/product/export', '\Eccube\Controller\Admin\Product\ProductController::export')->bind('admin_product_export');
         $c->match('/product/page/{page_no}', '\Eccube\Controller\Admin\Product\ProductController::index')->assert('page_no', '\d+')->bind('admin_product_page');
         $c->match('/product/product/new', '\Eccube\Controller\Admin\Product\ProductController::edit')->bind('admin_product_product_new');
+        $c->match('/product/product/new_training', '\Eccube\Controller\Admin\Product\ProductController::editTraining')->bind('admin_training_new');
         $c->match('/product/product/{id}/edit', '\Eccube\Controller\Admin\Product\ProductController::edit')->assert('id', '\d+')->bind('admin_product_product_edit');
+        $c->match('/product/product/{id}/edit', '\Eccube\Controller\Admin\Product\ProductController::editTraining')->assert('id', '\d+')->bind('admin_product_product_edit');
         $c->match('/product/product/class/{id}', '\Eccube\Controller\Admin\Product\ProductClassController::index')->assert('id', '\d+')->bind('admin_product_product_class');
         $c->match('/product/product/{id}/display', '\Eccube\Controller\Admin\Product\ProductController::display')->assert('id', '\d+')->bind('admin_product_product_display');
         $c->delete('/product/product/{id}/delete', '\Eccube\Controller\Admin\Product\ProductController::delete')->assert('id', '\d+')->bind('admin_product_product_delete');
@@ -91,6 +93,7 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/customer/{id}/edit', '\Eccube\Controller\Admin\Customer\CustomerEditController::index')->assert('id', '\d+')->bind('admin_customer_edit');
         $c->delete('/customer/{id}/delete', '\Eccube\Controller\Admin\Customer\CustomerController::delete')->assert('id', '\d+')->bind('admin_customer_delete');
         $c->put('/customer/{id}/resend', '\Eccube\Controller\Admin\Customer\CustomerController::resend')->assert('id', '\d+')->bind('admin_customer_resend');
+        $c->post('/customer/customer/image/add', '\Eccube\Controller\Admin\Product\CustomerController::addImage')->bind('admin_customer_image_add');
 
         // order
         $c->match('/order', '\Eccube\Controller\Admin\Order\OrderController::index')->bind('admin_order');

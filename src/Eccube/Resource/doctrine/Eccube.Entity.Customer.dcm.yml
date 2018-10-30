@@ -87,6 +87,15 @@ Eccube\Entity\Customer:
         fax03:
             type: text
             nullable: true
+        mobilephone01:
+            type: text
+            nullable: true
+        mobilephone02:
+            type: text
+            nullable: true
+        mobilephone03:
+            type: text
+            nullable: true
         birth:
             type: datetime
             nullable: true
@@ -171,6 +180,11 @@ Eccube\Entity\Customer:
         CustomerFavoriteProducts:
             targetEntity: Eccube\Entity\CustomerFavoriteProduct
             mappedBy: Customer
+        CustomerImages:
+            targetEntity: Eccube\Entity\CustomerImage
+            mappedBy: Customer
+            orderBy:
+                rank: ASC
         CustomerAddresses:
             targetEntity: Eccube\Entity\CustomerAddress
             mappedBy: Customer
@@ -178,5 +192,9 @@ Eccube\Entity\Customer:
                 id: ASC
         Orders:
             targetEntity: Eccube\Entity\Order
+            mappedBy: Customer
+    oneToOne:
+        CustomerBasicInfo:
+            targetEntity: Eccube\Entity\CustomerBasicInfo
             mappedBy: Customer
     lifecycleCallbacks: {  }

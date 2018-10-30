@@ -115,6 +115,12 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.master.csv_type'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\CsvType');
         });
+        $app['eccube.repository.master.instructor_type'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\Master\InstructorType');
+        });
+        $app['eccube.repository.master.supporter_type'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\Master\SupporterType');
+        });
 
         $app['eccube.repository.delivery'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Delivery');
@@ -226,6 +232,9 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.customer_status'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\CustomerStatus');
         });
+        $app['eccube.repository.customer_basic_info_status'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\Master\CustomerBasicInfoStatus');
+        });
         $app['eccube.repository.order_status'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\OrderStatus');
         });
@@ -322,6 +331,9 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Master\MailTemplateType();
             $types[] = new \Eccube\Form\Type\Master\CategoryType();
             $types[] = new \Eccube\Form\Type\Master\TagType();
+            $types[] = new \Eccube\Form\Type\Master\CustomerBasicInfoStatusType();
+            $types[] = new \Eccube\Form\Type\Master\SupporterTypeType();
+            $types[] = new \Eccube\Form\Type\Master\InstructorTypeType();
 
             $types[] = new \Eccube\Form\Type\CustomerType($app); // 削除予定
 
@@ -381,6 +393,7 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Admin\DeliveryTimeType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\LogType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\CacheType($app['config']);
+            $types[] = new \Eccube\Form\Type\Admin\CustomerBasicInfoType($app['config']);
 
             $types[] = new \Eccube\Form\Type\Admin\MasterdataType($app);
             $types[] = new \Eccube\Form\Type\Admin\MasterdataDataType($app);

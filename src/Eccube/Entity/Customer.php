@@ -126,6 +126,22 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     private $fax03;
 
     /**
+    /**
+     * @var string
+     */
+    private $mobilephone01;
+
+    /**
+     * @var string
+     */
+    private $mobilephone02;
+
+    /**
+     * @var string
+     */
+    private $mobilephone03;
+
+    /**
      * @var \DateTime
      */
     private $birth;
@@ -221,6 +237,11 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     private $Pref;
 
     /**
+     * @var \Eccube\Entity\CustomerBasicInfo
+     */
+    private $CustomerBasicInfo;
+
+    /**
      * @var \Doctrine\Common\Collections\Collection
      */
     private $CustomerFavoriteProducts;
@@ -229,6 +250,11 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
      * @var \Doctrine\Common\Collections\Collection
      */
     private $CustomerAddresses;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    private $CustomerImages;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -242,6 +268,7 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     {
         $this->CustomerFavoriteProducts = new \Doctrine\Common\Collections\ArrayCollection();
         $this->CustomerAddresses = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->CustomerImages = new \Doctrine\Common\Collections\ArrayCollection();
         $this->Orders = new \Doctrine\Common\Collections\ArrayCollection();
 
         $this->setBuyTimes(0);
@@ -679,6 +706,75 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     public function getFax03()
     {
         return $this->fax03;
+    }
+
+    /**
+     * Set mobilephone01
+     *
+     * @param  string   $mobilephone01
+     * @return Customer
+     */
+    public function setMobilephone01($mobilephone01)
+    {
+        $this->mobilephone01 = $mobilephone01;
+
+        return $this;
+    }
+
+    /**
+     * Get mobilephone01
+     *
+     * @return string
+     */
+    public function getMobilephone01()
+    {
+        return $this->mobilephone01;
+    }
+
+    /**
+     * Set mobilephone02
+     *
+     * @param  string   $mobilephone02
+     * @return Customer
+     */
+    public function setMobilephone02($mobilephone02)
+    {
+        $this->mobilephone02 = $mobilephone02;
+
+        return $this;
+    }
+
+    /**
+     * Get mobilephone02
+     *
+     * @return string
+     */
+    public function getMobilephone02()
+    {
+        return $this->mobilephone02;
+    }
+
+    /**
+     * Set mobilephone03
+     *
+     * @param  string   $mobilephone03
+     * @return Customer
+     */
+    public function setMobilephone03($mobilephone03)
+    {
+        $this->mobilephone03 = $mobilephone03;
+
+        return $this;
+    }
+
+    /**
+     * Get mobilephone03
+     *
+     * @return string
+     */
+    public function getMobilephone03()
+    {
+        return $this->mobilephone03;
     }
 
     /**
@@ -1239,4 +1335,51 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
 
         return $this;
     }
+
+    /**
+     * Get CustomerImages
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCustomerImages()
+    {
+        return $this->CustomerImages;
+    }
+
+    /**
+     * Add CustomerImages
+     *
+     * @param \Eccube\Entity\CustomerImage $customerImage
+     * @return Customer
+     */
+    public function addCustomerImages(\Eccube\Entity\CustomerImage $customerImage)
+    {
+        $this->CustomerImages[] = $customerImage;
+
+        return $this;
+    }
+
+    /**
+     * Set CustomerBasicInfo
+     *
+     * @param  \Eccube\Entity\CustomerBasicInfo $customerBasicInfo
+     * @return Customer
+     */
+    public function setCustomerBasicInfo(\Eccube\Entity\CustomerBasicInfo $customerBasicInfo = null)
+    {
+        $this->CustomerBasicInfo = $customerBasicInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get CustomerBasicInfo
+     *
+     * @return \Eccube\Entity\CustomerBasicInfo
+     */
+    public function getCustomerBasicInfo()
+    {
+        return $this->CustomerBasicInfo;
+    }
+
 }

@@ -6,9 +6,16 @@
       - id: product_master
         name: 商品マスター
         url: admin_product
-      - id: product_edit
+      - id: form_printing
         name: 商品登録
-        url: admin_product_product_new
+        has_child: true
+        child:
+          - id: product_edit
+            name: 商品登録
+            url: admin_product_product_new
+          - id: product_edit
+            name: 講習/研修/講演会登録
+            url: admin_training_new
       - id: class_name
         name: 規格登録
         url: admin_product_class_name
@@ -49,6 +56,28 @@
   has_child: true
   icon: cb-file-text
   child:
+      - id: form_printing
+        name: 帳票作成
+        has_child: true
+        child:
+            - id: form_printing_payment
+              name: 払込用紙
+              url: admin_form_printing_payment
+            - id: form_printing_invoice
+              name: 請求書
+              url: admin_form_printing_invoice
+            - id: form_printing_delivery
+              name: 納品書
+              url: admin_form_printing_delivery
+            - id: form_printing_business_card
+              name: 名刺
+              url: admin_form_printing_business_card
+            - id: form_printing_certification
+              name: 認定書
+              url: admin_form_printing_certification
+            - id: form_printing_regular_member_list
+              name: 正会員一覧
+              url: admin_form_printing_regular_member_list
       - id: news
         name: 新着情報管理
         url : admin_content_news
