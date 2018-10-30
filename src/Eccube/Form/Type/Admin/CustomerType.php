@@ -72,6 +72,9 @@ class CustomerType extends AbstractType
             ->add('fax', 'tel', array(
                 'required' => false,
             ))
+            ->add('mobilephone', 'tel', array(
+                'required' => false,
+            ))
             ->add('email', 'email', array(
                 'required' => true,
                 'constraints' => array(
@@ -86,6 +89,56 @@ class CustomerType extends AbstractType
             ))
             ->add('sex', 'sex', array(
                 'required' => false,
+            ))
+            ->add('office_name', 'text', array(
+                'required' => false,
+                'label' => '勤務先名',
+                'constraints' => array(
+                    new Assert\Length(array(
+                        'max' => $config['stext_len'],
+                    ))
+                ),
+                'mapped' => false,
+            ))
+            ->add('office_address', 'address', array(
+                'required' => false,
+                'mapped' => false,
+            ))
+            ->add('office_zip', 'zip', array(
+                'required' => false,
+                'mapped' => false,
+                'zip01_options' => [
+                    'mapped' => false,
+                ],
+                'zip02_options' => [
+                    'mapped' => false,
+                ],
+            ))
+            ->add('office_tel', 'tel', array(
+                'required' => true,
+                'mapped' => false,
+                'tel01_options' => [
+                    'mapped' => false,
+                ],
+                'tel02_options' => [
+                    'mapped' => false,
+                ],
+                'tel03_options' => [
+                    'mapped' => false,
+                ],
+            ))
+            ->add('office_fax', 'tel', array(
+                'required' => false,
+                'mapped' => false,
+                'tel01_options' => [
+                    'mapped' => false,
+                ],
+                'tel02_options' => [
+                    'mapped' => false,
+                ],
+                'tel03_options' => [
+                    'mapped' => false,
+                ],
             ))
             ->add('job', 'job', array(
                 'required' => false,
@@ -113,11 +166,31 @@ class CustomerType extends AbstractType
                     'label' => 'パスワード(確認)',
                 ),
             ))
+            ->add('customer_image', 'file', array(
+                'label' => 'プロフィール画像',
+                'multiple' => true,
+                'required' => false,
+                'mapped' => false,
+            ))
             ->add('status', 'customer_status', array(
                 'required' => true,
                 'constraints' => array(
                     new Assert\NotBlank(),
                 ),
+            ))
+            ->add('add_images', 'collection', array(
+                'type' => 'hidden',
+                'prototype' => true,
+                'mapped' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
+            ))
+            ->add('delete_images', 'collection', array(
+                'type' => 'hidden',
+                'prototype' => true,
+                'mapped' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
             ))
             ->add('note', 'textarea', array(
                 'label' => 'SHOP用メモ',
@@ -127,6 +200,10 @@ class CustomerType extends AbstractType
                         'max' => $config['ltext_len'],
                     )),
                 ),
+            ))
+            // 会員基本情報
+            ->add('basic_info', 'admin_customer_basic_info', array(
+                'mapped' => false,
             ));
     }
 
