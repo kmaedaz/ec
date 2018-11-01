@@ -39,6 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
 class ProductController extends AbstractController
@@ -530,6 +531,115 @@ class ProductController extends AbstractController
             'form' => $form->createView(),
             'searchForm' => $searchForm->createView(),
             'has_class' => $has_class,
+            'id' => $id,
+        ));
+    }
+
+    public function editTraining(Application $app, Request $request, $id = null)
+    {
+        if (is_null($id)) {
+            $Product = new \Eccube\Entity\Product();
+            $ProductClass = new \Eccube\Entity\ProductClass();
+            $ProductTraining = new \Eccube\Entity\ProductTraining();
+            $Disp = $app['eccube.repository.master.disp']->find(\Eccube\Entity\Master\Disp::DISPLAY_HIDE);
+            $Product
+                ->setDelFlg(Constant::DISABLED)
+                ->addProductClass($ProductClass)
+                ->setProductTraining($ProductTraining)
+                ->setStatus($Disp);
+            $ProductClass
+                ->setDelFlg(Constant::DISABLED)
+                ->setStockUnlimited(true)
+                ->setProduct($Product);
+            $ProductStock = new \Eccube\Entity\ProductStock();
+            $ProductClass->setProductStock($ProductStock);
+            $ProductStock->setProductClass($ProductClass);
+        } else {
+            $Product = $app['eccube.repository.product']->find($id);
+            if (!$Product) {
+                throw new NotFoundHttpException();
+            }
+            if (!$Product->hasProductClass()) {
+                throw new MethodNotAllowedHttpException();
+            }
+            $ProductTraining = $Product->getProductTrining();
+        }
+
+        $builder = $app['form.factory']
+            ->createBuilder('admin_training', $Product);
+
+        $form = $builder->getForm();
+        $form['product_training']->setData($ProductTraining);
+
+        if ('POST' === $request->getMethod()) {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+                log_info('講習会登録開始', array($id));
+                // カテゴリの登録
+                // 一度クリア
+                /* @var $Product \Eccube\Entity\Product */
+                foreach ($Product->getProductCategories() as $ProductCategory) {
+                    $Product->removeProductCategory($ProductCategory);
+                    $app['orm.em']->remove($ProductCategory);
+                }
+                $app['orm.em']->persist($Product);
+                $app['orm.em']->flush();
+
+                $count = 1;
+                $Category = $app['eccube.repository.category']->find(\Eccube\Entity\Category::TRAINING_CATEGORY);
+                foreach ($Category->getPath() as $ParentCategory) {
+                    if (!isset($categoriesIdList[$ParentCategory->getId()])) {
+                        $ProductCategory = $this->createProductCategory($Product, $ParentCategory, $count);
+                        $app['orm.em']->persist($ProductCategory);
+                        $count++;
+                        /* @var $Product \Eccube\Entity\Product */
+                        $Product->addProductCategory($ProductCategory);
+                        $categoriesIdList[$ParentCategory->getId()] = true;
+                    }
+                }
+                if (!isset($categoriesIdList[$Category->getId()])) {
+                    $ProductCategory = $this->createProductCategory($Product, $Category, $count);
+                    $app['orm.em']->persist($ProductCategory);
+                    $count++;
+                    /* @var $Product \Eccube\Entity\Product */
+                    $Product->addProductCategory($ProductCategory);
+                    $categoriesIdList[$Category->getId()] = true;
+                }
+
+                // 商品タグの登録
+                $Tags = $form->get('Tag')->getData();
+                foreach ($Tags as $Tag) {
+                    $ProductTag = new ProductTag();
+                    $ProductTag
+                        ->setProduct($Product)
+                        ->setTag($Tag);
+                    $Product->addProductTag($ProductTag);
+                    $app['orm.em']->persist($ProductTag);
+                }
+
+                $Product->setUpdateDate(new \DateTime());
+                $app['orm.em']->flush();
+                log_info('講習会登録完了', array($id));
+            } else {
+                log_info('講習会登録チェックエラー', array($id));
+                $app->addError('admin.register.failed', 'admin');
+            }
+        }
+
+        // 検索結果の保持
+        $builder = $app['form.factory']
+            ->createBuilder('admin_search_product');
+
+        $searchForm = $builder->getForm();
+
+        if ('POST' === $request->getMethod()) {
+            $searchForm->handleRequest($request);
+        }
+
+        return $app->render('Product/training.twig', array(
+            'Product' => $Product,
+            'form' => $form->createView(),
+            'searchForm' => $searchForm->createView(),
             'id' => $id,
         ));
     }

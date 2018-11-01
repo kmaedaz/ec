@@ -62,22 +62,22 @@
         child:
             - id: form_printing_payment
               name: 払込用紙
-              url: admin_content_news
+              url: admin_form_printing_payment
             - id: form_printing_invoice
               name: 請求書
-              url: admin_content_news
+              url: admin_form_printing_invoice
             - id: form_printing_delivery
               name: 納品書
-              url: admin_content_news
+              url: admin_form_printing_delivery
             - id: form_printing_business_card
               name: 名刺
-              url: admin_content_news
+              url: admin_form_printing_business_card
             - id: form_printing_certification
               name: 認定書
-              url: admin_content_news
+              url: admin_form_printing_certification
             - id: form_printing_regular_member_list
               name: 正会員一覧
-              url: admin_content_news
+              url: admin_form_printing_regular_member_list
       - id: news
         name: 新着情報管理
         url : admin_content_news

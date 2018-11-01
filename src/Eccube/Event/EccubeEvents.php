@@ -131,6 +131,8 @@ final class EccubeEvents
     // index
     const ADMIN_CUSTOMER_EDIT_INDEX_INITIALIZE = 'admin.customer.edit.index.initialize';
     const ADMIN_CUSTOMER_EDIT_INDEX_COMPLETE = 'admin.customer.edit.index.complete';
+    // addImage
+    const ADMIN_CUSTOMER_ADD_IMAGE_COMPLETE = 'admin.customer.add.image.complete';
 
 
     /**

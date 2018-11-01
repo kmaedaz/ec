@@ -75,10 +75,19 @@ Eccube\Entity\Product:
             mappedBy: Product
             orderBy:
                 rank: ASC
+        ProductData:
+            targetEntity: Eccube\Entity\ProductData
+            mappedBy: Product
+            orderBy:
+                rank: ASC
         ProductTag:
             targetEntity: Eccube\Entity\ProductTag
             mappedBy: Product
         CustomerFavoriteProducts:
             targetEntity: Eccube\Entity\CustomerFavoriteProduct
+            mappedBy: Product
+    oneToOne:
+        ProductTraining:
+            targetEntity: Eccube\Entity\ProductTraining
             mappedBy: Product
     lifecycleCallbacks: {  }

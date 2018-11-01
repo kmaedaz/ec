@@ -56,7 +56,7 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/product/product/new', '\Eccube\Controller\Admin\Product\ProductController::edit')->bind('admin_product_product_new');
         $c->match('/product/product/new_training', '\Eccube\Controller\Admin\Product\ProductController::editTraining')->bind('admin_training_new');
         $c->match('/product/product/{id}/edit', '\Eccube\Controller\Admin\Product\ProductController::edit')->assert('id', '\d+')->bind('admin_product_product_edit');
-        $c->match('/product/product/{id}/edit', '\Eccube\Controller\Admin\Product\ProductController::editTraining')->assert('id', '\d+')->bind('admin_product_product_edit');
+        $c->match('/product/product/{id}/edit_training', '\Eccube\Controller\Admin\Product\ProductController::editTraining')->assert('id', '\d+')->bind('admin_product_product_edit');
         $c->match('/product/product/class/{id}', '\Eccube\Controller\Admin\Product\ProductClassController::index')->assert('id', '\d+')->bind('admin_product_product_class');
         $c->match('/product/product/{id}/display', '\Eccube\Controller\Admin\Product\ProductController::display')->assert('id', '\d+')->bind('admin_product_product_display');
         $c->delete('/product/product/{id}/delete', '\Eccube\Controller\Admin\Product\ProductController::delete')->assert('id', '\d+')->bind('admin_product_product_delete');
@@ -93,7 +93,7 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/customer/{id}/edit', '\Eccube\Controller\Admin\Customer\CustomerEditController::index')->assert('id', '\d+')->bind('admin_customer_edit');
         $c->delete('/customer/{id}/delete', '\Eccube\Controller\Admin\Customer\CustomerController::delete')->assert('id', '\d+')->bind('admin_customer_delete');
         $c->put('/customer/{id}/resend', '\Eccube\Controller\Admin\Customer\CustomerController::resend')->assert('id', '\d+')->bind('admin_customer_resend');
-        $c->post('/customer/customer/image/add', '\Eccube\Controller\Admin\Product\CustomerController::addImage')->bind('admin_customer_image_add');
+        $c->post('/customer/customer/image/add', '\Eccube\Controller\Admin\Customer\CustomerEditController::addImage')->bind('admin_customer_image_add');
 
         // order
         $c->match('/order', '\Eccube\Controller\Admin\Order\OrderController::index')->bind('admin_order');
@@ -118,6 +118,13 @@ class AdminControllerProvider implements ControllerProviderInterface
 
         // content
         // deprecated /content/ 3.1 delete. use /content/news
+        $c->match('/content/printing_payment', '\Eccube\Controller\Admin\Content\FormPrintingController::payment')->bind('admin_form_printing_payment');
+        $c->match('/content/printing_invoice', '\Eccube\Controller\Admin\Content\FormPrintingController::invoice')->bind('admin_form_printing_invoice');
+        $c->match('/content/printing_delivery', '\Eccube\Controller\Admin\Content\FormPrintingController::delivery')->bind('admin_form_printing_delivery');
+        $c->match('/content/printing_business_card', '\Eccube\Controller\Admin\Content\FormPrintingController::businessCard')->bind('admin_form_printing_business_card');
+        $c->match('/content/printing_certification', '\Eccube\Controller\Admin\Content\FormPrintingController::certification')->bind('admin_form_printing_certification');
+        $c->match('/content/printing_regular_member_lis', '\Eccube\Controller\Admin\Content\FormPrintingController::regularMemberList')->bind('admin_form_printing_regular_member_list');
+
         $c->match('/content', '\Eccube\Controller\Admin\Content\ContentsController::index')->bind('admin_content');
         $c->match('/content/new', '\Eccube\Controller\Admin\Content\ContentsController::edit')->bind('admin_content_new');
         $c->match('/content/{id}/edit', '\Eccube\Controller\Admin\Content\ContentsController::edit')->assert('id', '\d+')->bind('admin_content_edit');

@@ -1021,4 +1021,75 @@ class Product extends \Eccube\Entity\AbstractEntity
     }
 
 
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    private $ProductData;
+
+
+    /**
+     * Add ProductData
+     *
+     * @param \Eccube\Entity\ProductData $productData
+     * @return Product
+     */
+    public function addProductDatum(\Eccube\Entity\ProductData $productData)
+    {
+        $this->ProductData[] = $productData;
+
+        return $this;
+    }
+
+    /**
+     * Remove ProductData
+     *
+     * @param \Eccube\Entity\ProductData $productData
+     */
+    public function removeProductDatum(\Eccube\Entity\ProductData $productData)
+    {
+        $this->ProductData->removeElement($productData);
+    }
+
+    /**
+     * Get ProductData
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProductData()
+    {
+        return $this->ProductData;
+    }
+
+    /**
+     * @var \Eccube\Entity\ProductTraining
+     */
+    private $ProductTraining;
+
+    /**
+     * Set ProductTraining
+     *
+     * @param \Eccube\Entity\ProductTraining $productTraining
+     * @return Product
+     */
+    public function setProductTraining(\Eccube\Entity\ProductTraining $productTraining = null)
+    {
+        $this->ProductTraining = $productTraining;
+
+        return $this;
+    }
+
+    /**
+     * Get ProductTraining
+     *
+     * @return \Eccube\Entity\ProductTraining 
+     */
+    public function getProductTraining()
+    {
+        return $this->ProductTraining;
+    }
+
+    public function hasProductTraining()
+    {
+        return !is_null($this->ProductTraining);
+    }
 }

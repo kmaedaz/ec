@@ -181,6 +181,12 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.product_tag'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\ProductTag');
         });
+        $app['eccube.repository.product_training'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\ProductTraining');
+        });
+        $app['eccube.repository.product_data'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\ProductData');
+        });
         $app['eccube.repository.class_name'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\ClassName');
         });
@@ -394,6 +400,8 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Admin\LogType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\CacheType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\CustomerBasicInfoType($app['config']);
+            $types[] = new \Eccube\Form\Type\Admin\ProductTrainingType($app);
+            $types[] = new \Eccube\Form\Type\Admin\TrainingType($app);
 
             $types[] = new \Eccube\Form\Type\Admin\MasterdataType($app);
             $types[] = new \Eccube\Form\Type\Admin\MasterdataDataType($app);

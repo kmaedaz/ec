@@ -1382,4 +1382,27 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
         return $this->CustomerBasicInfo;
     }
 
+
+    /**
+     * Add CustomerImages
+     *
+     * @param \Eccube\Entity\CustomerImage $customerImages
+     * @return Customer
+     */
+    public function addCustomerImage(\Eccube\Entity\CustomerImage $customerImages)
+    {
+        $this->CustomerImages[] = $customerImages;
+
+        return $this;
+    }
+
+    /**
+     * Remove CustomerImages
+     *
+     * @param \Eccube\Entity\CustomerImage $customerImages
+     */
+    public function removeCustomerImage(\Eccube\Entity\CustomerImage $customerImages)
+    {
+        $this->CustomerImages->removeElement($customerImages);
+    }
 }

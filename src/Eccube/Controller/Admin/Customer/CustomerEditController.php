@@ -118,6 +118,43 @@ class CustomerEditController extends AbstractController
                     );
                 }
 
+                // 画像の登録
+                $add_images = $form->get('add_images')->getData();
+                foreach ($add_images as $add_image) {
+                    $CustomerImage = new \Eccube\Entity\CustomerImage();
+                    $CustomerImage
+                        ->setFileName($add_image)
+                        ->setCustomer($Customer)
+                        ->setRank(1);
+                    $Customer->addCustomerImages($CustomerImage);
+                    $app['orm.em']->persist($CustomerImage);
+
+                    // 移動
+                    $file = new File($app['config']['image_temp_realdir'].'/'.$add_image);
+                    $file->move($app['config']['image_save_realdir']);
+                }
+
+                // 画像の削除
+                $delete_images = $form->get('delete_images')->getData();
+                foreach ($delete_images as $delete_image) {
+                    $CustomerImage = $app['eccube.repository.product_image']
+                        ->findOneBy(array('file_name' => $delete_image));
+
+                    // 追加してすぐに削除した画像は、Entityに追加されない
+                    if ($CustomerImage instanceof \Eccube\Entity\CustomerImage) {
+                        $Customer->removeCustomerImages($CustomerImage);
+                        $app['orm.em']->remove($CustomerImage);
+
+                    }
+                    $app['orm.em']->persist($Customer);
+
+                    // 削除
+                    if (!empty($delete_image)) {
+                        $fs = new Filesystem();
+                        $fs->remove($app['config']['image_save_realdir'].'/'.$delete_image);
+                    }
+                }
+
                 $app['orm.em']->persist($Customer);
                 $app['orm.em']->flush();
 
@@ -146,5 +183,44 @@ class CustomerEditController extends AbstractController
             'form' => $form->createView(),
             'Customer' => $Customer,
         ));
+    }
+
+    public function addImage(Application $app, Request $request)
+    {
+        if (!$request->isXmlHttpRequest()) {
+            throw new BadRequestHttpException('リクエストが不正です');
+        }
+
+        $images = $request->files->get('admin_customer');
+
+        $files = array();
+        if (count($images) > 0) {
+            foreach ($images as $img) {
+                foreach ($img as $image) {
+                    //ファイルフォーマット検証
+                    $mimeType = $image->getMimeType();
+                    if (0 !== strpos($mimeType, 'image')) {
+                        throw new UnsupportedMediaTypeHttpException('ファイル形式が不正です');
+                    }
+
+                    $extension = $image->getClientOriginalExtension();
+                    $filename = date('mdHis').uniqid('_').'.'.$extension;
+                    $image->move($app['config']['image_temp_realdir'], $filename);
+                    $files[] = $filename;
+                }
+            }
+        }
+
+        $event = new EventArgs(
+            array(
+                'images' => $images,
+                'files' => $files,
+            ),
+            $request
+        );
+        $app['eccube.event.dispatcher']->dispatch(EccubeEvents::ADMIN_PRODUCT_ADD_IMAGE_COMPLETE, $event);
+        $files = $event->getArgument('files');
+
+        return $app->json(array('files' => $files), 200);
     }
 }
