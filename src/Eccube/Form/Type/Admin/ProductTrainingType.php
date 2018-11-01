@@ -63,20 +63,24 @@ class ProductTrainingType extends AbstractType
 
         $builder
             // 講習会情報
-            ->add('day', 'text', array(
+            ->add('day', 'date', array(
                 'label' => '日時',
+                'widget' => 'single_text',
+                'format' => 'yyyy/MM/dd',
                 'mapped' => false,
                 'constraints' => array(
                     new Assert\NotBlank(),
                 ),
             ))
-            ->add('date', 'text', array(
+            ->add('time', 'text', array(
                 'label' => '時間',
                 'mapped' => false,
                 'constraints' => array(
                     new Assert\NotBlank(),
+                    new Assert\Regex(array('pattern' => '/^^([0-1][0-9]|[2][0-3]):[0-5][0-9]$/')),
                 ),
             ))
+            ->add('training_date', 'hidden')
             ->add('place', 'textarea', array(
                 'label' => '会場',
                 'mapped' => true,

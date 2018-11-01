@@ -542,6 +542,7 @@ class ProductController extends AbstractController
             $ProductClass = new \Eccube\Entity\ProductClass();
             $ProductTraining = new \Eccube\Entity\ProductTraining();
             $Disp = $app['eccube.repository.master.disp']->find(\Eccube\Entity\Master\Disp::DISPLAY_HIDE);
+            $ProductType = $app['eccube.repository.master.product_type']->find($app['config']['product_type_training']);
             $Product
                 ->setDelFlg(Constant::DISABLED)
                 ->addProductClass($ProductClass)
@@ -550,6 +551,7 @@ class ProductController extends AbstractController
             $ProductClass
                 ->setDelFlg(Constant::DISABLED)
                 ->setStockUnlimited(true)
+                ->setProductType($ProductType)
                 ->setProduct($Product);
             $ProductStock = new \Eccube\Entity\ProductStock();
             $ProductClass->setProductStock($ProductStock);
@@ -570,11 +572,27 @@ class ProductController extends AbstractController
 
         $form = $builder->getForm();
         $form['product_training']->setData($ProductTraining);
+        $form['class']->setData($ProductClass);
 
         if ('POST' === $request->getMethod()) {
+            $request_data = $request->request->all();
+            $request_data['admin_training']['product_training']['training_date'] = new \DateTime(
+                    date('Y-m-d H:i:s', strtotime($request_data['admin_training']['product_training']['day']
+                       . ' ' . $request_data['admin_training']['product_training']['time'])));
+            $request_data['admin_training']['class']['product_type'] = $app['config']['product_type_training'];
+            $request->request->add($request_data);
             $form->handleRequest($request);
             if ($form->isValid()) {
                 log_info('講習会登録開始', array($id));
+                // 講習会情報の登録
+                $Product = $form->getData();
+
+                $ProductTraining = $form['product_training']->getData();
+                $app['orm.em']->persist($ProductTraining);
+
+                $ProductClass = $form['class']->getData();
+                $app['orm.em']->persist($ProductClass);
+
                 // カテゴリの登録
                 // 一度クリア
                 /* @var $Product \Eccube\Entity\Product */
@@ -619,9 +637,19 @@ class ProductController extends AbstractController
 
                 $Product->setUpdateDate(new \DateTime());
                 $app['orm.em']->flush();
+
                 log_info('講習会登録完了', array($id));
+
+                $app->addSuccess('admin.register.complete', 'admin');
+
+//                return $app->redirect($app->url('admin_product_product_edit', array(
+//                    'id' => $Product->getId(),
+//                )));
             } else {
                 log_info('講習会登録チェックエラー', array($id));
+                foreach ($form->getErrors(true) as $Error) { 
+                    log_info('error:', array($Error->getOrigin()->getName(), $Error->getMessage()));
+                }
                 $app->addError('admin.register.failed', 'admin');
             }
         }

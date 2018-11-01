@@ -27,13 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 <link rel="stylesheet" href="{{ app.config.admin_urlpath }}/assets/css/fileupload/jquery.fileupload.css">
 <link rel="stylesheet" href="{{ app.config.admin_urlpath }}/assets/css/fileupload/jquery.fileupload-ui.css">
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
-<style>
-    .ui-state-highlight {
-        height: 148px;
-        border: dashed 1px #ccc;
-        background: #fff;
-    }
-</style>
 {% endblock stylesheet %}
 
 {% block javascript %}
@@ -43,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 <script src="{{ app.config.admin_urlpath }}/assets/js/vendor/fileupload/jquery.fileupload-process.js"></script>
 <script src="{{ app.config.admin_urlpath }}/assets/js/vendor/fileupload/jquery.fileupload-validate.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
 <script src="//ajaxzip3.github.io/ajaxzip3.js" charset="UTF-8"></script>
 <script>
     var mapReView = function () {
@@ -61,6 +55,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         }
     };
     $(function() {
+        $("#admin_training_product_training_day").datepicker({
+            dateFormat: "yy/mm/dd",
+            beforeShow: function(input, inst){
+                setTimeout(function(){
+                    $('#ui-datepicker-div')
+                    .css('z-index',1000);
+                },0);
+            }
+        });
         $('#zip-search').click(function() {
             AjaxZip3.zip2addr('admin_training[product_training][zip][zip01]', 'admin_training[product_training][zip][zip02]', 'admin_training[product_training][address][pref]', 'admin_training[product_training][address][addr01]');
         });
@@ -109,10 +112,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                             </div>
                             {# 時間 #}
                             <div id="detail_box__date" class="form-group">
-                                {{ form_label(form.product_training.date) }}
+                                {{ form_label(form.product_training.time) }}
                                 <div id="detail_box__date" class="col-sm-3 col-lg-3">
-                                    {{ form_widget(form.product_training.date) }}
-                                    {{ form_errors(form.product_training.date) }}
+                                    {{ form_widget(form.product_training.time) }}
+                                    {{ form_errors(form.product_training.time) }}
                                 </div>
                             </div>
                             {# 会場 #}

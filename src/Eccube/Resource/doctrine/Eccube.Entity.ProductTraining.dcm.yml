@@ -12,7 +12,7 @@ Eccube\Entity\ProductTraining:
             generator:
                 strategy: AUTO
     fields:
-        trainig_date:
+        training_date:
             type: datetime
             nullable: false
         place:

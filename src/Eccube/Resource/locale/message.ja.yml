@@ -16,6 +16,7 @@ Zip: 郵便番号
 Address: 住所
 Tel: 電話番号
 Fax: FAX番号
+Mobilephone: 携帯電話番号
 Email: メールアドレス
 Password: パスワード
 Job: 職業
@@ -23,6 +24,7 @@ Sex: 性別
 Birth: 生年月日
 Company name : 会社名
 Contents: お問い合わせ内容
+Office address:勤務先住所
 Tag: タグ
 form.empty_value: 選択してください
 form.pref.empty_value: 都道府県を選択

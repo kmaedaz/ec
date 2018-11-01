@@ -175,6 +175,8 @@ plugin_upload_realdir: /PATH/TO/WEB_ROOT/data/downloads/plugin/
 point_rule: 2
 point_value: 1
 price_len: 8
+product_type_training: 4
+product_type_charge: 3
 product_type_download: 2
 product_type_normal: 1
 products_total_max: 15

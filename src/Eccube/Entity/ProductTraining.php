@@ -17,7 +17,7 @@ class ProductTraining extends \Eccube\Entity\AbstractEntity
     /**
      * @var \DateTime
      */
-    private $trainig_date;
+    private $training_date;
 
     /**
      * @var string
@@ -96,26 +96,26 @@ class ProductTraining extends \Eccube\Entity\AbstractEntity
     }
 
     /**
-     * Set trainig_date
+     * Set training_date
      *
-     * @param \DateTime $trainigDate
+     * @param \DateTime $trainingDate
      * @return ProductTraining
      */
-    public function setTrainigDate($trainigDate)
+    public function setTrainingDate($trainingDate)
     {
-        $this->trainig_date = $trainigDate;
+        $this->training_date = $trainingDate;
 
         return $this;
     }
 
     /**
-     * Get trainig_date
+     * Get training_date
      *
      * @return \DateTime 
      */
-    public function getTrainigDate()
+    public function getTrainingDate()
     {
-        return $this->trainig_date;
+        return $this->training_date;
     }
 
     /**
