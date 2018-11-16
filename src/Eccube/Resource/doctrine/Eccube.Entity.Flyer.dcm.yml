@@ -1,0 +1,43 @@
+Eccube\Entity\Flyer:
+    type: entity
+    table: dtb_flyer
+    repositoryClass: Eccube\Repository\FlyerRepository
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: false
+            id: true
+            column: dtb_flyer_id
+            generator:
+                strategy: AUTO
+    fields:
+        file_name:
+            type: text
+            nullable: false
+        description:
+            type: text
+            nullable: false
+        link_label:
+            type: text
+            nullable: false
+        rank:
+            type: integer
+            nullable: false
+            unsigned: false
+        create_date:
+            type: datetime
+            nullable: false
+    manyToOne:
+        Target:
+            targetEntity: Eccube\Entity\Master\CustomerType
+            joinColumn:
+                name: target
+                referencedColumnName: id
+        Creator:
+            targetEntity: Eccube\Entity\Member
+            joinColumn:
+                name: creator_id
+                referencedColumnName: member_id
+                nullable: false
+    lifecycleCallbacks: {  }

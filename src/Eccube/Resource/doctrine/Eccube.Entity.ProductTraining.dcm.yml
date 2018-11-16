@@ -8,7 +8,7 @@ Eccube\Entity\ProductTraining:
             nullable: false
             unsigned: false
             id: true
-            column: product_stock_id
+            column: product_training_id
             generator:
                 strategy: AUTO
     fields:

@@ -56,25 +56,18 @@ class ProductTrainingType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /**
-         * @var ArrayCollection $arrCategory array of category
-         */
-        $arrCategory = $this->app['eccube.repository.category']->getList(null, true);
-
         $builder
             // 講習会情報
             ->add('day', 'date', array(
                 'label' => '日時',
                 'widget' => 'single_text',
                 'format' => 'yyyy/MM/dd',
-                'mapped' => false,
                 'constraints' => array(
                     new Assert\NotBlank(),
                 ),
             ))
             ->add('time', 'text', array(
                 'label' => '時間',
-                'mapped' => false,
                 'constraints' => array(
                     new Assert\NotBlank(),
                     new Assert\Regex(array('pattern' => '/^^([0-1][0-9]|[2][0-3]):[0-5][0-9]$/')),
@@ -83,7 +76,6 @@ class ProductTrainingType extends AbstractType
             ->add('training_date', 'hidden')
             ->add('place', 'textarea', array(
                 'label' => '会場',
-                'mapped' => true,
             ))
             ->add('zip', 'zip', array(
                 'required' => true,
@@ -93,15 +85,12 @@ class ProductTrainingType extends AbstractType
             ))
             ->add('target', 'textarea', array(
                 'label' => '対象',
-                'mapped' => true,
             ))
             ->add('purpose', 'textarea', array(
                 'label' => '目的',
-                'mapped' => true,
             ))
             ->add('item', 'textarea', array(
                 'label' => '持ち物',
-                'mapped' => true,
             ))
        ;
     }

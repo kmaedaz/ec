@@ -119,6 +119,48 @@ class ProductTraining extends \Eccube\Entity\AbstractEntity
     }
 
     /**
+     * Set training_date(Date)
+     *
+     * @param \DateTime $day
+     * @return ProductTraining
+     */
+    public function setDay($day)
+    {
+        return $this;
+    }
+
+    /**
+     * Get training_date(Date)
+     *
+     * @return String
+     */
+    public function getDay()
+    {
+        return (is_null($this->training_date)?null:new \DateTime($this->training_date->format('Y/m/d')));
+    }
+
+    /**
+     * Set training_date(Time)
+     *
+     * @param String $time
+     * @return ProductTraining
+     */
+    public function setTime($time)
+    {
+        return $this;
+    }
+
+    /**
+     * Get training_date(Time)
+     *
+     * @return String 
+     */
+    public function getTime()
+    {
+        return (is_null($this->training_date)?"":$this->training_date->format('H:i'));
+    }
+
+    /**
      * Set place
      *
      * @param string $place
