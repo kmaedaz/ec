@@ -556,15 +556,19 @@ class ProductController extends AbstractController
             $ProductStock = new \Eccube\Entity\ProductStock();
             $ProductClass->setProductStock($ProductStock);
             $ProductStock->setProductClass($ProductClass);
+            $ProductTraining->setProduct($Product);
         } else {
             $Product = $app['eccube.repository.product']->find($id);
             if (!$Product) {
                 throw new NotFoundHttpException();
             }
-            if (!$Product->hasProductClass()) {
+            if (count($Product->getProductClasses()) < 1) {
                 throw new MethodNotAllowedHttpException();
             }
-            $ProductTraining = $Product->getProductTrining();
+            $ProductClasses = $Product->getProductClasses();
+            $ProductClass = $ProductClasses[0];
+            $ProductStock = $ProductClasses[0]->getProductStock();
+            $ProductTraining = $Product->getProductTraining();
         }
 
         $builder = $app['form.factory']
@@ -572,7 +576,15 @@ class ProductController extends AbstractController
 
         $form = $builder->getForm();
         $form['product_training']->setData($ProductTraining);
+        $ProductClass->setStockUnlimited((boolean)$ProductClass->getStockUnlimited());
         $form['class']->setData($ProductClass);
+
+        $Tags = array();
+        $ProductTags = $Product->getProductTag();
+        foreach ($ProductTags as $ProductTag) {
+            $Tags[] = $ProductTag->getTag();
+        }
+        $form['Tag']->setData($Tags);
 
         if ('POST' === $request->getMethod()) {
             $request_data = $request->request->all();
@@ -586,12 +598,45 @@ class ProductController extends AbstractController
                 log_info('講習会登録開始', array($id));
                 // 講習会情報の登録
                 $Product = $form->getData();
+                $ProductClass = $form['class']->getData();
+
+                // 個別消費税
+                $BaseInfo = $app['eccube.repository.base_info']->get();
+                if ($BaseInfo->getOptionProductTaxRule() == Constant::ENABLED) {
+                    if ($ProductClass->getTaxRate() !== null) {
+                        if ($ProductClass->getTaxRule()) {
+                            if ($ProductClass->getTaxRule()->getDelFlg() == Constant::ENABLED) {
+                                $ProductClass->getTaxRule()->setDelFlg(Constant::DISABLED);
+                            }
+
+                            $ProductClass->getTaxRule()->setTaxRate($ProductClass->getTaxRate());
+                        } else {
+                            $taxrule = $app['eccube.repository.tax_rule']->newTaxRule();
+                            $taxrule->setTaxRate($ProductClass->getTaxRate());
+                            $taxrule->setApplyDate(new \DateTime());
+                            $taxrule->setProduct($Product);
+                            $taxrule->setProductClass($ProductClass);
+                            $ProductClass->setTaxRule($taxrule);
+                        }
+                    } else {
+                        if ($ProductClass->getTaxRule()) {
+                            $ProductClass->getTaxRule()->setDelFlg(Constant::ENABLED);
+                        }
+                    }
+                }
+                $app['orm.em']->persist($ProductClass);
+
+                // 在庫情報を作成
+                if (!$ProductClass->getStockUnlimited()) {
+                    $ProductStock->setStock($ProductClass->getStock());
+                } else {
+                    // 在庫無制限時はnullを設定
+                    $ProductStock->setStock(null);
+                }
+                $app['orm.em']->persist($ProductStock);
 
                 $ProductTraining = $form['product_training']->getData();
                 $app['orm.em']->persist($ProductTraining);
-
-                $ProductClass = $form['class']->getData();
-                $app['orm.em']->persist($ProductClass);
 
                 // カテゴリの登録
                 // 一度クリア
@@ -642,9 +687,9 @@ class ProductController extends AbstractController
 
                 $app->addSuccess('admin.register.complete', 'admin');
 
-//                return $app->redirect($app->url('admin_product_product_edit', array(
-//                    'id' => $Product->getId(),
-//                )));
+                return $app->redirect($app->url('admin_product_product_training_edit', array(
+                    'id' => $Product->getId(),
+                )));
             } else {
                 log_info('講習会登録チェックエラー', array($id));
                 foreach ($form->getErrors(true) as $Error) { 

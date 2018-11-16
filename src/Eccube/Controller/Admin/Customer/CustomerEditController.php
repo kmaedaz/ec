@@ -28,6 +28,8 @@ use Eccube\Common\Constant;
 use Eccube\Controller\AbstractController;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -52,8 +54,11 @@ class CustomerEditController extends AbstractController
         } else {
             $Customer = $app['eccube.repository.customer']->newCustomer();
             $CustomerAddress = new \Eccube\Entity\CustomerAddress();
+            $CustomerBasicInfo = new \Eccube\Entity\CustomerBasicInfo();
             $Customer->setBuyTimes(0);
             $Customer->setBuyTotal(0);
+            $Customer->setCustomerBasicInfo($CustomerBasicInfo);
+            $CustomerBasicInfo->setCustomer($Customer);
         }
 
         // 会員登録フォーム
@@ -70,6 +75,15 @@ class CustomerEditController extends AbstractController
         $app['eccube.event.dispatcher']->dispatch(EccubeEvents::ADMIN_CUSTOMER_EDIT_INDEX_INITIALIZE, $event);
 
         $form = $builder->getForm();
+        $form['basic_info']->setData($Customer->getCustomerBasicInfo());
+
+        // ファイルの登録
+        $images = array();
+        $CustomerImages = $Customer->getCustomerImages();
+        foreach ($CustomerImages as $CustomerImage) {
+            $images[] = $CustomerImage->getFileName();
+        }
+        $form['images']->setData($images);
 
         if ('POST' === $request->getMethod()) {
             $form->handleRequest($request);
@@ -98,6 +112,9 @@ class CustomerEditController extends AbstractController
                         ->setTel01($Customer->getTel01())
                         ->setTel02($Customer->getTel02())
                         ->setTel03($Customer->getTel03())
+                        ->setFax01($Customer->getFax01())
+                        ->setFax02($Customer->getFax02())
+                        ->setFax03($Customer->getFax03())
                         ->setFax01($Customer->getFax01())
                         ->setFax02($Customer->getFax02())
                         ->setFax03($Customer->getFax03())
@@ -154,6 +171,9 @@ class CustomerEditController extends AbstractController
                         $fs->remove($app['config']['image_save_realdir'].'/'.$delete_image);
                     }
                 }
+                $CustomerBasicInfo = $form['basic_info']->getData();
+                $CustomerBasicInfo->setCustomer($Customer);
+                $app['orm.em']->persist($CustomerBasicInfo);
 
                 $app['orm.em']->persist($Customer);
                 $app['orm.em']->flush();

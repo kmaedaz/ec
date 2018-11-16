@@ -115,7 +115,7 @@ class CustomerType extends AbstractType
                 ],
             ))
             ->add('office_tel', 'tel', array(
-                'required' => true,
+                'required' => false,
                 'mapped' => false,
                 'tel01_options' => [
                     'mapped' => false,
@@ -177,6 +177,13 @@ class CustomerType extends AbstractType
                 'constraints' => array(
                     new Assert\NotBlank(),
                 ),
+            ))
+            ->add('images', 'collection', array(
+                'type' => 'hidden',
+                'prototype' => true,
+                'mapped' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
             ))
             ->add('add_images', 'collection', array(
                 'type' => 'hidden',

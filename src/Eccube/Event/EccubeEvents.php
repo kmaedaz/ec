@@ -82,6 +82,11 @@ final class EccubeEvents
 
 
     /**
+     * Admin/Content/FormPrintingController
+     */
+    const ADMIN_REGULAR_MEMBER_INDEX_SEARCH = 'admin.regular.member.index.search';
+
+    /**
      * Admin/Content/NewsController
      */
     // index

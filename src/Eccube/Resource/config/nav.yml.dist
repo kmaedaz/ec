@@ -36,9 +36,16 @@
       - id: order_master
         name: 受注マスター
         url: admin_order
-      - id: order_edit
+      - id: order_regist
         name: 受注登録
-        url: admin_order_new
+        has_child: true
+        child:
+            - id: order_edit
+              name: 会員別受注
+              url: admin_order_new
+            - id: order_group_edit
+              name: グループ別受注
+              url: admin_order_group_new
 - id: customer
   name: 会員管理
   has_child: true
@@ -50,37 +57,46 @@
       - id: customer_edit
         name: 会員登録
         url: admin_customer_new
-
+      - id: customer_group_master
+        name: 会員グループマスター
+        url: admin_customer_group
+      - id: customer_group_edit
+        name: 会員グループ登録
+        url: admin_customer_group_new
+- id: form_printing
+  name: 帳票作成
+  has_child: true
+  icon: cb-print
+  child:
+      - id: payment
+        name: 払込用紙
+        url: admin_form_printing_payment
+      - id: invoice
+        name: 請求書
+        url: admin_form_printing_invoice
+      - id: delivery
+        name: 納品書
+        url: admin_form_printing_delivery
+      - id: business_card
+        name: 名刺
+        url: admin_form_printing_business_card
+      - id: certification
+        name: 認定書
+        url: admin_form_printing_certification
+      - id: regular_member_list
+        name: 正会員一覧
+        url: admin_form_printing_regular_member_list
 - id: content
   name: コンテンツ管理
   has_child: true
   icon: cb-file-text
   child:
-      - id: form_printing
-        name: 帳票作成
-        has_child: true
-        child:
-            - id: form_printing_payment
-              name: 払込用紙
-              url: admin_form_printing_payment
-            - id: form_printing_invoice
-              name: 請求書
-              url: admin_form_printing_invoice
-            - id: form_printing_delivery
-              name: 納品書
-              url: admin_form_printing_delivery
-            - id: form_printing_business_card
-              name: 名刺
-              url: admin_form_printing_business_card
-            - id: form_printing_certification
-              name: 認定書
-              url: admin_form_printing_certification
-            - id: form_printing_regular_member_list
-              name: 正会員一覧
-              url: admin_form_printing_regular_member_list
       - id: news
         name: 新着情報管理
         url : admin_content_news
+      - id: flyer
+        name: チラシ管理
+        url : admin_content_flyer
       - id: file
         name: ファイル管理
         url: admin_content_file

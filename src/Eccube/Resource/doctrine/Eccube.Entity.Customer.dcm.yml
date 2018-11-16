@@ -176,12 +176,22 @@ Eccube\Entity\Customer:
             joinColumn:
                 name: pref
                 referencedColumnName: id
+        CustomerGroup:
+            targetEntity: Eccube\Entity\CustomerGroup
+            joinColumn:
+                name: customer_group
+                referencedColumnName: customer_group_id
     oneToMany:
         CustomerFavoriteProducts:
             targetEntity: Eccube\Entity\CustomerFavoriteProduct
             mappedBy: Customer
         CustomerImages:
             targetEntity: Eccube\Entity\CustomerImage
+            mappedBy: Customer
+            orderBy:
+                rank: ASC
+        CustomerQrs:
+            targetEntity: Eccube\Entity\CustomerQr
             mappedBy: Customer
             orderBy:
                 rank: ASC

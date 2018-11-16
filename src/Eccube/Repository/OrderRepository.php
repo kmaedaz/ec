@@ -456,6 +456,23 @@ class OrderRepository extends EntityRepository
         return $qb;
     }
 
+    /**
+     *
+     * @param  array        $searchData
+     * @return QueryBuilder
+     */
+    public function getQueryBuilderBySearchOrderIds($searchData)
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->andWhere('o.id IN (:orderIds)')
+            ->setParameter('orderIds', $searchData);
+        // Order By
+        $qb->orderBy('o.update_date', 'DESC');
+        $qb->addorderBy('o.id', 'DESC');
+
+        return $qb;
+    }
+
 
     /**
      * @param  \Eccube\Entity\Customer $Customer

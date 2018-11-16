@@ -65,11 +65,12 @@ class ProductRepository extends EntityRepository
         // Product
         try {
             $qb = $this->createQueryBuilder('p');
-            $qb->addSelect(array('pc', 'cc1', 'cc2', 'pi', 'ps'))
+            $qb->addSelect(array('pc', 'cc1', 'cc2', 'pi', 'ps', 'pt'))
                 ->innerJoin('p.ProductClasses', 'pc')
                 ->leftJoin('pc.ClassCategory1', 'cc1')
                 ->leftJoin('pc.ClassCategory2', 'cc2')
                 ->leftJoin('p.ProductImage', 'pi')
+                ->leftJoin('p.ProductTraining', 'pt')
                 ->innerJoin('pc.ProductStock', 'ps')
                 ->where('p.id = :id')
                 ->orderBy('cc1.rank', 'DESC')

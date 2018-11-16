@@ -232,12 +232,20 @@ $(function() {
                                                 {{Product.id}}
                                             </div>
                                             <div id="result_list__image--{{ Product.id }}" class="item_photo td">
-                                                <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
-                                                	<img src="{{ app.config.image_save_urlpath }}/{{ Product.mainFileName|no_image_product }}" />
+                                                {% if Product.isTraining %}
+                                                    <a href="{{ url('admin_product_product_training_edit', { id : Product.id }) }}">
+                                                {% else %}
+                                                    <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
+                                                {% endif %}
+                                                    <img src="{{ app.config.image_save_urlpath }}/{{ Product.mainFileName|no_image_product }}" />
                                                 </a>
                                             </div>
                                             <div id="result_list__name--{{ Product.id }}" class="item_detail td">
-                                                <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
+                                                {% if Product.isTraining %}
+                                                    <a href="{{ url('admin_product_product_training_edit', { id : Product.id }) }}">
+                                                {% else %}
+                                                    <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
+                                                {% endif %}
                                                     {{ Product.name }}
                                                 </a><br>
                                                 <span  id="result_list__code--{{ Product.id }}">

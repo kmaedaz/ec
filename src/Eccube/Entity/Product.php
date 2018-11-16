@@ -851,6 +851,14 @@ class Product extends \Eccube\Entity\AbstractEntity
         return false;
     }
 
+    public function getIsTraining()
+    {
+        if (count($this->ProductClasses) > 0) {
+            return ($this->ProductClasses[0]->getProductType()->getId() == 4);
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Add CustomerFavoriteProducts

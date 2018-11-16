@@ -237,6 +237,11 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     private $Pref;
 
     /**
+     * @var \Eccube\Entity\CustomerGroup
+     */
+    private $CustomerGroup;
+
+    /**
      * @var \Eccube\Entity\CustomerBasicInfo
      */
     private $CustomerBasicInfo;
@@ -259,6 +264,11 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
+    private $CustomerQrs;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
     private $Orders;
 
     /**
@@ -269,6 +279,7 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
         $this->CustomerFavoriteProducts = new \Doctrine\Common\Collections\ArrayCollection();
         $this->CustomerAddresses = new \Doctrine\Common\Collections\ArrayCollection();
         $this->CustomerImages = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->CustomerQrs = new \Doctrine\Common\Collections\ArrayCollection();
         $this->Orders = new \Doctrine\Common\Collections\ArrayCollection();
 
         $this->setBuyTimes(0);
@@ -1314,6 +1325,29 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     }
 
     /**
+     * Set CustomerGroup
+     *
+     * @param  \Eccube\Entity\CustomerGroup $customerGroup
+     * @return Customer
+     */
+    public function setCustomerGroup(\Eccube\Entity\CustomerGroup $customerGroup = null)
+    {
+        $this->CustomerGroup = $customerGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get CustomerGroup
+     *
+     * @return \Eccube\Entity\CustomerGroup
+     */
+    public function getCustomerGroup()
+    {
+        return $this->CustomerGroup;
+    }
+
+    /**
      * Get zipcode
      *
      * @return string
@@ -1360,6 +1394,29 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     }
 
     /**
+     * Get CustomerQrs
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCustomerQrs()
+    {
+        return $this->CustomerQrs;
+    }
+
+    /**
+     * Add CustomerQrs
+     *
+     * @param \Eccube\Entity\CustomerQr $customerQr
+     * @return Customer
+     */
+    public function addCustomerQrs(\Eccube\Entity\CustomerQr $customerQr)
+    {
+        $this->CustomerQrs[] = $customerQr;
+
+        return $this;
+    }
+
+    /**
      * Set CustomerBasicInfo
      *
      * @param  \Eccube\Entity\CustomerBasicInfo $customerBasicInfo
@@ -1382,7 +1439,6 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
         return $this->CustomerBasicInfo;
     }
 
-
     /**
      * Add CustomerImages
      *
@@ -1404,5 +1460,28 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     public function removeCustomerImage(\Eccube\Entity\CustomerImage $customerImages)
     {
         $this->CustomerImages->removeElement($customerImages);
+    }
+
+    /**
+     * Add CustomerQrs
+     *
+     * @param \Eccube\Entity\CustomerQr $customerQrs
+     * @return Customer
+     */
+    public function addCustomerQr(\Eccube\Entity\CustomerQr $customerQrs)
+    {
+        $this->CustomerQrs[] = $customerQrs;
+
+        return $this;
+    }
+
+    /**
+     * Remove CustomerQrs
+     *
+     * @param \Eccube\Entity\CustomerQr $customerQrs
+     */
+    public function removeCustomerQr(\Eccube\Entity\CustomerQr $customerQrs)
+    {
+        $this->CustomerQrs->removeElement($customerQrs);
     }
 }

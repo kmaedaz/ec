@@ -62,6 +62,24 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.service.mail'] = $app->share(function () use ($app) {
             return new \Eccube\Service\MailService($app);
         });
+        $app['eccube.service.payment_pdf'] = $app->share(function () use ($app) {
+            return new \Eccube\Service\PaymentPdfService($app);
+        });
+        $app['eccube.service.delivery_pdf'] = $app->share(function () use ($app) {
+            return new \Eccube\Service\DeliveryPdfService($app);
+        });
+        $app['eccube.service.invoice_pdf'] = $app->share(function () use ($app) {
+            return new \Eccube\Service\InvoicePdfService($app);
+        });
+        $app['eccube.service.certification_pdf'] = $app->share(function () use ($app) {
+            return new \Eccube\Service\CertificationPdfService($app);
+        });
+        $app['eccube.service.business_card_pdf'] = $app->share(function () use ($app) {
+            return new \Eccube\Service\BusinessCardPdfService($app);
+        });
+        $app['eccube.service.regular_member_list_pdf'] = $app->share(function () use ($app) {
+            return new \Eccube\Service\RegularMemberListPdfService($app);
+        });
         $app['eccube.service.csv.export'] = $app->share(function () use ($app) {
             $csvService = new \Eccube\Service\CsvExportService();
             $csvService->setEntityManager($app['orm.em']);
@@ -121,6 +139,9 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.master.supporter_type'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\SupporterType');
         });
+        $app['eccube.repository.master.customer_type'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\Master\CustomerType');
+        });
 
         $app['eccube.repository.delivery'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Delivery');
@@ -149,8 +170,23 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.customer'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Customer');
         });
+        $app['eccube.repository.customer_image'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\CustomerImage');
+        });
+        $app['eccube.repository.customer_qr'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\CustomerQr');
+        });
+        $app['eccube.repository.customer_group'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\CustomerGroup');
+        });
+        $app['eccube.repository.customer_basic_info'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\CustomerBasicInfo');
+        });
         $app['eccube.repository.news'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\News');
+        });
+        $app['eccube.repository.flyer'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\Flyer');
         });
         $app['eccube.repository.mail_history'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\MailHistory');
@@ -370,6 +406,8 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Admin\ProductClassType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchProductType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchCustomerType($app['config']);
+            $types[] = new \Eccube\Form\Type\Admin\SearchCustomerGroupType($app['config']);
+            $types[] = new \Eccube\Form\Type\Admin\SearchRegularMemberType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\SearchOrderType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\CustomerType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\ClassNameType($app['config']);
@@ -402,6 +440,8 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Admin\CustomerBasicInfoType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\ProductTrainingType($app);
             $types[] = new \Eccube\Form\Type\Admin\TrainingType($app);
+            $types[] = new \Eccube\Form\Type\Admin\CustomerGroupType($app['config']);
+            $types[] = new \Eccube\Form\Type\Admin\CustomerGroupCustomerType($app['config']);
 
             $types[] = new \Eccube\Form\Type\Admin\MasterdataType($app);
             $types[] = new \Eccube\Form\Type\Admin\MasterdataDataType($app);
