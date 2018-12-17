@@ -175,6 +175,7 @@ plugin_upload_realdir: /PATH/TO/WEB_ROOT/data/downloads/plugin/
 point_rule: 2
 point_value: 1
 price_len: 8
+product_type_membership: 5
 product_type_training: 4
 product_type_charge: 3
 product_type_download: 2
@@ -273,3 +274,24 @@ pdf_template_delevery: delivery_slip.pdf
 pdf_template_business_card: name_tag.pdf
 pdf_template_certification: certification.pdf
 pdf_template_regular_member_list: regular_member_list.pdf
+pdf_template_mail_label: mail_label.pdf
+pdf_template_certification_sennding_note: certification_sennding_note.pdf
+pdf_template_fax_accept: fax_accept.pdf
+pdf_template_payment_confirm: payment_confirm.pdf
+pdf_template_name_tag: name_tag.pdf
+pdf_template_registration_confirm: registration_confirm.pdf
+pdf_template_flyer1: flyer_1.pdf
+pdf_template_flyer2: flyer_2.pdf
+default_membership: 2000
+initialize_customer_basicinfo_status: 9
+initialize_supporter_type: 6
+initialize_instructor_type: 6
+paying_slip_csv_manufacturer_code: 550056
+paying_slip_csv_company_code: 26552
+paying_slip_csv_shop_code: 
+paying_slip_csv_payment_limit: 
+paying_slip_csv_printout_type: 0
+payment_pdf_account_symbol1: "02780"
+payment_pdf_account_symbol2: 1
+payment_pdf_account_no: "68705"
+payment_pdf_subscriber: 特非)ふまねっと

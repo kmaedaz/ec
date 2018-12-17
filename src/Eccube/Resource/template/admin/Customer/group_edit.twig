@@ -267,7 +267,7 @@ function deleteCustomer(idx) {
                                             <td id="customer_info_list__button_customer_delete--{{ groupCustomeForm.vars.value.id }}" class="icon_edit">
                                                 <button type="button" class="btn btn-default btn-sm delete-item" onClick="deleteCustomer({{ groupCustomeForm.vars.value.id }});">削除</button>
                                             </td>
-                                        </div><!-- /.item_box -->
+                                        </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -312,7 +312,7 @@ function deleteCustomer(idx) {
             </div>
             <div id="search_customer_modal_box__body" class="modal-body">
                 <div id="search_customer_modal_box__id" class="form-group">
-                    {{ form_widget(searchCustomerModalForm.multi, { attr : { placeholder : '会員ID・メールアドレス・お名前' } } ) }}
+                    {{ form_widget(searchCustomerModalForm.multi, { attr : { placeholder : '会員ID・メールアドレス・お名前', class : 'input_search' } } ) }}
                 </div>
                 <div class="extra-form form-group">
                     {% for f in searchCustomerModalForm.getIterator %}

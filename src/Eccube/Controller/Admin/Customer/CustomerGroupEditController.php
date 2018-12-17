@@ -65,7 +65,6 @@ class CustomerGroupEditController extends AbstractController
                 $app['orm.em']->persist($CustomerGroup);
                 $app['orm.em']->flush();
                 $inputCustomerKeys = [];
-                log_info('input:' . print_r($inputCustomers, true));
                 foreach ($inputCustomers as $inputCustomer) {
                     $inputCustomerKeys[] = $inputCustomer['id'];
                 }
@@ -86,34 +85,40 @@ class CustomerGroupEditController extends AbstractController
                 }
 
                 // 所属会員の更新(グループ追加)
-                if (!$app['eccube.repository.customer']->setCustomerGroupBySearchIds($updateCustomer, $CustomerGroup->getId())) {
-                    $app->addError('admin.customer_group.save.failed', 'admin');
-                    // 会員検索フォーム
-                    $builder = $app['form.factory']
-                        ->createBuilder('admin_search_customer');
+                if (0 < count($updateCustomer)) {
+                    log_info('所属会員登録開始', array(print_r($deleteCustomer, true)));
+                    if (!$app['eccube.repository.customer']->setCustomerGroupBySearchIds($updateCustomer, $CustomerGroup->getId())) {
+                        $app->addError('admin.customer_group.save.failed', 'admin');
+                        // 会員検索フォーム
+                        $builder = $app['form.factory']
+                            ->createBuilder('admin_search_customer');
 
-                    $searchCustomerModalForm = $builder->getForm();
+                        $searchCustomerModalForm = $builder->getForm();
 
-                    return $app->render('Customer/group_edit.twig', array(
-                        'form' => $form->createView(),
-                        'searchCustomerModalForm' => $searchCustomerModalForm->createView(),
-                        'CustomerGroup' => $CustomerGroup,
-                    ));
+                        return $app->render('Customer/group_edit.twig', array(
+                            'form' => $form->createView(),
+                            'searchCustomerModalForm' => $searchCustomerModalForm->createView(),
+                            'CustomerGroup' => $CustomerGroup,
+                        ));
+                    }
                 }
                 // 所属会員の更新(グループ解除)
-                if (!$app['eccube.repository.customer']->setCustomerGroupBySearchIds($deleteCustomer, null)) {
-                    $app->addError('admin.customer_group.save.failed', 'admin');
-                    // 会員検索フォーム
-                    $builder = $app['form.factory']
-                        ->createBuilder('admin_search_customer');
+                if (0 < count($deleteCustomer)) {
+                    log_info('所属会員解除開始', array(print_r($deleteCustomer, true)));
+                    if (!$app['eccube.repository.customer']->setCustomerGroupBySearchIds($deleteCustomer, 'NULL')) {
+                        $app->addError('admin.customer_group.save.failed', 'admin');
+                        // 会員検索フォーム
+                        $builder = $app['form.factory']
+                            ->createBuilder('admin_search_customer');
 
-                    $searchCustomerModalForm = $builder->getForm();
+                        $searchCustomerModalForm = $builder->getForm();
 
-                    return $app->render('Customer/group_edit.twig', array(
-                        'form' => $form->createView(),
-                        'searchCustomerModalForm' => $searchCustomerModalForm->createView(),
-                        'CustomerGroup' => $CustomerGroup,
-                    ));
+                        return $app->render('Customer/group_edit.twig', array(
+                            'form' => $form->createView(),
+                            'searchCustomerModalForm' => $searchCustomerModalForm->createView(),
+                            'CustomerGroup' => $CustomerGroup,
+                        ));
+                    }
                 }
                 log_info('会員グループ登録完了', array($CustomerGroup->getId()));
                 $app->addSuccess('admin.customer_group.save.complete', 'admin');

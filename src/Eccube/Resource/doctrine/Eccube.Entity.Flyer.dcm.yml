@@ -8,12 +8,15 @@ Eccube\Entity\Flyer:
             nullable: false
             unsigned: false
             id: true
-            column: dtb_flyer_id
+            column: flyer_id
             generator:
                 strategy: AUTO
     fields:
-        file_name:
-            type: text
+        disp_from:
+            type: datetime
+            nullable: false
+        disp_to:
+            type: datetime
             nullable: false
         description:
             type: text
@@ -21,14 +24,31 @@ Eccube\Entity\Flyer:
         link_label:
             type: text
             nullable: false
-        rank:
-            type: integer
+        del_flg:
+            type: smallint
             nullable: false
             unsigned: false
+            options:
+                default: '0'
         create_date:
             type: datetime
             nullable: false
+        update_date:
+            type: datetime
+            nullable: false
     manyToOne:
+        ProductTraining:
+            targetEntity: Eccube\Entity\ProductTraining
+            joinColumn:
+                name: product_training_id
+                referencedColumnName: product_training_id
+                nullable: false
+        Status:
+            targetEntity: Eccube\Entity\Master\Disp
+            joinColumn:
+                name: status
+                referencedColumnName: id
+                default: 2
         Target:
             targetEntity: Eccube\Entity\Master\CustomerType
             joinColumn:
@@ -38,6 +58,12 @@ Eccube\Entity\Flyer:
             targetEntity: Eccube\Entity\Member
             joinColumn:
                 name: creator_id
+                referencedColumnName: member_id
+                nullable: false
+        Updater:
+            targetEntity: Eccube\Entity\Member
+            joinColumn:
+                name: updater_id
                 referencedColumnName: member_id
                 nullable: false
     lifecycleCallbacks: {  }

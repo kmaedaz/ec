@@ -34,6 +34,7 @@ use Eccube\Event\EventArgs;
 use Eccube\Service\CsvExportService;
 use Eccube\Util\FormUtil;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -50,7 +51,7 @@ class ProductController extends AbstractController
         $session = $app['session'];
 
         $builder = $app['form.factory']
-            ->createBuilder('admin_search_product');
+            ->createBuilder('admin_search_general_product');
 
         $event = new EventArgs(
             array(
@@ -96,6 +97,12 @@ class ProductController extends AbstractController
 
                 // paginator
                 $qb = $app['eccube.repository.product']->getQueryBuilderBySearchDataForAdmin($searchData);
+                if (empty($searchData['category_id']) || !($searchData['category_id'])) {
+                    $qb
+                        ->leftJoin('p.ProductCategories', 'pct')
+                        ->leftJoin('pct.Category', 'c')
+                        ->andWhere('c.id <> 1 or pct IS NULL');
+                }
                 $page_no = 1;
 
                 $event = new EventArgs(
@@ -175,6 +182,12 @@ class ProductController extends AbstractController
                     $session->set('eccube.admin.product.search', $viewData);
 
                     $qb = $app['eccube.repository.product']->getQueryBuilderBySearchDataForAdmin($searchData);
+                    if (empty($searchData['category_id']) || !($searchData['category_id'])) {
+                        $qb
+                            ->innerJoin('p.ProductCategories', 'pct')
+                            ->innerJoin('pct.Category', 'c')
+                            ->andWhere('pct.Category <> 1');
+                    }
 
                     $event = new EventArgs(
                         array(
@@ -251,6 +264,8 @@ class ProductController extends AbstractController
     public function edit(Application $app, Request $request, $id = null)
     {
         $has_class = false;
+        $is_membership = false;
+        $ProductMembership = null;
         if (is_null($id)) {
             $Product = new \Eccube\Entity\Product();
             $ProductClass = new \Eccube\Entity\ProductClass();
@@ -282,6 +297,10 @@ class ProductController extends AbstractController
                 }
                 $ProductStock = $ProductClasses[0]->getProductStock();
             }
+            $ProductMembership = $Product->getProductMembership();
+            if (!is_null($ProductMembership)) {
+                $is_membership = true;
+            }
         }
 
         $builder = $app['form.factory']
@@ -306,6 +325,9 @@ class ProductController extends AbstractController
         if (!$has_class) {
             $ProductClass->setStockUnlimited((boolean)$ProductClass->getStockUnlimited());
             $form['class']->setData($ProductClass);
+        }
+        if ($ProductMembership) {
+            $form['membership']->setData($ProductMembership);
         }
 
         // ファイルの登録
@@ -333,12 +355,28 @@ class ProductController extends AbstractController
 
         if ('POST' === $request->getMethod()) {
             $form->handleRequest($request);
-            if ($form->isValid()) {
+            $membershipExists = false;
+            if (isset($request->get('admin_product')['class'])) {
+                if ($request->get('admin_product')['class']['product_type'] == $app['config']['product_type_membership']) {
+                    $is_membership = true;
+                    $membership_year = $request->get('admin_product')['membership']['membership_year'];
+                    if (!is_null($membership_year)) {
+                        $membershipExists = $app['eccube.repository.product_membership']->isExistsMembership($membership_year, $Product->getId());
+                    }
+                }
+            }
+            if ($membershipExists) {
+                $form['membership']['membership_year']->addError(new FormError('既に対象年度の年会費は登録されております。'));
+            } else if ($form->isValid()) {
                 log_info('商品登録開始', array($id));
                 $Product = $form->getData();
 
                 if (!$has_class) {
                     $ProductClass = $form['class']->getData();
+
+                    if ($ProductClass->getProductType()->getId()) {
+                        $is_membership = true;
+                    }
 
                     // 個別消費税
                     $BaseInfo = $app['eccube.repository.base_info']->get();
@@ -367,7 +405,7 @@ class ProductController extends AbstractController
                     $app['orm.em']->persist($ProductClass);
 
                     // 在庫情報を作成
-                    if (!$ProductClass->getStockUnlimited()) {
+                    if (!$ProductClass->getStockUnlimited() && !$is_membership) {
                         $ProductStock->setStock($ProductClass->getStock());
                     } else {
                         // 在庫無制限時はnullを設定
@@ -386,27 +424,42 @@ class ProductController extends AbstractController
                 $app['orm.em']->persist($Product);
                 $app['orm.em']->flush();
 
-                $count = 1;
-                $Categories = $form->get('Category')->getData();
-                $categoriesIdList = array();
-                foreach ($Categories as $Category) {
-                    foreach ($Category->getPath() as $ParentCategory) {
-                        if (!isset($categoriesIdList[$ParentCategory->getId()])) {
-                            $ProductCategory = $this->createProductCategory($Product, $ParentCategory, $count);
+                if ($is_membership) {
+                    $Membership = $form->get('membership')->getData();
+                    if (is_null($ProductMembership)) {
+                        $ProductMembership = new \Eccube\Entity\ProductMembership();
+                        $ProductMembership->setProduct($Product);
+                    }
+                    $ProductMembership->setProduct($Product);
+                    $ProductMembership->setMembershipYear($Membership->getMembershipYear());
+                    $app['orm.em']->persist($ProductMembership);
+                } else {
+                    // 年会費から年会費以外への更新時は、年会費情報削除
+                    if (!is_null($ProductMembership)) {
+                        $app['orm.em']->remove($ProductMembership);
+                    }
+                    $count = 1;
+                    $Categories = $form->get('Category')->getData();
+                    $categoriesIdList = array();
+                    foreach ($Categories as $Category) {
+                        foreach ($Category->getPath() as $ParentCategory) {
+                            if (!isset($categoriesIdList[$ParentCategory->getId()])) {
+                                $ProductCategory = $this->createProductCategory($Product, $ParentCategory, $count);
+                                $app['orm.em']->persist($ProductCategory);
+                                $count++;
+                                /* @var $Product \Eccube\Entity\Product */
+                                $Product->addProductCategory($ProductCategory);
+                                $categoriesIdList[$ParentCategory->getId()] = true;
+                            }
+                        }
+                        if (!isset($categoriesIdList[$Category->getId()])) {
+                            $ProductCategory = $this->createProductCategory($Product, $Category, $count);
                             $app['orm.em']->persist($ProductCategory);
                             $count++;
                             /* @var $Product \Eccube\Entity\Product */
                             $Product->addProductCategory($ProductCategory);
-                            $categoriesIdList[$ParentCategory->getId()] = true;
+                            $categoriesIdList[$Category->getId()] = true;
                         }
-                    }
-                    if (!isset($categoriesIdList[$Category->getId()])) {
-                        $ProductCategory = $this->createProductCategory($Product, $Category, $count);
-                        $app['orm.em']->persist($ProductCategory);
-                        $count++;
-                        /* @var $Product \Eccube\Entity\Product */
-                        $Product->addProductCategory($ProductCategory);
-                        $categoriesIdList[$Category->getId()] = true;
                     }
                 }
 
@@ -509,7 +562,7 @@ class ProductController extends AbstractController
 
         // 検索結果の保持
         $builder = $app['form.factory']
-            ->createBuilder('admin_search_product');
+            ->createBuilder('admin_search_general_product');
 
         $event = new EventArgs(
             array(
@@ -531,188 +584,7 @@ class ProductController extends AbstractController
             'form' => $form->createView(),
             'searchForm' => $searchForm->createView(),
             'has_class' => $has_class,
-            'id' => $id,
-        ));
-    }
-
-    public function editTraining(Application $app, Request $request, $id = null)
-    {
-        if (is_null($id)) {
-            $Product = new \Eccube\Entity\Product();
-            $ProductClass = new \Eccube\Entity\ProductClass();
-            $ProductTraining = new \Eccube\Entity\ProductTraining();
-            $Disp = $app['eccube.repository.master.disp']->find(\Eccube\Entity\Master\Disp::DISPLAY_HIDE);
-            $ProductType = $app['eccube.repository.master.product_type']->find($app['config']['product_type_training']);
-            $Product
-                ->setDelFlg(Constant::DISABLED)
-                ->addProductClass($ProductClass)
-                ->setProductTraining($ProductTraining)
-                ->setStatus($Disp);
-            $ProductClass
-                ->setDelFlg(Constant::DISABLED)
-                ->setStockUnlimited(true)
-                ->setProductType($ProductType)
-                ->setProduct($Product);
-            $ProductStock = new \Eccube\Entity\ProductStock();
-            $ProductClass->setProductStock($ProductStock);
-            $ProductStock->setProductClass($ProductClass);
-            $ProductTraining->setProduct($Product);
-        } else {
-            $Product = $app['eccube.repository.product']->find($id);
-            if (!$Product) {
-                throw new NotFoundHttpException();
-            }
-            if (count($Product->getProductClasses()) < 1) {
-                throw new MethodNotAllowedHttpException();
-            }
-            $ProductClasses = $Product->getProductClasses();
-            $ProductClass = $ProductClasses[0];
-            $ProductStock = $ProductClasses[0]->getProductStock();
-            $ProductTraining = $Product->getProductTraining();
-        }
-
-        $builder = $app['form.factory']
-            ->createBuilder('admin_training', $Product);
-
-        $form = $builder->getForm();
-        $form['product_training']->setData($ProductTraining);
-        $ProductClass->setStockUnlimited((boolean)$ProductClass->getStockUnlimited());
-        $form['class']->setData($ProductClass);
-
-        $Tags = array();
-        $ProductTags = $Product->getProductTag();
-        foreach ($ProductTags as $ProductTag) {
-            $Tags[] = $ProductTag->getTag();
-        }
-        $form['Tag']->setData($Tags);
-
-        if ('POST' === $request->getMethod()) {
-            $request_data = $request->request->all();
-            $request_data['admin_training']['product_training']['training_date'] = new \DateTime(
-                    date('Y-m-d H:i:s', strtotime($request_data['admin_training']['product_training']['day']
-                       . ' ' . $request_data['admin_training']['product_training']['time'])));
-            $request_data['admin_training']['class']['product_type'] = $app['config']['product_type_training'];
-            $request->request->add($request_data);
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-                log_info('講習会登録開始', array($id));
-                // 講習会情報の登録
-                $Product = $form->getData();
-                $ProductClass = $form['class']->getData();
-
-                // 個別消費税
-                $BaseInfo = $app['eccube.repository.base_info']->get();
-                if ($BaseInfo->getOptionProductTaxRule() == Constant::ENABLED) {
-                    if ($ProductClass->getTaxRate() !== null) {
-                        if ($ProductClass->getTaxRule()) {
-                            if ($ProductClass->getTaxRule()->getDelFlg() == Constant::ENABLED) {
-                                $ProductClass->getTaxRule()->setDelFlg(Constant::DISABLED);
-                            }
-
-                            $ProductClass->getTaxRule()->setTaxRate($ProductClass->getTaxRate());
-                        } else {
-                            $taxrule = $app['eccube.repository.tax_rule']->newTaxRule();
-                            $taxrule->setTaxRate($ProductClass->getTaxRate());
-                            $taxrule->setApplyDate(new \DateTime());
-                            $taxrule->setProduct($Product);
-                            $taxrule->setProductClass($ProductClass);
-                            $ProductClass->setTaxRule($taxrule);
-                        }
-                    } else {
-                        if ($ProductClass->getTaxRule()) {
-                            $ProductClass->getTaxRule()->setDelFlg(Constant::ENABLED);
-                        }
-                    }
-                }
-                $app['orm.em']->persist($ProductClass);
-
-                // 在庫情報を作成
-                if (!$ProductClass->getStockUnlimited()) {
-                    $ProductStock->setStock($ProductClass->getStock());
-                } else {
-                    // 在庫無制限時はnullを設定
-                    $ProductStock->setStock(null);
-                }
-                $app['orm.em']->persist($ProductStock);
-
-                $ProductTraining = $form['product_training']->getData();
-                $app['orm.em']->persist($ProductTraining);
-
-                // カテゴリの登録
-                // 一度クリア
-                /* @var $Product \Eccube\Entity\Product */
-                foreach ($Product->getProductCategories() as $ProductCategory) {
-                    $Product->removeProductCategory($ProductCategory);
-                    $app['orm.em']->remove($ProductCategory);
-                }
-                $app['orm.em']->persist($Product);
-                $app['orm.em']->flush();
-
-                $count = 1;
-                $Category = $app['eccube.repository.category']->find(\Eccube\Entity\Category::TRAINING_CATEGORY);
-                foreach ($Category->getPath() as $ParentCategory) {
-                    if (!isset($categoriesIdList[$ParentCategory->getId()])) {
-                        $ProductCategory = $this->createProductCategory($Product, $ParentCategory, $count);
-                        $app['orm.em']->persist($ProductCategory);
-                        $count++;
-                        /* @var $Product \Eccube\Entity\Product */
-                        $Product->addProductCategory($ProductCategory);
-                        $categoriesIdList[$ParentCategory->getId()] = true;
-                    }
-                }
-                if (!isset($categoriesIdList[$Category->getId()])) {
-                    $ProductCategory = $this->createProductCategory($Product, $Category, $count);
-                    $app['orm.em']->persist($ProductCategory);
-                    $count++;
-                    /* @var $Product \Eccube\Entity\Product */
-                    $Product->addProductCategory($ProductCategory);
-                    $categoriesIdList[$Category->getId()] = true;
-                }
-
-                // 商品タグの登録
-                $Tags = $form->get('Tag')->getData();
-                foreach ($Tags as $Tag) {
-                    $ProductTag = new ProductTag();
-                    $ProductTag
-                        ->setProduct($Product)
-                        ->setTag($Tag);
-                    $Product->addProductTag($ProductTag);
-                    $app['orm.em']->persist($ProductTag);
-                }
-
-                $Product->setUpdateDate(new \DateTime());
-                $app['orm.em']->flush();
-
-                log_info('講習会登録完了', array($id));
-
-                $app->addSuccess('admin.register.complete', 'admin');
-
-                return $app->redirect($app->url('admin_product_product_training_edit', array(
-                    'id' => $Product->getId(),
-                )));
-            } else {
-                log_info('講習会登録チェックエラー', array($id));
-                foreach ($form->getErrors(true) as $Error) { 
-                    log_info('error:', array($Error->getOrigin()->getName(), $Error->getMessage()));
-                }
-                $app->addError('admin.register.failed', 'admin');
-            }
-        }
-
-        // 検索結果の保持
-        $builder = $app['form.factory']
-            ->createBuilder('admin_search_product');
-
-        $searchForm = $builder->getForm();
-
-        if ('POST' === $request->getMethod()) {
-            $searchForm->handleRequest($request);
-        }
-
-        return $app->render('Product/training.twig', array(
-            'Product' => $Product,
-            'form' => $form->createView(),
-            'searchForm' => $searchForm->createView(),
+            'is_membership' => $is_membership,
             'id' => $id,
         ));
     }

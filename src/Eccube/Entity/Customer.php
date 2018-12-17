@@ -269,6 +269,11 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
+    private $MembershipBillingDetails;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
     private $Orders;
 
     /**
@@ -280,6 +285,7 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
         $this->CustomerAddresses = new \Doctrine\Common\Collections\ArrayCollection();
         $this->CustomerImages = new \Doctrine\Common\Collections\ArrayCollection();
         $this->CustomerQrs = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->MembershipBillingDetails = new \Doctrine\Common\Collections\ArrayCollection();
         $this->Orders = new \Doctrine\Common\Collections\ArrayCollection();
 
         $this->setBuyTimes(0);
@@ -355,6 +361,16 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
      *
      * @return string
      */
+    public function getFullName()
+    {
+        return $this->name01 . " " . $this->name02;
+    }
+
+    /**
+     * Get name01
+     *
+     * @return string
+     */
     public function getName01()
     {
         return $this->name01;
@@ -381,6 +397,16 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     public function getName02()
     {
         return $this->name02;
+    }
+
+    /**
+     * Get Fullkana
+     *
+     * @return string
+     */
+    public function getFullKana()
+    {
+        return $this->kana01 . ' ' . $this->kana02;
     }
 
     /**
@@ -582,6 +608,16 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
 
 
     /**
+     * Get tel01
+     *
+     * @return string
+     */
+    public function getTelNubmerAll()
+    {
+        return (!is_null($this->tel01)&&!is_null($this->tel02)&&!is_null($this->tel03)?$this->tel01.'-'.$this->tel02.'-'.$this->tel03:'');
+    }
+
+     /**
      * Set tel01
      *
      * @param  string   $tel01
@@ -1325,6 +1361,16 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     }
 
     /**
+     * Get PrefName
+     *
+     * @return \Eccube\Entity\Master\Pref
+     */
+    public function getPrefName()
+    {
+        return is_null($this->Pref)?'':$this->Pref->getName();
+    }
+
+    /**
      * Set CustomerGroup
      *
      * @param  \Eccube\Entity\CustomerGroup $customerGroup
@@ -1483,5 +1529,38 @@ class Customer extends \Eccube\Entity\AbstractEntity implements UserInterface
     public function removeCustomerQr(\Eccube\Entity\CustomerQr $customerQrs)
     {
         $this->CustomerQrs->removeElement($customerQrs);
+    }
+
+    /**
+     * Add MembershipBillingDetails
+     *
+     * @param \Eccube\Entity\MembershipBillingDetail $membershipBillingDetail
+     * @return Customer
+     */
+    public function addMembershipBillingDetail(\Eccube\Entity\MembershipBillingDetail $membershipBillingDetail)
+    {
+        $this->MembershipBillingDetails[] = $membershipBillingDetail;
+
+        return $this;
+    }
+
+    /**
+     * Remove MembershipBillingDetails
+     *
+     * @param \Eccube\Entity\MembershipBillingDetail $membershipBillingDetail
+     */
+    public function removeMembershipBillingDetail(\Eccube\Entity\MembershipBillingDetail $membershipBillingDetail)
+    {
+        $this->MembershipBillingDetails->removeElement($membershipBillingDetail);
+    }
+
+    /**
+     * Get MembershipBillingDetails
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMembershipBillingDetails()
+    {
+        return $this->MembershipBillingDetails;
     }
 }

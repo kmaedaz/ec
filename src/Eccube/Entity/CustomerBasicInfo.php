@@ -25,11 +25,6 @@ class CustomerBasicInfo extends \Eccube\Entity\AbstractEntity
     private $customer_pin_code;
 
     /**
-     * @var string
-     */
-    private $job;
-
-    /**
      * @var \DateTime
      */
     private $create_date;
@@ -114,29 +109,6 @@ class CustomerBasicInfo extends \Eccube\Entity\AbstractEntity
     public function getCustomerPinCode()
     {
         return $this->customer_pin_code;
-    }
-
-    /**
-     * Set job
-     *
-     * @param string $job
-     * @return CustomerBasicInfo
-     */
-    public function setJob($job)
-    {
-        $this->job = $job;
-
-        return $this;
-    }
-
-    /**
-     * Get job
-     *
-     * @return string 
-     */
-    public function getJob()
-    {
-        return $this->job;
     }
 
     /**
@@ -275,5 +247,173 @@ class CustomerBasicInfo extends \Eccube\Entity\AbstractEntity
     public function getSupporterType()
     {
         return $this->SupporterType;
+    }
+    /**
+     * @var string
+     */
+    private $qualification;
+
+    /**
+     * @var integer
+     */
+    private $last_pay_membership_year;
+
+    /**
+     * @var \DateTime
+     */
+    private $membership_expired;
+
+    /**
+     * @var \DateTime
+     */
+    private $regular_member_promoted;
+
+    /**
+     * @var \Eccube\Entity\Master\SupporterType
+     */
+    private $Bureau;
+
+    /**
+     * @var \Eccube\Entity\Master\SupporterType
+     */
+    private $ExemptionType;
+
+
+    /**
+     * Set qualification
+     *
+     * @param string $qualification
+     * @return CustomerBasicInfo
+     */
+    public function setQualification($qualification)
+    {
+        $this->qualification = $qualification;
+
+        return $this;
+    }
+
+    /**
+     * Get qualification
+     *
+     * @return string 
+     */
+    public function getQualification()
+    {
+        return $this->qualification;
+    }
+
+    /**
+     * Set last_pay_membership_year
+     *
+     * @param integer $lastPayMembershipYear
+     * @return CustomerBasicInfo
+     */
+    public function setLastPayMembershipYear($lastPayMembershipYear)
+    {
+        $this->last_pay_membership_year = $lastPayMembershipYear;
+
+        return $this;
+    }
+
+    /**
+     * Get last_pay_membership_year
+     *
+     * @return integer 
+     */
+    public function getLastPayMembershipYear()
+    {
+        return $this->last_pay_membership_year;
+    }
+
+    /**
+     * Set membership_expired
+     *
+     * @param \DateTime $membershipExpired
+     * @return CustomerBasicInfo
+     */
+    public function setMembershipExpired($membershipExpired)
+    {
+        $this->membership_expired = $membershipExpired;
+
+        return $this;
+    }
+
+    /**
+     * Get membership_expired
+     *
+     * @return \DateTime 
+     */
+    public function getMembershipExpired()
+    {
+        return (is_null($this->membership_expired)?'':$this->membership_expired->format('Y/m/d'));
+    }
+
+    /**
+     * Set regular_member_promoted
+     *
+     * @param \DateTime $regularMemberPromoted
+     * @return CustomerBasicInfo
+     */
+    public function setRegularMemberPromoted($regularMemberPromoted)
+    {
+        $this->regular_member_promoted = $regularMemberPromoted;
+
+        return $this;
+    }
+
+    /**
+     * Get regular_member_promoted
+     *
+     * @return \DateTime 
+     */
+    public function getRegularMemberPromoted()
+    {
+        return (is_null($this->regular_member_promoted)?'':$this->regular_member_promoted->format('Y/m/d'));
+    }
+
+    /**
+     * Set Bureau
+     *
+     * @param \Eccube\Entity\Master\SupporterType $bureau
+     * @return CustomerBasicInfo
+     */
+    public function setBureau(\Eccube\Entity\Master\SupporterType $bureau = null)
+    {
+        $this->Bureau = $bureau;
+
+        return $this;
+    }
+
+    /**
+     * Get Bureau
+     *
+     * @return \Eccube\Entity\Master\SupporterType 
+     */
+    public function getBureau()
+    {
+        return $this->Bureau;
+    }
+
+    /**
+     * Set ExemptionType
+     *
+     * @param \Eccube\Entity\Master\SupporterType $exemptionType
+     * @return CustomerBasicInfo
+     */
+    public function setExemptionType(\Eccube\Entity\Master\SupporterType $exemptionType = null)
+    {
+        $this->ExemptionType = $exemptionType;
+
+        return $this;
+    }
+
+    /**
+     * Get ExemptionType
+     *
+     * @return \Eccube\Entity\Master\SupporterType 
+     */
+    public function getExemptionType()
+    {
+        return $this->ExemptionType;
     }
 }

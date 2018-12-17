@@ -51,6 +51,18 @@ This file is Custom File
         $("#dropdown-form").submit();
     });
 
+    // CSV一括ダウンロード
+    $('#csv_all').click(function() {
+        $("#dropdown-form").attr('action', "{{ url('admin_all_csv_export') }}");
+        $("#dropdown-form").submit();
+    });
+
+    // CSV選択ダウンロード
+    $('#csv_select').click(function() {
+        $("#dropdown-form").attr('action', "{{ url('admin_select_csv_export') }}");
+        $("#dropdown-form").submit();
+    });
+
     // 登録チェックボックス
     $('#check-all').click(function() {
       var checkall = $('#check-all').prop('checked');
@@ -288,6 +300,13 @@ This file is Custom File
                                     <ul class="dropdown-menu">
                                         <li><a id="pdf_all" href="javascript:void(0);">PDF一括ダウンロード</a></li>
                                         <li><a id="pdf_select" href="javascript:void(0);">PDF選択ダウンロード</a></li>
+                                    </ul>
+                                </li>
+                                <li id="result_list_main__csv_menu" class="dropdown">
+                                    <a id="result_list_main__csv_menu_toggle" class="dropdown-toggle" data-toggle="dropdown">CSVダウンロード<svg class="cb cb-angle-down icon_down"> <use xlink:href="#cb-angle-down" /></svg></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a id="csv_all" href="javascript:void(0);">CSV一括ダウンロード</a></li>
+                                        <li><a id="csv_select" href="javascript:void(0);">CSV選択ダウンロード</a></li>
                                     </ul>
                                 </li>
                             </ul>

@@ -33,7 +33,7 @@ class DeliveryPdfService extends AbstractFPDIService
     /** FONT 明朝 */
     const FONT_SJIS = 'kozminproregular';
     /** 1ページ最大行数 */
-    const MAX_ROR_PER_PAGE = 1;
+    const MAX_ROR_PER_PAGE = 21;
 
     // ====================================
     // 変数宣言
@@ -113,10 +113,150 @@ class DeliveryPdfService extends AbstractFPDIService
         $pdfFile = $this->app['config']['pdf_template_delevery'];
         $templateFilePath = __DIR__.'/../Resource/pdf/'.$pdfFile;
         $this->setSourceFile($templateFilePath);
+        $BaseInfo = $this->app['eccube.repository.base_info']->get();
 
-        foreach ($ordersData as $customerData) {
-            // PDFにページを追加する
-            $this->addPdfPage();
+        foreach ($ordersData as $order) {
+            $detailData = array();
+            $totalPrice = 0;
+            foreach ($order->getOrderDetails() as $orderDetail) {
+                $detailData[$orderDetail->getProductName()]['Price'] = $orderDetail->getPrice();
+                $detailData[$orderDetail->getProductName()]['Quantity'] = $orderDetail->getQuantity();
+                $totalPrice += ($orderDetail->getPrice() * $orderDetail->getQuantity());
+            }
+            $row = 1;
+            // ページ計算
+            $this->pageMax = ((int) (count($detailData) / self::MAX_ROR_PER_PAGE)) + (((count($detailData) % self::MAX_ROR_PER_PAGE) == 0)?0:1);
+            foreach ($detailData as $ProductName => $detail) {
+                if ($row == 1) {
+                    // PDFにページを追加する
+                    $this->addPdfPage();
+                    // 会員名
+                    $this->lfText(23.6, 57.6, $order->getName01(). " ". $order->getName02(), 12);
+                    // 請求年
+                    $this->lfText(148.1, 42.2, date('Y'), 12);
+                    // 請求月
+                    $this->lfText(167.6, 42.2, date('m'), 12);
+                    // 請求日
+                    $this->lfText(180.3, 42.2, date('d'), 12);
+                    // 請求元郵便番号
+                    $this->lfText(122.2, 50.8, $BaseInfo->getZip01() . "-" . $BaseInfo->getZip02(), 12);
+                    // 請求元住所
+                    $this->lfText(117.9, 56.1, $BaseInfo->getAddr01() . $BaseInfo->getAddr02(), 12);
+                    // 請求元会社名
+                    $this->lfText(117.9, 63.5, $BaseInfo->getCompanyName(), 12);
+                }
+                // 商品名
+                $this->lfText(23.9, 117.3 + (6.41 * ($row - 1)), $ProductName, 8);
+                // 数量
+                $this->lfText(99.8, 117.3 + (6.41 * ($row - 1)), number_format($detail['Price']), 8);
+                // 単価
+                $this->lfText(124.7, 117.3 + (6.41 * ($row - 1)), number_format($detail['Quantity']), 8);
+                // 金額
+                $this->lfText(144.3, 117.3 + (6.41 * ($row - 1)), number_format(($detail['Price'] * $detail['Quantity'])), 8);
+                if ($row < self::MAX_ROR_PER_PAGE) {
+                    ++$row;
+                } else {
+                    $row = 1;
+                }
+            }
+            // 小計
+            $this->lfText(144.3, 243.3, number_format($totalPrice), 12);
+            // 消費税率
+            $this->lfText(101.9, 248.9, number_format(8), 12);
+            // 消費税
+            $this->lfText(144.3, 248.9, number_format(round($totalPrice * 0.08)), 12);
+            // 合計
+            $this->lfText(144.3, 255.0, number_format($totalPrice + round($totalPrice * 0.08)), 12);
+            // 合計金額
+            $this->lfText(84.1, 100.2, number_format($totalPrice + round($totalPrice * 0.08)), 16);
+        }
+
+        return true;
+    }
+
+    /**
+     * グループ受注情報からPDFファイルを作成する.
+     *
+     * @param array $ordersData
+     *
+     * @return bool
+     */
+    public function makeGroupPdf(array $groupOrdersData)
+    {
+        // データが空であれば終了
+        if (count($groupOrdersData) < 1) {
+            return false;
+        }
+        // 発行日の設定
+        $this->issueDate = '作成日: ' . date('Y年m月d日');
+        // ダウンロードファイル名の初期化
+        $this->downloadFileName = null;
+
+        // テンプレートファイルを読み込む
+        $pdfFile = $this->app['config']['pdf_template_delevery'];
+        $templateFilePath = __DIR__.'/../Resource/pdf/'.$pdfFile;
+        $this->setSourceFile($templateFilePath);
+        $BaseInfo = $this->app['eccube.repository.base_info']->get();
+
+        foreach ($groupOrdersData as $groupOrder) {
+            $detailData = array();
+            foreach ($groupOrder->getOrder() as $order) {
+                foreach ($order->getOrderDetails() as $orderDetail) {
+                    if (!isset($detailData[$orderDetail->getProductName()])) {
+                        $detailData[$orderDetail->getProductName()]['Quantity'] = 0;
+                        $detailData[$orderDetail->getProductName()]['Price'] = $orderDetail->getPrice();
+                    }
+                    $detailData[$orderDetail->getProductName()]['Quantity'] += $orderDetail->getQuantity();
+                }
+            }
+            $row = 1;
+            $totalPrice = 0;
+            // ページ計算
+            $this->pageMax = ((int) (count($detailData) / self::MAX_ROR_PER_PAGE)) + (((count($detailData) % self::MAX_ROR_PER_PAGE) == 0)?0:1);
+            foreach ($detailData as $ProductName => $detail) {
+                if ($row == 1) {
+                    // PDFにページを追加する
+                    $this->addPdfPage();
+                    // 会員名
+                    $this->lfText(23.6, 57.6, $groupOrder->getBillTo(), 12);
+                    // 請求年
+                    $this->lfText(148.1, 42.2, date('Y'), 12);
+                    // 請求月
+                    $this->lfText(167.6, 42.2, date('m'), 12);
+                    // 請求日
+                    $this->lfText(180.3, 42.2, date('d'), 12);
+                    // 請求元郵便番号
+                    $this->lfText(122.2, 50.8, $BaseInfo->getZip01() . "-" . $BaseInfo->getZip02(), 12);
+                    // 請求元住所
+                    $this->lfText(117.9, 56.1, $BaseInfo->getAddr01() . $BaseInfo->getAddr02(), 12);
+                    // 請求元会社名
+                    $this->lfText(117.9, 63.5, $BaseInfo->getCompanyName(), 12);
+                }
+                // 商品名
+                $this->lfText(23.9, 117.3 + (6.41 * ($row - 1)), $ProductName, 8);
+                // 数量
+                $this->lfText(99.8, 117.3 + (6.41 * ($row - 1)), number_format($detail['Price']), 8);
+                // 単価
+                $this->lfText(124.7, 117.3 + (6.41 * ($row - 1)), number_format($detail['Quantity']), 8);
+                // 金額
+                $this->lfText(144.3, 117.3 + (6.41 * ($row - 1)), number_format(($detail['Price'] * $detail['Quantity'])), 8);
+                $totalPrice += ($detail['Price'] * $detail['Quantity']);
+                if ($row < self::MAX_ROR_PER_PAGE) {
+                    ++$row;
+                } else {
+                    $row = 1;
+                }
+            }
+            // 小計
+            $this->lfText(144.3, 243.3, number_format($totalPrice), 12);
+            // 消費税率
+            $this->lfText(101.9, 248.9, number_format(8), 12);
+            // 消費税
+            $this->lfText(144.3, 248.9, number_format(round($totalPrice * 0.08)), 12);
+            // 合計
+            $this->lfText(144.3, 255.0, number_format($totalPrice + round($totalPrice * 0.08)), 12);
+            // 合計金額
+            $this->lfText(84.1, 100.2, $totalPrice + number_format(round($totalPrice * 0.08)), 16);
         }
 
         return true;

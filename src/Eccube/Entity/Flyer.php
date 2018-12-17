@@ -17,11 +17,6 @@ class Flyer extends \Eccube\Entity\AbstractEntity
     /**
      * @var string
      */
-    private $file_name;
-
-    /**
-     * @var string
-     */
     private $description;
 
     /**
@@ -61,26 +56,44 @@ class Flyer extends \Eccube\Entity\AbstractEntity
     }
 
     /**
-     * Set file_name
+     * Get TrainingName
      *
-     * @param string $fileName
-     * @return Flyer
+     * @return string 
      */
-    public function setFileName($fileName)
+    public function getTrainingName()
     {
-        $this->file_name = $fileName;
+        $trainingName = '';
+        if (!is_null($this->ProductTraining)) {
+            $trainingName = $this->ProductTraining->getProduct()->getName();
+            if (strlen($trainingName) < 1) {
+                $trainingName = $this->ProductTraining->getTrainingType()->getName();
+            }
+        }
+        return $trainingName;
+    }
 
+    public function setTrainingName($trainingName)
+    {
         return $this;
     }
 
     /**
-     * Get file_name
+     * Get ProductTrainingId
      *
-     * @return string 
+     * @return integer 
      */
-    public function getFileName()
+    public function getProductTrainingId()
     {
-        return $this->file_name;
+        $productTrainingId = 0;
+        if (!is_null($this->ProductTraining)) {
+            $productTrainingId = $this->ProductTraining->getId();
+        }
+        return $productTrainingId;
+    }
+
+    public function setProductTrainingId($productTrainingId)
+    {
+        return $this;
     }
 
     /**
@@ -127,29 +140,6 @@ class Flyer extends \Eccube\Entity\AbstractEntity
     public function getLinkLabel()
     {
         return $this->link_label;
-    }
-
-    /**
-     * Set rank
-     *
-     * @param integer $rank
-     * @return Flyer
-     */
-    public function setRank($rank)
-    {
-        $this->rank = $rank;
-
-        return $this;
-    }
-
-    /**
-     * Get rank
-     *
-     * @return integer 
-     */
-    public function getRank()
-    {
-        return $this->rank;
     }
 
     /**
@@ -219,5 +209,201 @@ class Flyer extends \Eccube\Entity\AbstractEntity
     public function getCreator()
     {
         return $this->Creator;
+    }
+    /**
+     * @var \DateTime
+     */
+    private $disp_from;
+
+    /**
+     * @var \DateTime
+     */
+    private $disp_to;
+
+    /**
+     * @var \Eccube\Entity\ProductTraining
+     */
+    private $ProductTraining;
+
+
+    /**
+     * Set disp_from
+     *
+     * @param \DateTime $dispFrom
+     * @return Flyer
+     */
+    public function setDispFrom($dispFrom)
+    {
+        $this->disp_from = $dispFrom;
+
+        return $this;
+    }
+
+    /**
+     * Get disp_from
+     *
+     * @return \DateTime 
+     */
+    public function getDispFrom()
+    {
+        return (is_null($this->disp_from)?"":$this->disp_from->format('Y/m/d H:i'));
+    }
+
+    /**
+     * Set disp_to
+     *
+     * @param \DateTime $dispTo
+     * @return Flyer
+     */
+    public function setDispTo($dispTo)
+    {
+        $this->disp_to = $dispTo;
+
+        return $this;
+    }
+
+    /**
+     * Get disp_to
+     *
+     * @return \DateTime 
+     */
+    public function getDispTo()
+    {
+        return (is_null($this->disp_to)?"":$this->disp_to->format('Y/m/d H:i'));
+    }
+
+    /**
+     * Set ProductTraining
+     *
+     * @param \Eccube\Entity\ProductTraining $productTraining
+     * @return Flyer
+     */
+    public function setProductTraining(\Eccube\Entity\ProductTraining $productTraining)
+    {
+        $this->ProductTraining = $productTraining;
+
+        return $this;
+    }
+
+    /**
+     * Get ProductTraining
+     *
+     * @return \Eccube\Entity\ProductTraining 
+     */
+    public function getProductTraining()
+    {
+        return $this->ProductTraining;
+    }
+    /**
+     * @var \DateTime
+     */
+    private $update_date;
+
+
+    /**
+     * Set update_date
+     *
+     * @param \DateTime $updateDate
+     * @return Flyer
+     */
+    public function setUpdateDate($updateDate)
+    {
+        $this->update_date = $updateDate;
+
+        return $this;
+    }
+
+    /**
+     * Get update_date
+     *
+     * @return \DateTime 
+     */
+    public function getUpdateDate()
+    {
+        return $this->update_date;
+    }
+
+    /**
+     * @var \Eccube\Entity\Member
+     */
+    private $Updater;
+
+    /**
+     * Set Updater
+     *
+     * @param \Eccube\Entity\Member $updater
+     * @return Flyer
+     */
+    public function setUpdater(\Eccube\Entity\Member $updater)
+    {
+        $this->Updater = $updater;
+
+        return $this;
+    }
+
+    /**
+     * Get Updater
+     *
+     * @return \Eccube\Entity\Member 
+     */
+    public function getUpdater()
+    {
+        return $this->Updater;
+    }
+    /**
+     * @var \Eccube\Entity\Master\Disp
+     */
+    private $Status;
+
+
+    /**
+     * Set Status
+     *
+     * @param \Eccube\Entity\Master\Disp $status
+     * @return Flyer
+     */
+    public function setStatus(\Eccube\Entity\Master\Disp $status = null)
+    {
+        $this->Status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get Status
+     *
+     * @return \Eccube\Entity\Master\Disp 
+     */
+    public function getStatus()
+    {
+        return $this->Status;
+    }
+    /**
+     * @var integer
+     */
+    private $del_flg = '0';
+
+
+    /**
+     * Set del_flg
+     *
+     * @param integer $delFlg
+     * @return Flyer
+     */
+    public function setDelFlg($delFlg)
+    {
+        $this->del_flg = $delFlg;
+
+        return $this;
+    }
+
+    /**
+     * Get del_flg
+     *
+     * @return integer 
+     */
+    public function getDelFlg()
+    {
+        return $this->del_flg;
     }
 }

@@ -47,6 +47,11 @@ class CustomerEditController extends AbstractController
             if (is_null($Customer)) {
                 throw new NotFoundHttpException();
             }
+            if (is_null($Customer->getCustomerGroup())) {
+                $CustomerGroup = new \Eccube\Entity\CustomerGroup();
+            } else {
+                $CustomerGroup = $Customer->getCustomerGroup();
+            }
             // 編集用にデフォルトパスワードをセット
             $previous_password = $Customer->getPassword();
             $Customer->setPassword($app['config']['default_password']);
@@ -55,9 +60,11 @@ class CustomerEditController extends AbstractController
             $Customer = $app['eccube.repository.customer']->newCustomer();
             $CustomerAddress = new \Eccube\Entity\CustomerAddress();
             $CustomerBasicInfo = new \Eccube\Entity\CustomerBasicInfo();
+            $CustomerGroup = new \Eccube\Entity\CustomerGroup();
             $Customer->setBuyTimes(0);
             $Customer->setBuyTotal(0);
             $Customer->setCustomerBasicInfo($CustomerBasicInfo);
+            $Customer->setCustomerGroup($CustomerGroup);
             $CustomerBasicInfo->setCustomer($Customer);
         }
 
@@ -174,6 +181,13 @@ class CustomerEditController extends AbstractController
                 $CustomerBasicInfo = $form['basic_info']->getData();
                 $CustomerBasicInfo->setCustomer($Customer);
                 $app['orm.em']->persist($CustomerBasicInfo);
+                $request_data = $request->request->all();
+                $CustomerGroup = null;
+                if (isset($request_data['admin_customer']['belongs_group_id'])) {
+                    $CustomerGroup = $app['eccube.repository.customer_group']
+                        ->find($request_data['admin_customer']['belongs_group_id']);
+                }
+                $Customer->setCustomerGroup($CustomerGroup);
 
                 $app['orm.em']->persist($Customer);
                 $app['orm.em']->flush();
@@ -199,9 +213,17 @@ class CustomerEditController extends AbstractController
             }
         }
 
+        // 会員グループ検索フォーム
+        $builder = $app['form.factory']
+            ->createBuilder('admin_search_customer_group');
+
+        $searchCustomerGroupModalForm = $builder->getForm();
+
         return $app->render('Customer/edit.twig', array(
             'form' => $form->createView(),
+            'searchCustomerGroupModalForm' => $searchCustomerGroupModalForm->createView(),
             'Customer' => $Customer,
+            'CustomerGroup' => $CustomerGroup,
         ));
     }
 
@@ -242,5 +264,107 @@ class CustomerEditController extends AbstractController
         $files = $event->getArgument('files');
 
         return $app->json(array('files' => $files), 200);
+    }
+
+    /**
+     * 顧客グループ情報を検索する.
+     *
+     * @param Application $app
+     * @param Request $request
+     * @param integer $page_no
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function searchCustomerGroupHtml(Application $app, Request $request, $page_no = null)
+    {
+        if ($request->isXmlHttpRequest()) {
+            $app['monolog']->addDebug('search customer group start.');
+            $page_count = $app['config']['default_page_count'];
+            $session = $app['session'];
+
+            if ('POST' === $request->getMethod()) {
+
+                $page_no = 1;
+
+                $searchData = array(
+                    'multi' => $request->get('search_word'),
+                );
+
+                $session->set('eccube.admin.customer.search.group', $searchData);
+                $session->set('eccube.admin.customer.search.group.page_no', $page_no);
+            } else {
+                $searchData = (array)$session->get('eccube.admin.customer.search.group');
+                if (is_null($page_no)) {
+                    $page_no = intval($session->get('eccube.admin.customer.search.group.page_no'));
+                } else {
+                    $session->set('eccube.admin.customer.search.group.page_no', $page_no);
+                }
+            }
+
+            $qb = $app['eccube.repository.customer_group']->getQueryBuilderBySearchData($searchData);
+            $pagination = $app['paginator']()->paginate(
+                $qb,
+                $page_no,
+                $page_count,
+                array('wrap-queries' => true)
+            );
+
+            /** @var $Customers \Eccube\Entity\CustomerGroup[] */
+            $CustomerGroups = $pagination->getItems();
+
+            if (empty($CustomerGroups)) {
+                $app['monolog']->addDebug('search customer group not found.');
+            }
+
+            $data = array();
+
+            $formatName = '%s(%s)';
+            foreach ($CustomerGroups as $CustomerGroup) {
+                $data[] = array(
+                    'id' => $CustomerGroup->getId(),
+                    'name' => sprintf($formatName, $CustomerGroup->getName(), $CustomerGroup->getKana()),
+                    'bill_to' => $CustomerGroup->getBillTo(),
+                );
+            }
+
+            return $app->render('Customer/search_customer_group.twig', array(
+                'data' => $data,
+                'pagination' => $pagination,
+            ));
+        }
+    }
+
+    /**
+     * 顧客グループ情報を検索する.
+     *
+     * @param Application $app
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function searchCustomerGroupById(Application $app, Request $request)
+    {
+        if ($request->isXmlHttpRequest()) {
+            $app['monolog']->addDebug('search customer group by id start.');
+
+            /** @var $Customer \Eccube\Entity\CustomerGroup */
+            $CustomerGroup = $app['eccube.repository.customer_group']
+                ->find($request->get('id'));
+
+            if (is_null($CustomerGroup)) {
+                $app['monolog']->addDebug('search customer group by id not found.');
+
+                return $app->json(array(), 404);
+            }
+
+            $app['monolog']->addDebug('search customer group by id found.');
+
+            $data = array(
+                'id' => $CustomerGroup->getId(),
+                'name' => $CustomerGroup->getName(),
+                'kana' => $CustomerGroup->getKana(),
+                'bill_to' => $CustomerGroup->getBillTo(),
+            );
+
+            return $app->json($data);
+        }
     }
 }

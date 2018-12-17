@@ -49,7 +49,7 @@ class CustomerGroupType extends AbstractType
                 )
             ))
             ->add('send_to_zip', 'zip', array(
-                'required' => true,
+                'required' => false,
                 'zip01_name' => 'send_to_zip01',
                 'zip02_name' => 'send_to_zip02',
             ))
@@ -116,7 +116,7 @@ class CustomerGroupType extends AbstractType
                 'tel03_name' => 'bill_to_fax03',
             ))
             ->add('bill_to_email', 'email', array(
-                'required' => true,
+                'required' => false,
                 'constraints' => array(
                     new Assert\NotBlank(),
                     // configでこの辺りは変えられる方が良さそう

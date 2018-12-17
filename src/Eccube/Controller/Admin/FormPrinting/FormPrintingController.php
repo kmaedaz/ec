@@ -13,6 +13,7 @@ use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FormPrintingController extends AbstractController
 {
@@ -21,7 +22,7 @@ class FormPrintingController extends AbstractController
         parent::__construct();
     }
 
-    public function payment(Application $app, Request $request = null)
+    public function payment(Application $app, Request $request = null, $page_no = null)
     {
         $session = $request->getSession();
 
@@ -130,6 +131,13 @@ class FormPrintingController extends AbstractController
 
     public function paymentAllExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         $session = $request->getSession();
         $viewData = $session->get('eccube.admin.order.search');
         if (is_null($viewData)) {
@@ -178,6 +186,13 @@ class FormPrintingController extends AbstractController
 
     public function paymentSelectExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         // requestから対象顧客IDの一覧を取得する.
         $ids = $this->getIds($request);
         if (count($ids) == 0) {
@@ -218,7 +233,103 @@ class FormPrintingController extends AbstractController
         return $response;
     }
 
-    public function invoice(Application $app, Request $request = null)
+    public function paymentAllCsvExport(Application $app, Request $request = null)
+    {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
+        $session = $request->getSession();
+        $viewData = $session->get('eccube.admin.order.search');
+        if (is_null($viewData)) {
+            $app->addError('admin.payment_pdf.parameter.notfound', 'admin');
+            log_info('The Order cannot found!');
+            return $app->redirect($app->url('admin_form_printing_payment'));
+        }
+
+        // sessionに保持されている検索条件を復元.
+        $builder = $app['form.factory']
+            ->createBuilder('admin_search_order');
+        $searchForm = $builder->getForm();
+        $searchData = \Eccube\Util\FormUtil::submitAndGetData($searchForm, $viewData);
+
+        $response = new StreamedResponse();
+        $response->setCallback(function () use ($app, $request, $searchData) {
+
+            // 受注情報取得
+            $orders = $app['eccube.repository.order']->getQueryBuilderBySearchDataForAdmin($searchData)
+                    ->getQuery()
+                    ->getResult();
+
+            // サービスの取得
+            /* @var PaymentPdfService $service */
+            $service = $app['eccube.service.csv.paying_slip.export'];
+
+            // 受注情報からCSVを作成する
+            $service->makeCsv($orders);
+        });
+
+        $now = new \DateTime();
+        $filename = 'payment_' . $now->format('YmdHis') . '.csv';
+        $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
+        $response->send();
+
+        log_info("CSVファイル名", array($filename));
+        return $response;
+    }
+
+    public function paymentSelectCsvExport(Application $app, Request $request = null)
+    {
+        log_info("paymentSelectCsvExport Start");
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
+        // requestから対象顧客IDの一覧を取得する.
+        $ids = $this->getIds($request);
+        if (count($ids) == 0) {
+            $app->addError('admin.payment_pdf.parameter.notfound', 'admin');
+            log_info('The Order cannot found!');
+            return $app->redirect($app->url('admin_form_printing_payment'));
+        }
+
+        $response = new StreamedResponse();
+        $response->setCallback(function () use ($app, $request, $ids) {
+
+            // 受注情報取得
+            $orders = $app['eccube.repository.order']->getQueryBuilderBySearchOrderIds($ids)
+                    ->getQuery()
+                    ->getResult();
+
+            log_info('ids:' . print_r($ids, true));
+            log_info('orders:' . count($orders));
+
+            // サービスの取得
+            /* @var PaymentPdfService $service */
+            $service = $app['eccube.service.csv.paying_slip.export'];
+
+            // 受注情報からCSVを作成する
+            $service->makeCsv($orders);
+        });
+
+        $now = new \DateTime();
+        $filename = 'payment_' . $now->format('YmdHis') . '.csv';
+        $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set('Content-Disposition', 'attachment; filename=' . $filename);
+        $response->send();
+
+        log_info("CSVファイル名", array($filename));
+        return $response;
+    }
+
+    public function invoice(Application $app, Request $request = null, $page_no = null)
     {
         $session = $request->getSession();
 
@@ -327,6 +438,13 @@ class FormPrintingController extends AbstractController
 
     public function invoiceAllExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         $session = $request->getSession();
         $viewData = $session->get('eccube.admin.order.search');
         if (is_null($viewData)) {
@@ -375,6 +493,13 @@ class FormPrintingController extends AbstractController
 
     public function invoiceSelectExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         // requestから対象顧客IDの一覧を取得する.
         $ids = $this->getIds($request);
         if (count($ids) == 0) {
@@ -415,7 +540,7 @@ class FormPrintingController extends AbstractController
         return $response;
     }
 
-    public function delivery(Application $app, Request $request = null)
+    public function delivery(Application $app, Request $request = null, $page_no = null)
     {
         $session = $request->getSession();
 
@@ -524,6 +649,13 @@ class FormPrintingController extends AbstractController
 
     public function deliveryAllExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         $session = $request->getSession();
         $viewData = $session->get('eccube.admin.order.search');
         if (is_null($viewData)) {
@@ -572,6 +704,13 @@ class FormPrintingController extends AbstractController
 
     public function deliverySelectExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         // requestから対象顧客IDの一覧を取得する.
         $ids = $this->getIds($request);
         if (count($ids) == 0) {
@@ -612,7 +751,7 @@ class FormPrintingController extends AbstractController
         return $response;
     }
 
-    public function businessCard(Application $app, Request $request = null)
+    public function businessCard(Application $app, Request $request = null, $page_no = null)
     {
         $session = $request->getSession();
         $pagination = array();
@@ -716,6 +855,13 @@ class FormPrintingController extends AbstractController
 
     public function businessCardAllExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         $session = $request->getSession();
         $viewData = $session->get('eccube.admin.customer.search');
         if (is_null($viewData)) {
@@ -764,6 +910,13 @@ class FormPrintingController extends AbstractController
 
     public function businessCardSelectExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         // requestから対象顧客IDの一覧を取得する.
         $ids = $this->getIds($request);
         if (count($ids) == 0) {
@@ -804,7 +957,7 @@ class FormPrintingController extends AbstractController
         return $response;
     }
 
-    public function certification(Application $app, Request $request = null)
+    public function certification(Application $app, Request $request = null, $page_no = null)
     {
         $session = $request->getSession();
         $pagination = array();
@@ -908,6 +1061,13 @@ class FormPrintingController extends AbstractController
 
     public function certificationAllExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         $session = $request->getSession();
         $viewData = $session->get('eccube.admin.customer.search');
         if (is_null($viewData)) {
@@ -956,6 +1116,13 @@ class FormPrintingController extends AbstractController
 
     public function certificationSelectExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         // requestから対象顧客IDの一覧を取得する.
         $ids = $this->getIds($request);
         if (count($ids) == 0) {
@@ -996,7 +1163,7 @@ class FormPrintingController extends AbstractController
         return $response;
     }
 
-    public function regularMemberList(Application $app, Request $request = null)
+    public function regularMemberList(Application $app, Request $request = null, $page_no = null)
     {
         $session = $request->getSession();
         $pagination = array();
@@ -1099,6 +1266,13 @@ class FormPrintingController extends AbstractController
 
     public function regularMemberListAllExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         $session = $request->getSession();
         $viewData = $session->get('eccube.admin.customer.search');
         if (is_null($viewData)) {
@@ -1147,6 +1321,13 @@ class FormPrintingController extends AbstractController
 
     public function regularMemberListSelectExport(Application $app, Request $request = null)
     {
+        // タイムアウトを無効にする.
+        set_time_limit(0);
+
+        // sql loggerを無効にする.
+        $em = $app['orm.em'];
+        $em->getConfiguration()->setSQLLogger(null);
+
         // requestから対象顧客IDの一覧を取得する.
         $ids = $this->getIds($request);
         if (count($ids) == 0) {

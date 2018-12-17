@@ -76,9 +76,8 @@ class CustomerType extends AbstractType
                 'required' => false,
             ))
             ->add('email', 'email', array(
-                'required' => true,
+                'required' => false,
                 'constraints' => array(
-                    new Assert\NotBlank(),
                     // configでこの辺りは変えられる方が良さそう
                     new Assert\Email(array('strict' => true)),
                     new Assert\Regex(array(
@@ -177,6 +176,17 @@ class CustomerType extends AbstractType
                 'constraints' => array(
                     new Assert\NotBlank(),
                 ),
+            ))
+            ->add('belongs_group_id', 'hidden', array(
+                'required' => false,
+                'mapped' => false,
+            ))
+            ->add('qrs', 'collection', array(
+                'type' => 'hidden',
+                'prototype' => true,
+                'mapped' => false,
+                'allow_add' => false,
+                'allow_delete' => false,
             ))
             ->add('images', 'collection', array(
                 'type' => 'hidden',

@@ -472,6 +472,21 @@ class CustomerRepository extends EntityRepository implements UserProviderInterfa
         return $qb;
     }
 
+    public function getQueryBuilderBySearchCustomerIds($searchData)
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select('c')
+            ->leftJoin('c.CustomerBasicInfo', 'bc')
+            ->andWhere('c.del_flg = 0')
+            ->andWhere('c.id IN (:customerIds)')
+            ->setParameter('customerIds', $searchData);
+
+        // Order By
+        $qb->addOrderBy('c.id', 'DESC');
+
+        return $qb;
+    }
+
     public function getQueryBuilderBySearchRegularMemberIds($searchData)
     {
         $qb = $this->createQueryBuilder('c')
@@ -485,6 +500,22 @@ class CustomerRepository extends EntityRepository implements UserProviderInterfa
 
         // Order By
         $qb->addOrderBy('c.id', 'DESC');
+
+        return $qb;
+    }
+
+    public function getQueryBuilderBySearchTrainingProductIds($searchData)
+    {
+        $qb = $this->createQueryBuilder('c')
+                ->select('c')
+                ->leftJoin('c.Orders', 'o')
+                ->leftJoin('o.OrderDetails', 'od')
+                ->andWhere('c.Status = 2')
+                ->andWhere('c.del_flg = 0')
+                ->andWhere('od.Product IN (:productIds)')
+                ->setParameter('productIds', $searchData);
+        // Order By
+        $qb->addOrderBy('c.id', 'ASC');
 
         return $qb;
     }
@@ -524,6 +555,20 @@ class CustomerRepository extends EntityRepository implements UserProviderInterfa
 
         return true;
 
+    }
+
+    public function getCustomerByExclusionOrderProduct($searchData)
+    {
+        $em = $this->getEntityManager();
+        $sql = "SELECT * FROM dtb_customer WHERE customer_id NOT IN ";
+        $sql .= "(SELECT dtb_customer.customer_id FROM dtb_customer INNER JOIN dtb_order ON dtb_customer.customer_id = dtb_order.customer_id ";
+        $sql .= "INNER JOIN dtb_order_detail ON dtb_order.order_id = dtb_order_detail.order_id ";
+        $sql .= "WHERE dtb_order_detail.product_id = :product_id ";
+        $sql .= "GROUP BY dtb_customer.customer_id) ";
+        $sql .= "ORDER BY customer_id DESC;";
+        $customers = $em->getConnection()->fetchAll($sql, array(':product_id' => $searchData));
+
+        return $customers;
     }
 
     /**

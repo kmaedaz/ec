@@ -38,8 +38,35 @@ class CustomerBasicInfoType extends AbstractType
                 'required' => false,
                 'mapped' => true,
             ))
-            ->add('job', 'text', array(
-                'label' => '職業',
+            ->add('last_pay_membership_year', 'text', array(
+                'label' => '最終支払会費年度',
+                'required' => false,
+                'mapped' => true,
+                'read_only' =>'true',
+                'constraints' => array(
+                    new Assert\Regex(array('pattern' => '/^[0-9]*$/')),
+                ),
+            ))
+            ->add('membership_expired', 'text', array(
+                'label' => '正会員資格満了日',
+                'required' => false,
+                'read_only' =>'true',
+                'constraints' => array(
+                    new Assert\Regex(array('pattern' => '/^[0-9]{4}\/([0][1-9]|[1][0-2])\/([0][1-9]|[1-2][0-9]|[3][0-1])$/')),
+                ),
+                'mapped' => true,
+            ))
+            ->add('regular_member_promoted', 'text', array(
+                'label' => '正会員資格取得日',
+                'required' => false,
+                'read_only' =>'true',
+                'constraints' => array(
+                    new Assert\Regex(array('pattern' => '/^[0-9]{4}\/([0][1-9]|[1][0-2])\/([0][1-9]|[1-2][0-9]|[3][0-1])$/')),
+                ),
+                'mapped' => true,
+            ))
+            ->add('qualification', 'text', array(
+                'label' => '資格',
                 'required' => false,
                 'constraints' => array(
                     new Assert\Length(array(

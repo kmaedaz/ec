@@ -920,4 +920,77 @@ class CustomerGroup extends \Eccube\Entity\AbstractEntity
     {
         return $this->del_flg;
     }
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    private $Orders;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->Orders = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add Orders
+     *
+     * @param \Eccube\Entity\Order $orders
+     * @return CustomerGroup
+     */
+    public function addOrder(\Eccube\Entity\Order $orders)
+    {
+        $this->Orders[] = $orders;
+
+        return $this;
+    }
+
+    /**
+     * Remove Orders
+     *
+     * @param \Eccube\Entity\Order $orders
+     */
+    public function removeOrder(\Eccube\Entity\Order $orders)
+    {
+        $this->Orders->removeElement($orders);
+    }
+
+    /**
+     * Get Orders
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getOrders()
+    {
+        return $this->Orders;
+    }
+    /**
+     * @var \DateTime
+     */
+    private $order_date;
+
+
+    /**
+     * Set order_date
+     *
+     * @param \DateTime $orderDate
+     * @return CustomerGroup
+     */
+    public function setOrderDate($orderDate)
+    {
+        $this->order_date = $orderDate;
+
+        return $this;
+    }
+
+    /**
+     * Get order_date
+     *
+     * @return \DateTime 
+     */
+    public function getOrderDate()
+    {
+        return $this->order_date;
+    }
 }

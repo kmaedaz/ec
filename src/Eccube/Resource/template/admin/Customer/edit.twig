@@ -30,6 +30,7 @@
 {% block sub_title %}会員登録・編集{% endblock %}
 
 {% form_theme form 'Form/bootstrap_3_horizontal_layout.html.twig' %}
+{% form_theme searchCustomerGroupModalForm 'Form/bootstrap_3_horizontal_layout.html.twig' %}
 
 {% block javascript %}
 <script src="{{ app.config.admin_urlpath }}/assets/js/vendor/fileupload/vendor/jquery.ui.widget.js"></script>
@@ -161,6 +162,28 @@
     $('#file_upload').on('click', function () {
         $('#{{ form.customer_image.vars.id }}').click();
     });
+    // 会員グループ検索
+    $('#searchCustomerGroupModalButton').on('click', function() {
+        var list = $('#searchCustomerGroupModalList');
+        list.children().remove();
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'html',
+            data: { 'search_word' : $('#admin_search_customer_group_multi').val() },
+            url: '{{ url('admin_customer_search_customer_group_html') }}',
+            success: function(data) {
+                // モーダルに結果を書き出し.
+                $('#searchCustomerGroupModalList').html(data);
+            },
+            error: function() {
+                alert('search customer group failed.');
+            }
+        });
+    });
+    function deleteCustomerGroup() {
+        $('#customer_group_list').empty();
+    }
 </script>
 {% endblock javascript %}
 
@@ -409,6 +432,22 @@
                 </div><!-- /.box-header -->
                 <div id="detail_box__body" class="box-body accpanel" style="display: block;">
                     <div class="form-horizontal">
+                        {# 正会員資格取得日 #}
+                        <div id="detail_box__regular_member_promoted" class="form-group">
+                            {{ form_label(form.basic_info.regular_member_promoted) }}
+                            <div class="col-sm-9 col-lg-10">
+                                {{ form_widget(form.basic_info.regular_member_promoted) }}
+                                {{ form_errors(form.basic_info.regular_member_promoted) }}
+                            </div>
+                        </div>
+                        {# 正会員資格満了日 #}
+                        <div id="detail_box__membership_expired" class="form-group">
+                            {{ form_label(form.basic_info.membership_expired) }}
+                            <div class="col-sm-9 col-lg-10">
+                                {{ form_widget(form.basic_info.membership_expired) }}
+                                {{ form_errors(form.basic_info.membership_expired) }}
+                            </div>
+                        </div>
                         {# 会員番号 #}
                         <div id="detail_box__customer_number" class="form-group">
                             {{ form_label(form.basic_info.customer_number) }}
@@ -425,12 +464,20 @@
                                 {{ form_errors(form.basic_info.customer_pin_code) }}
                             </div>
                         </div>
-                        {# 職業 #}
-                        <div id="detail_box__job" class="form-group">
-                            {{ form_label(form.basic_info.job) }}
+                        {# 最終支払会費年度 #}
+                        <div id="detail_box__last_pay_membership_year" class="form-group">
+                            {{ form_label(form.basic_info.last_pay_membership_year) }}
                             <div class="col-sm-9 col-lg-10">
-                                {{ form_widget(form.basic_info.job) }}
-                                {{ form_errors(form.basic_info.job) }}
+                                {{ form_widget(form.basic_info.last_pay_membership_year) }}
+                                {{ form_errors(form.basic_info.last_pay_membership_year) }}
+                            </div>
+                        </div>
+                        {# 資格 #}
+                        <div id="detail_box__qualification" class="form-group">
+                            {{ form_label(form.basic_info.qualification) }}
+                            <div class="col-sm-9 col-lg-10">
+                                {{ form_widget(form.basic_info.qualification) }}
+                                {{ form_errors(form.basic_info.qualification) }}
                             </div>
                         </div>
                         {# インストラクタ #}
@@ -457,6 +504,49 @@
                                 {{ form_errors(form.basic_info.status) }}
                             </div>
                         </div>
+                    </div>
+                </div><!-- /.box-body -->
+            </div><!-- /.box -->
+            <div id="detail_box" class="box accordion">
+                <div id="detail_box__header" class="box-header toggle active">
+                    <h3 class="box-title">会員グループ情報<svg class="cb cb-angle-down icon_down"> <use xlink:href="#cb-angle-down" /></svg></h3>
+                    <div id="customer_info_list__button_search" class="btn_area">
+                    </div>
+                </div><!-- /.box-header -->
+                <div id="detail_box__body" class="box-body accpanel" style="display: block;">
+                    <div class="form-horizontal">
+                        <ul>
+                            <li><a class="btn btn-default" data-toggle="modal" data-target="#searchCustomerGroupModal">会員グループ検索</a></li>
+                        </ul>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <th>会員グループID</th>
+                                <th>会員グループ名</th>
+                                <th>請求先名</th>
+                                <th>解除</th>
+                            </thead>
+                            <tbody id="customer_group_list">
+                                {% if CustomerGroup.id %}
+                                <tr>
+                                    <td class="text-left">
+                                        <input type="hidden" id="admin_customer_belongs_group_id" name="admin_customer[belongs_group_id]" value="{{ CustomerGroup.id }}">
+                                        {{ CustomerGroup.id }}
+                                    </td>
+                                    <td class="text-left">
+                                        {{ CustomerGroup.name }}({{ CustomerGroup.kana }})
+                                    </td>
+                                    <td class="text-left">
+                                        {{ CustomerGroup.bill_to }}
+                                    </td>
+                                    <td class="icon_edit">
+                                        <button type="button" class="btn btn-default btn-sm delete-item" onClick="deleteCustomerGroup();">解除</button>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
                     </div>
                 </div><!-- /.box-body -->
             </div><!-- /.box -->
@@ -553,5 +643,37 @@
             </div>
         </div><!-- /.col -->
     </form>
+</div>
+{% endblock %}
+{% block modal %}
+{# 会員グループ検索モーダル #}
+<div class="modal fade" id="searchCustomerGroupModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div id="search_customer_group_modal_box" class="modal-content">
+            <div id="search_customer_group_modal_box__header" class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="modal-close" aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">会員グループ検索</h4>
+            </div>
+            <div id="search_customer_group_modal_box__body" class="modal-body">
+                <div id="search_customer_group_modal_box__id" class="form-group">
+                    {{ form_widget(searchCustomerGroupModalForm.multi, { attr : { placeholder : '会員グループID・会員グループ名・送付先住所・請求先住所・請求先名', class : 'input_search' } } ) }}
+                </div>
+                <div class="extra-form form-group">
+                    {% for f in searchCustomerGroupModalForm.getIterator %}
+                        {% if f.vars.name matches '[^plg*]' %}
+                            {{ form_label(f) }}
+                            {{ form_widget(f) }}
+                            {{ form_errors(f) }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div id="search_customer_group_modal_box__button_search" class="form-group">
+                    <button type="button" id="searchCustomerGroupModalButton" class="btn btn-primary">検索</button>
+                </div>
+                <div class="form-group" id="searchCustomerGroupModalList">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

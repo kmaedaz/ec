@@ -15,11 +15,6 @@ class ProductTraining extends \Eccube\Entity\AbstractEntity
     private $id;
 
     /**
-     * @var \DateTime
-     */
-    private $training_date;
-
-    /**
      * @var string
      */
     private $place;
@@ -96,29 +91,6 @@ class ProductTraining extends \Eccube\Entity\AbstractEntity
     }
 
     /**
-     * Set training_date
-     *
-     * @param \DateTime $trainingDate
-     * @return ProductTraining
-     */
-    public function setTrainingDate($trainingDate)
-    {
-        $this->training_date = $trainingDate;
-
-        return $this;
-    }
-
-    /**
-     * Get training_date
-     *
-     * @return \DateTime 
-     */
-    public function getTrainingDate()
-    {
-        return $this->training_date;
-    }
-
-    /**
      * Set training_date(Date)
      *
      * @param \DateTime $day
@@ -136,28 +108,49 @@ class ProductTraining extends \Eccube\Entity\AbstractEntity
      */
     public function getDay()
     {
-        return (is_null($this->training_date)?null:new \DateTime($this->training_date->format('Y/m/d')));
+        return (is_null($this->training_date_start)?null:new \DateTime($this->training_date_start->format('Y/m/d')));
     }
 
     /**
-     * Set training_date(Time)
+     * Set training_date_start(Time)
      *
      * @param String $time
      * @return ProductTraining
      */
-    public function setTime($time)
+    public function setTimeStart($time)
     {
         return $this;
     }
 
     /**
-     * Get training_date(Time)
+     * Get training_date_start(Time)
      *
      * @return String 
      */
-    public function getTime()
+    public function getTimeStart()
     {
-        return (is_null($this->training_date)?"":$this->training_date->format('H:i'));
+        return (is_null($this->training_date_start)?"":$this->training_date_start->format('H:i'));
+    }
+
+    /**
+     * Set training_date_end(Time)
+     *
+     * @param String $time
+     * @return ProductTraining
+     */
+    public function setTimeEnd($time)
+    {
+        return $this;
+    }
+
+    /**
+     * Get training_date_end(Time)
+     *
+     * @return String 
+     */
+    public function getTimeEnd()
+    {
+        return (is_null($this->training_date_end)?"":$this->training_date_end->format('H:i'));
     }
 
     /**
@@ -457,5 +450,202 @@ class ProductTraining extends \Eccube\Entity\AbstractEntity
     public function getPref()
     {
         return $this->Pref;
+    }
+    /**
+     * @var \DateTime
+     */
+    private $training_date_start;
+
+    /**
+     * @var \DateTime
+     */
+    private $training_date_end;
+
+
+    /**
+     * Set training_date_start
+     *
+     * @param \DateTime $trainingDateStart
+     * @return ProductTraining
+     */
+    public function setTrainingDateStart($trainingDateStart)
+    {
+        $this->training_date_start = $trainingDateStart;
+
+        return $this;
+    }
+
+    /**
+     * Get training_date_start
+     *
+     * @return \DateTime 
+     */
+    public function getTrainingDateStart()
+    {
+        return (is_null($this->training_date_start)?'':$this->training_date_start->format('Y/m/d H:i'));
+    }
+
+    /**
+     * Set training_date_end
+     *
+     * @param \DateTime $trainingDateEnd
+     * @return ProductTraining
+     */
+    public function setTrainingDateEnd($trainingDateEnd)
+    {
+        $this->training_date_end = $trainingDateEnd;
+
+        return $this;
+    }
+
+    /**
+     * Get training_date_end
+     *
+     * @return \DateTime 
+     */
+    public function getTrainingDateEnd()
+    {
+        return (is_null($this->training_date_end)?'':$this->training_date_end->format('Y/m/d H:i'));
+    }
+    /**
+     * @var \Eccube\Entity\Master\TrainingType
+     */
+    private $TrainingType;
+
+
+    /**
+     * Set TrainingType
+     *
+     * @param \Eccube\Entity\Master\TrainingType $trainingType
+     * @return ProductTraining
+     */
+    public function setTrainingType(\Eccube\Entity\Master\TrainingType $trainingType = null)
+    {
+        $this->TrainingType = $trainingType;
+
+        return $this;
+    }
+
+    /**
+     * Get TrainingType
+     *
+     * @return \Eccube\Entity\Master\TrainingType 
+     */
+    public function getTrainingType()
+    {
+        return $this->TrainingType;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->TrainingType = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add TrainingType
+     *
+     * @param \Eccube\Entity\Master\TrainingType $trainingType
+     * @return ProductTraining
+     */
+    public function addTrainingType(\Eccube\Entity\Master\TrainingType $trainingType)
+    {
+        $this->TrainingType[] = $trainingType;
+
+        return $this;
+    }
+
+    /**
+     * Remove TrainingType
+     *
+     * @param \Eccube\Entity\Master\TrainingType $trainingType
+     */
+    public function removeTrainingType(\Eccube\Entity\Master\TrainingType $trainingType)
+    {
+        $this->TrainingType->removeElement($trainingType);
+    }
+    /**
+     * @var string
+     */
+    private $collaborators;
+
+    /**
+     * @var string
+     */
+    private $area;
+
+    /**
+     * Set collaborators
+     *
+     * @param string $collaborators
+     * @return ProductTraining
+     */
+    public function setCollaborators($collaborators)
+    {
+        $this->collaborators = $collaborators;
+
+        return $this;
+    }
+
+    /**
+     * Get collaborators
+     *
+     * @return string 
+     */
+    public function getCollaborators()
+    {
+        return $this->collaborators;
+    }
+
+    /**
+     * Set area
+     *
+     * @param string $area
+     * @return ProductTraining
+     */
+    public function setArea($area)
+    {
+        $this->area = $area;
+
+        return $this;
+    }
+
+    /**
+     * Get area
+     *
+     * @return string 
+     */
+    public function getArea()
+    {
+        return $this->area;
+    }
+
+    /**
+     * @var \DateTime
+     */
+    private $accept_limit_date;
+
+    /**
+     * Set accept_limit_date
+     *
+     * @param \DateTime $acceptLimitDate
+     * @return ProductTraining
+     */
+    public function setAcceptLimitDate($acceptLimitDate)
+    {
+        $this->accept_limit_date = $acceptLimitDate;
+
+        return $this;
+    }
+
+    /**
+     * Get accept_limit_date
+     *
+     * @return \DateTime 
+     */
+    public function getAcceptLimitDate()
+    {
+        return (is_null($this->accept_limit_date)?"":$this->accept_limit_date->format('Y/m/d H:i'));
     }
 }

@@ -12,7 +12,10 @@ Eccube\Entity\ProductTraining:
             generator:
                 strategy: AUTO
     fields:
-        training_date:
+        training_date_start:
+            type: datetime
+            nullable: false
+        training_date_end:
             type: datetime
             nullable: false
         place:
@@ -42,6 +45,15 @@ Eccube\Entity\ProductTraining:
         item:
             type: text
             nullable: true
+        collaborators:
+            type: text
+            nullable: true
+        area:
+            type: text
+            nullable: true
+        accept_limit_date:
+            type: datetime
+            nullable: true
         create_date:
             type: datetime
             nullable: false
@@ -53,6 +65,12 @@ Eccube\Entity\ProductTraining:
             targetEntity: Eccube\Entity\Master\Pref
             joinColumn:
                 name: pref
+                referencedColumnName: id
+        TrainingType:
+            targetEntity: Eccube\Entity\Master\TrainingType
+            inversedBy: ProductTraining
+            joinColumn:
+                name: training_type
                 referencedColumnName: id
     oneToOne:
         Product:

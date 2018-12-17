@@ -1,25 +1,6 @@
 <?php
 /*
- * This file is part of EC-CUBE
- *
- * Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
- *
- * http://www.lockon.co.jp/
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
+ * This file is customized file */
 
 
 namespace Eccube\Form\Type\Admin;
@@ -58,22 +39,30 @@ class ProductTrainingType extends AbstractType
     {
         $builder
             // 講習会情報
-            ->add('day', 'date', array(
-                'label' => '日時',
-                'widget' => 'single_text',
-                'format' => 'yyyy/MM/dd',
+            ->add('TrainingType', 'training_type', array(
+                'label' => '講習会種別',
+                'empty_value' => '選択してください',
+                'required' => false,
+                'multiple' => false,
+                'expanded' => false,
+            ))
+            ->add('place', 'textarea', array(
+                'label' => '会場',
+            ))
+            ->add('training_date_start', 'text', array(
+                'label' => '開始日付',
                 'constraints' => array(
                     new Assert\NotBlank(),
+                    new Assert\Regex(array('pattern' => '/^[0-9]{4}\/([0][1-9]|[1][0-2])\/([0][1-9]|[1-2][0-9]|[3][0-1]) ([0-1][0-9]|[2][0-3]):[0-5][0-9]$/')),
                 ),
             ))
-            ->add('time', 'text', array(
-                'label' => '時間',
+            ->add('training_date_end', 'text', array(
+                'label' => '終了日付',
                 'constraints' => array(
                     new Assert\NotBlank(),
-                    new Assert\Regex(array('pattern' => '/^^([0-1][0-9]|[2][0-3]):[0-5][0-9]$/')),
+                    new Assert\Regex(array('pattern' => '/^[0-9]{4}\/([0][1-9]|[1][0-2])\/([0][1-9]|[1-2][0-9]|[3][0-1]) ([0-1][0-9]|[2][0-3]):[0-5][0-9]$/')),
                 ),
             ))
-            ->add('training_date', 'hidden')
             ->add('place', 'textarea', array(
                 'label' => '会場',
             ))
@@ -91,6 +80,19 @@ class ProductTrainingType extends AbstractType
             ))
             ->add('item', 'textarea', array(
                 'label' => '持ち物',
+            ))
+            ->add('collaborators', 'text', array(
+                'label' => '協力',
+            ))
+            ->add('area', 'text', array(
+                'label' => '地域',
+            ))
+            ->add('accept_limit_date', 'text', array(
+                'label' => '申込受付期限',
+                'constraints' => array(
+                    new Assert\NotBlank(),
+                    new Assert\Regex(array('pattern' => '/^[0-9]{4}\/([0][1-9]|[1][0-2])\/([0][1-9]|[1-2][0-9]|[3][0-1]) ([0-1][0-9]|[2][0-3]):[0-5][0-9]$/')),
+                ),
             ))
        ;
     }

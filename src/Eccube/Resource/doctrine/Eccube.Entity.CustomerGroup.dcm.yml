@@ -127,4 +127,8 @@ Eccube\Entity\CustomerGroup:
             joinColumn:
                 name: bill_to_pref
                 referencedColumnName: id
+    oneToMany:
+        Orders:
+            targetEntity: Eccube\Entity\Order
+            mappedBy: CustomerGroup
     lifecycleCallbacks: {  }

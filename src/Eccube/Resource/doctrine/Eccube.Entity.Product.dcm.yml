@@ -61,6 +61,12 @@ Eccube\Entity\Product:
                 name: status
                 referencedColumnName: id
                 default: 2
+        Target:
+            targetEntity: Eccube\Entity\Master\CustomerType
+            joinColumn:
+                name: target
+                referencedColumnName: id
+                default: 1
     oneToMany:
         ProductCategories:
             targetEntity: Eccube\Entity\ProductCategory
@@ -89,5 +95,8 @@ Eccube\Entity\Product:
     oneToOne:
         ProductTraining:
             targetEntity: Eccube\Entity\ProductTraining
+            mappedBy: Product
+        ProductMembership:
+            targetEntity: Eccube\Entity\ProductMembership
             mappedBy: Product
     lifecycleCallbacks: {  }

@@ -26,8 +26,17 @@ Eccube\Entity\CustomerBasicInfo:
         customer_pin_code:
             type: integer
             nullable: true
-        job:
+        qualification:
             type: text
+            nullable: true
+        last_pay_membership_year:
+            type: integer
+            nullable: true
+        membership_expired:
+            type: date
+            nullable: true
+        regular_member_promoted:
+            type: datetime
             nullable: true
         create_date:
             type: datetime
@@ -50,6 +59,16 @@ Eccube\Entity\CustomerBasicInfo:
             targetEntity: Eccube\Entity\Master\SupporterType
             joinColumn:
                 name: supporter_type
+                referencedColumnName: id
+        Bureau:
+            targetEntity: Eccube\Entity\Master\SupporterType
+            joinColumn:
+                name: bureau
+                referencedColumnName: id
+        ExemptionType:
+            targetEntity: Eccube\Entity\Master\SupporterType
+            joinColumn:
+                name: membership_exemption
                 referencedColumnName: id
     oneToOne:
         Customer:

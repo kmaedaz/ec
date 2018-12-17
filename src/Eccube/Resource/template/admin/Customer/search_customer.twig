@@ -12,7 +12,7 @@
                     var idx = $('input[id^="admin_customer_group_Customers_"]').length;
                     var add_customer_tr = '<tr id="customer_list__item_detail--' + data['id'] + '">' + "\n";
                     add_customer_tr += "\t" + '<td id="customer_info_list__id--' + data['id'] + '" class="text-left">' + "\n";
-                    add_customer_tr += "\t\t" + '<input id="admin_customer_group_Customers_' + idx + '_id" type="hidden" name="admin_customer_group[Customers][' + idx + '][bill_to_fax01]" value="' + data['id'] + '">' + "\n";
+                    add_customer_tr += "\t\t" + '<input id="admin_customer_group_Customers_' + idx + '_id" type="hidden" name="admin_customer_group[Customers][' + idx + '][id]" value="' + data['id'] + '">' + "\n";
                     add_customer_tr += "\t\t" + data['id'] + "\n";
                     add_customer_tr += "\t</td>\n";
                     add_customer_tr += "\t" + '<td id="customer_info_list__name--' + data['id'] + '" class="text-left">' + "\n";

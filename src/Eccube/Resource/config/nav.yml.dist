@@ -4,18 +4,11 @@
   icon: cb-tag
   child:
       - id: product_master
-        name: 商品マスター
+        name: 商品マスタ
         url: admin_product
-      - id: form_printing
+      - id: product_edit
         name: 商品登録
-        has_child: true
-        child:
-          - id: product_edit
-            name: 商品登録
-            url: admin_product_product_new
-          - id: product_edit
-            name: 講習/研修/講演会登録
-            url: admin_training_new
+        url: admin_product_product_new
       - id: class_name
         name: 規格登録
         url: admin_product_class_name
@@ -34,8 +27,18 @@
   icon: cb-shopping-cart
   child:
       - id: order_master
-        name: 受注マスター
-        url: admin_order
+        name: 受注マスタ
+        has_child: true
+        child:
+            - id: order_list
+              name: 会員別マスタ
+              url: admin_order
+            - id: order_group_list
+              name: グループ別マスタ
+              url: admin_group_order
+            - id: membership_order_list
+              name: 年会費一括受注マスタ
+              url: admin_membership_order
       - id: order_regist
         name: 受注登録
         has_child: true
@@ -45,24 +48,70 @@
               url: admin_order_new
             - id: order_group_edit
               name: グループ別受注
-              url: admin_order_group_new
-- id: customer
+              url: admin_group_order_new
+            - id: order_membership_order_regist
+              name: 年会費一括受注
+              url: admin_membership_order_regist
+- id: customer_group
   name: 会員管理
   has_child: true
   icon: cb-users
   child:
       - id: customer_master
-        name: 会員マスター
+        name: 会員マスタ
         url: admin_customer
       - id: customer_edit
         name: 会員登録
         url: admin_customer_new
+- id: customer
+  name: 会員グループ管理
+  has_child: true
+  icon: cb-groups
+  child:
       - id: customer_group_master
-        name: 会員グループマスター
+        name: 会員グループマスタ
         url: admin_customer_group
       - id: customer_group_edit
         name: 会員グループ登録
         url: admin_customer_group_new
+- id: training
+  name: 受講管理
+  has_child: true
+  icon: cb-training
+  child:
+      - id: training_type
+        name: 種別マスタ
+        has_child: true
+        child:
+          - id: training_type_edit
+            name: 新規登録
+            url: admin_training_type_new
+          - id: training_type_master
+            name: マスタ照会
+            url: admin_training_type
+      - id: training_product
+        name: 受講マスタ
+        has_child: true
+        child:
+          - id: training_edit
+            name: 新規登録
+            url: admin_training_new
+          - id: training_master
+            name: マスタ照会
+            url: admin_training
+          - id: training_master_by_student
+            name: 受講リスト
+            url: admin_pruduct_by_student
+      - id: flyer
+        name: チラシ管理
+        has_child: true
+        child:
+          - id: training_flyer_edit
+            name: 新規登録
+            url: admin_training_flyer_new
+          - id: training_flyer_master
+            name: マスタ照会
+            url: admin_training_flyer
 - id: form_printing
   name: 帳票作成
   has_child: true
@@ -86,6 +135,17 @@
       - id: regular_member_list
         name: 正会員一覧
         url: admin_form_printing_regular_member_list
+- id: questionnaire
+  name: 総会表決アンケート
+  has_child: true
+  icon: cb-questionnaire
+  child:
+      - id: questionnaire_edit
+        name: 新規登録
+        url: admin_questionnaire_new
+      - id: questionnaire_master
+        name: マスタ照会
+        url: admin_questionnaire
 - id: content
   name: コンテンツ管理
   has_child: true
@@ -94,9 +154,6 @@
       - id: news
         name: 新着情報管理
         url : admin_content_news
-      - id: flyer
-        name: チラシ管理
-        url : admin_content_flyer
       - id: file
         name: ファイル管理
         url: admin_content_file
@@ -119,7 +176,7 @@
         has_child: true
         child:
             - id: shop_index
-              name: ショップマスター
+              name: ショップマスタ
               url: admin_setting_shop
             - id: tradelaw
               name: 特定商取引法
@@ -162,7 +219,7 @@
               name: EC-CUBE ログ表示
               url: admin_setting_system_log
             - id: masterdata
-              name: マスターデータ管理
+              name: マスタデータ管理
               url: admin_setting_system_masterdata
 - id: store
   name: オーナーズストア

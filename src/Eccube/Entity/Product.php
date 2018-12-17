@@ -1100,4 +1100,60 @@ class Product extends \Eccube\Entity\AbstractEntity
     {
         return !is_null($this->ProductTraining);
     }
+
+    /**
+     * @var \Eccube\Entity\Master\CustomerType
+     */
+    private $Target;
+
+    /**
+     * Set Target
+     *
+     * @param \Eccube\Entity\Master\CustomerType $target
+     * @return Product
+     */
+    public function setTarget(\Eccube\Entity\Master\CustomerType $target = null)
+    {
+        $this->Target = $target;
+
+        return $this;
+    }
+
+    /**
+     * Get Target
+     *
+     * @return \Eccube\Entity\Master\CustomerType 
+     */
+    public function getTarget()
+    {
+        return $this->Target;
+    }
+    /**
+     * @var \Eccube\Entity\ProductMembership
+     */
+    private $ProductMembership;
+
+
+    /**
+     * Set ProductMembership
+     *
+     * @param \Eccube\Entity\ProductMembership $productMembership
+     * @return Product
+     */
+    public function setProductMembership(\Eccube\Entity\ProductMembership $productMembership = null)
+    {
+        $this->ProductMembership = $productMembership;
+
+        return $this;
+    }
+
+    /**
+     * Get ProductMembership
+     *
+     * @return \Eccube\Entity\ProductMembership 
+     */
+    public function getProductMembership()
+    {
+        return $this->ProductMembership;
+    }
 }

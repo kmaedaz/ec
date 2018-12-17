@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 {% set menus = ['product', 'product_master'] %}
 
 {% block title %}商品管理{% endblock %}
-{% block sub_title %}商品マスター{% endblock %}
+{% block sub_title %}商品マスタ{% endblock %}
 
 {% form_theme searchForm 'Form/bootstrap_3_horizontal_layout.html.twig' %}
 
@@ -232,20 +232,12 @@ $(function() {
                                                 {{Product.id}}
                                             </div>
                                             <div id="result_list__image--{{ Product.id }}" class="item_photo td">
-                                                {% if Product.isTraining %}
-                                                    <a href="{{ url('admin_product_product_training_edit', { id : Product.id }) }}">
-                                                {% else %}
-                                                    <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
-                                                {% endif %}
+                                                <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
                                                     <img src="{{ app.config.image_save_urlpath }}/{{ Product.mainFileName|no_image_product }}" />
                                                 </a>
                                             </div>
                                             <div id="result_list__name--{{ Product.id }}" class="item_detail td">
-                                                {% if Product.isTraining %}
-                                                    <a href="{{ url('admin_product_product_training_edit', { id : Product.id }) }}">
-                                                {% else %}
-                                                    <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
-                                                {% endif %}
+                                                <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
                                                     {{ Product.name }}
                                                 </a><br>
                                                 <span  id="result_list__code--{{ Product.id }}">

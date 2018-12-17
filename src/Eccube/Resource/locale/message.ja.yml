@@ -137,6 +137,9 @@ admin.customer.save.failed: 会員情報を保存できませんでした。
 admin.customer.delete.complete: 会員情報を削除しました。
 admin.customer.resend.complete: 仮会員登録メールを送信しました。
 
+admin.customer_group.save.complete: 会員グループ情報を保存しました。
+admin.customer_group.save.failed: 会員グループ情報を保存できませんでした。
+
 admin.news.up.complete: 新着情報を上へ移動しました。
 admin.news.up.error: 新着情報を上へ移動できませんでした。
 admin.news.down.complete: 新着情報を下へ移動しました。

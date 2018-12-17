@@ -24,7 +24,7 @@ class FlyerController extends AbstractController
      * @param Application $app
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function index(Application $app, Request $request)
+    public function indexFlyer(Application $app, Request $request)
     {
         $FlyerList = $app['eccube.repository.flyer']->findBy(array(), array('rank' => 'DESC'));
 
@@ -46,7 +46,7 @@ class FlyerController extends AbstractController
      * @throws NotFoundHttpException
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function edit(Application $app, Request $request, $id = null)
+    public function editFlyer(Application $app, Request $request, $id = null)
     {
         if ($id) {
             $Flyer = $app['eccube.repository.flyer']->find($id);
@@ -153,7 +153,7 @@ class FlyerController extends AbstractController
      * @throws NotFoundHttpException
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function delete(Application $app, Request $request, $id)
+    public function deleteFlyer(Application $app, Request $request, $id)
     {
         $this->isTokenValid($app);
 

@@ -3,6 +3,7 @@
 namespace Eccube\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Eccube\Util\Str;
 
 /**
  * CustomerGroupRepository

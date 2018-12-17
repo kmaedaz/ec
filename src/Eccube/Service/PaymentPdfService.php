@@ -113,12 +113,68 @@ class PaymentPdfService extends AbstractFPDIService
         $pdfFile = $this->app['config']['pdf_template_payment'];
         $templateFilePath = __DIR__.'/../Resource/pdf/'.$pdfFile;
         $this->setSourceFile($templateFilePath);
+        $BaseInfo = $this->app['eccube.repository.base_info']->get();
 
-        foreach ($ordersData as $customerData) {
+        foreach ($ordersData as $order) {
             // PDFにページを追加する
             $this->addPdfPage();
+            $detailData = array();
+            $totalPrice = 0;
+            foreach ($order->getOrderDetails() as $orderDetail) {
+                $detailData[$orderDetail->getProductName()]['Price'] = $orderDetail->getPrice();
+                $detailData[$orderDetail->getProductName()]['Quantity'] = $orderDetail->getQuantity();
+                $totalPrice += ($orderDetail->getPrice() * $orderDetail->getQuantity());
+            }
+            // 口座
+            $beforeSpacing = $this->getFontSpacing();
+            $this->setFontSpacing(2.8);
+            $this->lfText(19.6 + ((5 - strlen($this->app['config']['payment_pdf_account_symbol1'])) * 4.90), 58.7, $this->app['config']['payment_pdf_account_symbol1'], 10, 'B');
+            $this->lfText(47.9, 58.7, $this->app['config']['payment_pdf_account_symbol2'], 10, 'B');
+            $this->lfText(55.4 + ((7 - strlen($this->app['config']['payment_pdf_account_no'])) * 4.90), 58.7, $this->app['config']['payment_pdf_account_no'], 10, 'B');
+            $this->lfText(151.4 + ((5 - strlen($this->app['config']['payment_pdf_account_symbol1'])) * 4.90), 58.7, $this->app['config']['payment_pdf_account_symbol1'], 10, 'B');
+            $this->lfText(178.8, 58.7, $this->app['config']['payment_pdf_account_symbol2'], 10, 'B');
+            $this->lfText(156.8 + ((7 - strlen($this->app['config']['payment_pdf_account_no'])) * 4.90), 69.2, $this->app['config']['payment_pdf_account_no'], 10, 'B');
+            $this->setFontSpacing($beforeSpacing);
+            // 加入者名
+            $this->lfText(26.7, 67.8, $this->app['config']['payment_pdf_subscriber'], 10, 'B');
+            $this->lfText(152.3, 79.1, $this->app['config']['payment_pdf_subscriber'], 10, 'B');
+            // 通信欄
+            $this->lfText(27.1, 74.7, "振込手数料はかかりません", 10, 'B');
+            if (count($detailData) < 2) {
+                foreach($detailData as $productName => $itemDetail) {
+                    $this->lfText(26.2, 82.1, $productName . " " . number_format(round($itemDetail['Price'] * $itemDetail['Quantity'] * 0.08)) . "円", 10, 'B');
+                    break;
+                }
+            } else {
+                foreach($detailData as $productName => $itemDetail) {
+                    $this->lfText(26.2, 82.1, $productName . " " . number_format(round($itemDetail['Price'] * $itemDetail['Quantity'] * 0.08)) . "円", 10, 'B');
+                    break;
+                }
+                $this->lfText(26.2, 87.2, "他" . count($detailData) . "点", 10, 'B');
+                $this->lfText(26.2, 92.2, "合計　　" . number_format($totalPrice + round($totalPrice * 0.08)) . "円", 10, 'B');
+            }
+            $this->lfText(90.0, 104.3, "会員番号(", 10, 'B');
+            $this->lfText(106.0 + ((11 - strlen($order->getCustomer()->getId())) * 2.15), 104.3, $order->getCustomer()->getId(), 10, 'B');
+            $this->lfText(130.0, 104.3, ")", 10, 'B');
+            // 会員情報
+            $this->lfText(33.4, 121.9, $order->getName01() . "　" . $order->getName02(), 12, 'B');
+            $this->lfText(36.9, 110.5, $order->getZip01(), 9, 'B');
+            $this->lfText(45.4, 110.5, $order->getZip02(), 9, 'B');
+            $this->lfText(28.1, 116.0, $order->getAddr01() . $order->getAddr02(), 10, 'B');
+            $this->lfText(69.8, 127.5, $order->getTel01(), 8, 'B');
+            $this->lfText(79.7, 127.5, $order->getTel02(), 8, 'B');
+            $this->lfText(91.0, 127.5, $order->getTel03(), 8, 'B');
+            $this->lfText(152.4, 113.1, $order->getName01() . " " . $order->getName02() . " 様", 12, 'B');
+            $this->lfText(153.6, 96.6, '〒' . $order->getZip01() . "-" . $order->getZip02(), 9, 'B');
+            $this->lfText(151.7, 103.1, $order->getAddr01() . $order->getAddr02(), 10, 'B');
+            // 金額
+            $outputPrice = $totalPrice + round($totalPrice * 0.08);
+            $beforeSpacing = $this->getFontSpacing();
+            $this->setFontSpacing(2.8);
+            $this->lfText(95.8 + ((8 - strlen($outputPrice)) * 4.90), 58.7, $outputPrice, 10, 'B');
+            $this->lfText(151.4 + ((8 - strlen($outputPrice)) * 4.90), 90.9, $outputPrice, 10, 'B');
+            $this->setFontSpacing($beforeSpacing);
         }
-
         return true;
     }
 

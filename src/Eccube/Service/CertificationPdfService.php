@@ -96,7 +96,7 @@ class CertificationPdfService extends AbstractFPDIService
      *
      * @return bool
      */
-    public function makePdf(array $customersData)
+    public function makePdf(array $customersData, $product = NULL)
     {
         // データが空であれば終了
         if (count($customersData) < 1) {
@@ -136,7 +136,9 @@ class CertificationPdfService extends AbstractFPDIService
             if (!is_null($customerData->getCustomerImages())) {
                 if (0 < count($customerData->getCustomerImages())) {
                     $photoFile = $this->app['config']['image_save_realdir'].'/'.$customerData->getCustomerImages()[0]->getFileName();
-                    $this->Image($photoFile, 11.0 + (102.9 * ($col - 1)), 24.4 + (60.5 * ($row - 1)), 20.3);
+                    if (file_exists($photoFile)) {
+                        $this->Image($photoFile, 11.0 + (102.9 * ($col - 1)), 24.4 + (60.5 * ($row - 1)), 20.3);
+                    }
                 }
             }
             // 会員名
