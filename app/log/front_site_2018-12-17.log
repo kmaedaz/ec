@@ -1,5 +1,0 @@
-[2018-12-17 16:26:02,404062] front.INFO  [NULL] [d812192b] [NULL] [LogListener:onKernelRequestEarly:47] - INIT   [GET, /, 220.133.173.230, NULL, NULL]
-[2018-12-17 16:26:02,411631] front.INFO  [NULL] [d812192b] [NULL] [LogListener:onKernelRequest:60] - PROCESS START ["homepage"]  [GET, /, 220.133.173.230, NULL, NULL]
-[2018-12-17 16:26:02,535293] front.INFO  [17eff5a5] [d812192b] [NULL] [LogListener:onKernelController:73] - LOGIC START ["homepage"]  [GET, /, 220.133.173.230, NULL, NULL]
-[2018-12-17 16:26:03,164107] front.INFO  [17eff5a5] [d812192b] [NULL] [LogListener:onKernelResponse:86] - LOGIC END ["homepage"]  [GET, /, 220.133.173.230, NULL, NULL]
-[2018-12-17 16:26:03,165993] front.INFO  [17eff5a5] [d812192b] [NULL] [LogListener:onKernelTerminate:95] - PROCESS END ["homepage"]  [GET, /, 220.133.173.230, NULL, NULL]
