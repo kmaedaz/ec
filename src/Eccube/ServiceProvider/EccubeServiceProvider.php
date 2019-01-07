@@ -235,6 +235,18 @@ class EccubeServiceProvider implements ServiceProviderInterface
         $app['eccube.repository.flyer'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Flyer');
         });
+        $app['eccube.repository.questionnaire'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireRepository');
+        });
+        $app['eccube.repository.questionnaire_attachment'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireAttachmentRepository');
+        });
+        $app['eccube.repository.questionnaire_detail'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireDetailRepository');
+        });
+        $app['eccube.repository.questionnaire_detail_choice'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireDetailChoiceRepository');
+        });
         $app['eccube.repository.mail_history'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\MailHistory');
         });
@@ -524,6 +536,8 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Admin\SearchGroupOrderType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\FlyerType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchFlyerType($app);
+            $types[] = new \Eccube\Form\Type\Admin\QuestionnaireType($app);
+            $types[] = new \Eccube\Form\Type\Admin\SearchQuestionnaireType($app);
 
             $types[] = new \Eccube\Form\Type\Admin\MasterdataType($app);
             $types[] = new \Eccube\Form\Type\Admin\MasterdataDataType($app);
