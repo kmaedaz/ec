@@ -87,7 +87,18 @@ image_save_urlpath: /upload/save_image/
 image_size: 1000
 image_temp_realdir: /PATH/TO/WEB_ROOT/src/Eccube/Repository/Master/upload/temp_image/
 image_temp_rss_url: 'http://ec-cube.eccube.localhost/upload/temp_image/'
-image_temp_urlpath: /upload/temp_image/
+customer_image_save_realdir: /PATH/TO/WEB_ROOT/src/Eccube/Repository/Master/upload/customer_image/
+customer_image_save_rss_url: 'http://ec-cube.eccube.localhost/upload/customer_image/'
+customer_image_save_urlpath: /upload/customer_image/
+customer_size: 1000
+customer_max_width: 400
+customer_max_height: 400
+questionnaire_attachment_save_realdir: /PATH/TO/WEB_ROOT/src/Eccube/Repository/Master/upload/questionnaire_attachment/
+questionnaire_attachment_save_rss_url: 'http://ec-cube.eccube.localhost/upload/questionnaire_attachment/'
+questionnaire_attachment_save_urlpath: /upload/questionnaire_attachment/
+questionnaire_attachment_size: 4000
+file_temp_realdir: /PATH/TO/WEB_ROOT/src/Eccube/Repository/Master/upload/temp_file/
+file_temp_rss_url: 'http://ec-cube.eccube.localhost/upload/temp_file/'
 input_deliv_fee: 1
 input_zip_urlpath: /input_zip.php
 int_len: 9
@@ -284,6 +295,7 @@ pdf_template_flyer1: flyer_1.pdf
 pdf_template_flyer2: flyer_2.pdf
 default_membership: 2000
 initialize_customer_basicinfo_status: 9
+initialize_exemption_type: 1
 initialize_supporter_type: 6
 initialize_instructor_type: 6
 paying_slip_csv_manufacturer_code: 550056

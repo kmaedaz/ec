@@ -37,7 +37,7 @@ Eccube\Entity\CustomerBasicInfo:
             nullable: true
         regular_member_promoted:
             type: datetime
-            nullable: true
+            nullable: false
         create_date:
             type: datetime
             nullable: false
@@ -61,12 +61,12 @@ Eccube\Entity\CustomerBasicInfo:
                 name: supporter_type
                 referencedColumnName: id
         Bureau:
-            targetEntity: Eccube\Entity\Master\SupporterType
+            targetEntity: Eccube\Entity\Master\Bureau
             joinColumn:
                 name: bureau
                 referencedColumnName: id
         ExemptionType:
-            targetEntity: Eccube\Entity\Master\SupporterType
+            targetEntity: Eccube\Entity\Master\ExemptionType
             joinColumn:
                 name: membership_exemption
                 referencedColumnName: id
