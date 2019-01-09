@@ -238,7 +238,7 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/content/news', '\Eccube\Controller\Admin\Content\NewsController::index')->bind('admin_content_news');
         $c->match('/content/news/new', '\Eccube\Controller\Admin\Content\NewsController::edit')->bind('admin_content_news_new');
         $c->match('/content/news/{id}/edit', '\Eccube\Controller\Admin\Content\NewsController::edit')->assert('id', '\d+')->bind('admin_content_news_edit');
-        $c->delete('/content/news/{id}/delete', '\Eccube\Controller\Admin\Content\NewsController::delete')->assert('id', '\d+')->bind('admin_content_delete');
+        $c->delete('/content/news/{id}/delete', '\Eccube\Controller\Admin\Content\NewsController::delete')->assert('id', '\d+')->bind('admin_content_news_delete');
         $c->put('/content/news/{id}/up', '\Eccube\Controller\Admin\Content\NewsController::up')->assert('id', '\d+')->bind('admin_content_news_up');
         $c->put('/content/news/{id}/down', '\Eccube\Controller\Admin\Content\NewsController::down')->assert('id', '\d+')->bind('admin_content_news_down');
 
