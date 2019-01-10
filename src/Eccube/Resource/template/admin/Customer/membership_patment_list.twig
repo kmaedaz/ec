@@ -1,30 +1,12 @@
 {#
-This file is part of EC-CUBE
-
-Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
-
-http://www.lockon.co.jp/
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+This file is Custom File
 #}
 {% extends 'default_frame.twig' %}
 
-{% set menus = ['customer', 'customer_master'] %}
+{% set menus = ['form_printing', 'regular_member_list'] %}
 
 {% block title %}会員管理{% endblock %}
-{% block sub_title %}会員マスタ{% endblock %}
+{% block sub_title %}正会員一覧{% endblock %}
 
 {% form_theme searchForm 'Form/bootstrap_3_horizontal_layout.html.twig' %}
 
@@ -85,6 +67,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
       });
     }
 
+    // PDF一括ダウンロード
+    $('#pdf_all').click(function() {
+        $("#dropdown-form").attr('action', "{{ url('admin_regular_member_all_export') }}");
+        $("#dropdown-form").submit();
+    });
+
+    // PDF選択ダウンロード
+    $('#pdf_select').click(function() {
+        $("#dropdown-form").attr('action', "{{ url('admin_regular_member_select_export') }}");
+        $("#dropdown-form").submit();
+    });
+
+    // 登録チェックボックス
+    $('#check-all').click(function() {
+      var checkall = $('#check-all').prop('checked');
+      if (checkall) {
+        $('input[id^=check-]').prop('checked', true);
+        } else {
+        $('input[id^=check-]').prop('checked', false);
+      }
+    });
+
     // フォーム値を確認し、アコーディオンを制御
     // 値あり : 開く / 値なし : 閉じる
     (function($, f) {
@@ -125,36 +129,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <div id="search_box_main__body" class="search-box-inner accpanel" {% if active %} style="display: block;"{% endif %}>
           <div class="row">
             <div id="search_box_main__body_inner" class="col-sm-12 col-lg-10 col-lg-offset-1 search">
-              <div class="col-xs-6 col-md-4">
-                <div id="search_box_main__customer_id" class="form-group">
-                  <label>会員番号</label>
-                  {{ form_widget(searchForm.customer_id) }}
-                </div>
-              </div>
-              <div class="col-xs-6 col-md-4">
-                <div id="search_box_main__customer_number" class="form-group">
-                  <label>会員ID</label>
-                  {{ form_widget(searchForm.customer_number) }}
-                </div>
-              </div>
-              <div class="col-xs-6 col-md-4">
-                <div id="search_box_main__customer_number_old" class="form-group">
-                  <label>旧会員ID</label>
-                  {{ form_widget(searchForm.customer_number_old) }}
-                </div>
-              </div>
-              <div class="col-xs-6 col-md-4">
-                <div id="search_box_main__customer_status" class="form-group">
-                  <label>EC会員種別</label>
-                  {{ form_widget(searchForm.customer_status) }}
-                </div>
-              </div>
-              <div class="col-xs-6 col-md-4">
-                <div id="search_box_main__basicinfo_status" class="form-group">
-                  <label>会員ステータス</label>
-                  {{ form_widget(searchForm.customer_basicinfo_status) }}
-                </div>
-              </div>
+
               <div class="col-xs-6 col-md-4">
                 <div id="search_box_main__sex" class="form-group">
                   <label>性別</label>
@@ -260,6 +235,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     <!-- /.col -->
   </div>
 </div>
+</form>
 <!--検索条件設定テーブルここまで-->
 {% if pagination %}
 <div id="result_list" class="row">
@@ -279,55 +255,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                   <ul class="dropdown-menu">
                 {% endfor %}
                   {% for pageMax in pageMaxis if pageMax.name != page_count %}
-                    <li><a href="{{ path('admin_customer_page', {'page_no': 1, 'page_count': pageMax.name}) }}">{{ pageMax.name|e }}件</a></li>
+                    <li><a href="{{ path('admin_customer_membership_payment_list_page', {'page_no': 1, 'page_count': pageMax.name}) }}">{{ pageMax.name|e }}件</a></li>
                   {% endfor %}
                   </ul>
-              </li>
-              <li id="result_list_main__csv_menu" class="dropdown">
-              <a class="dropdown-toggle" data-toggle="dropdown">CSVダウンロード<svg class="cb cb-angle-down icon_down"><use xlink:href="#cb-angle-down"></svg></a>
-              <ul class="dropdown-menu">
-                <li><a href="{{ url('admin_customer_export') }}">CSVダウンロード</a></li>
-                <li><a href="{{ url('admin_setting_shop_csv', { id : constant('\\Eccube\\Entity\\Master\\CsvType::CSV_TYPE_CUSTOMER') }) }}">出力項目設定</a></li>
-              </ul>
               </li>
             </ul>
           </div>
         </div>
+        <form id="dropdown-form">
         {% for Customer in pagination %}
             <div id="result_list_main__list" class="table_list">
                 <div class="table-responsive with-border">
                     <table class="table table-striped">
                         <thead>
                         <tr id="result_list_main__header">
+                            <th class="text-center"><input type="checkbox" id="check-all"></th>
                             <th id="result_list_main__header_id">会員ID</th>
                             <th id="result_list_main__header_name">会員名</th>
                             <th id="result_list_main__header_tel">電話番号</th>
                             <th id="result_list_main__header_mail">メールアドレス</th>
-                            <th id="result_list_main__header_menu_box">&nbsp;</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for Customer in pagination %}
                         <tr id="result_list_main__item--{{ Customer.id }}">
+                            <td id="result_list_main__id_check--{{ Customer.id }}" class="text-center"><input type="checkbox" id="check-{{ Customer.id }}" data-id="{{ Customer.id }}" name="ids{{ Customer.id }}"></td>
                             <td id="result_list_main__id--{{ Customer.id }}" class="member_id">{{ Customer.id }}</td>
-                            <td id="result_list_main__name--{{ Customer.id }}" class="member_name"><a href="{{ url('admin_customer_edit', { 'id': Customer.id}) }}">{{ Customer.name01 }}&nbsp;{{ Customer.name02 }}</a></td>
+                            <td id="result_list_main__name--{{ Customer.id }}" class="member_name"><a href="{{ url('admin_customer_membership_payment_detail', { 'id': Customer.id}) }}">{{ Customer.name01 }}&nbsp;{{ Customer.name02 }}</a></td>
                             <td id="result_list_main__tel--{{ Customer.id }}" class="member_tel">{{ Customer.tel01 }}-{{ Customer.tel02 }}-{{ Customer.tel03 }}</td>
                             <td id="result_list_main__mail--{{ Customer.id }}" class="member_mail">{{ Customer.email }}</td>
-                            <td id="result_list_main__menu_box--{{ Customer.id }}" class="icon_edit">
-                                <div id="result_list_main__menu_box_toggle--{{ Customer.id }}" class="dropdown">
-                                    <a class="dropdown-toggle" data-toggle="dropdown"><svg class="cb cb-ellipsis-h"> <use xlink:href="#cb-ellipsis-h" /></svg></a>
-                                    <ul id="result_list_main__menu--{{ Customer.id }}" class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="{{ url('admin_customer_edit', { 'id': Customer.id}) }}">編集</a></li>
-                                        <li><a href="{{ url('admin_customer_delete', { 'id': Customer.id}) }}" {{ csrf_token_for_anchor() }} data-method="delete" data-message="この会員情報を削除してもよろしいですか？">削除</a></li>
-                                        {% if Customer.CustomerBasicInfo.Status.id != 9 %}
-                                        <li><a href="{{ url('admin_customer_annual_fee_report', {'id': Customer.id}) }}">年会費支払い状況</a></li>
-                                        {% endif %}
-                                        {% if Customer.Status.id == 1 %}
-                                        <li><a href="{{ url('admin_customer_resend', { 'id': Customer.id}) }}" {{ csrf_token_for_anchor() }} data-method="put" data-message="仮登録メールを再送してもよろしいですか？">仮会員メール再送</a></li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -335,9 +291,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 </div>
             </div>
         {% endfor %}
+        </form>
       </div><!-- /.box-body -->
       {% if pagination.totalItemCount > 0 %}
-      {% include "pager.twig" with { 'pages' : pagination.paginationData, 'routes' : 'admin_customer_page' } %}
+      {% include "pager.twig" with { 'pages' : pagination.paginationData, 'routes' : 'admin_customer_membership_payment_list_page' } %}
       {% endif %}
       {% else %}
       <div id="result_list_main__header" class="box-header with-arrow">

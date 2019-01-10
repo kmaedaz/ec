@@ -1,30 +1,12 @@
 {#
-This file is part of EC-CUBE
-
-Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
-
-http://www.lockon.co.jp/
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+This file is Customized File.
 #}
 {% extends 'default_frame.twig' %}
 
-{% set menus = ['product', 'product_master'] %}
+{% set menus = ['questionnaire', 'questionnaire_master'] %}
 
-{% block title %}商品管理{% endblock %}
-{% block sub_title %}商品マスタ{% endblock %}
+{% block title %}総会表決アンケート{% endblock %}
+{% block sub_title %}アンケート照会{% endblock %}
 
 {% form_theme searchForm 'Form/bootstrap_3_horizontal_layout.html.twig' %}
 
@@ -42,6 +24,19 @@ $(function() {
     var inputDate = document.createElement('input');
     inputDate.setAttribute('type', 'date');
     if (inputDate.type !== 'date') {
+        $('input[id$=_period_from]').datetimepicker({
+            locale: 'ja',
+            format: 'YYYY-MM-DD',
+            useCurrent: false,
+            showTodayButton: true
+        });
+
+        $('input[id$=_period_to]').datetimepicker({
+            locale: 'ja',
+            format: 'YYYY-MM-DD',
+            useCurrent: false,
+            showTodayButton: true
+        });
         $('input[id$=_date_start]').datetimepicker({
             locale: 'ja',
             format: 'YYYY-MM-DD',
@@ -90,7 +85,7 @@ $(function() {
                     <div id="search_box" class="row">
                         <div class="col-md-12 accordion">
 
-                            {{ form_widget(searchForm.id, { attr: { placeholder: '商品名・ID・コード', class : 'input_search' } } ) }}
+                            {{ form_widget(searchForm.id, { attr: { placeholder: 'アンケート名・ID', class : 'input_search' } } ) }}
 
                             <a id="search_box__toggle" href="#" class="toggle{% if active %} active{% endif %}">
                                 <svg class="cb cb-minus"> <use xlink:href="#cb-minus"/></svg> <svg class="cb cb-minus"> <use xlink:href="#cb-minus"/></svg>
@@ -100,10 +95,22 @@ $(function() {
                                     <div id="search_box__body_inner" class="col-sm-12 col-lg-10 col-lg-offset-1 search">
 
                                         <div class="row">
+                                            <div id="search_box__name" class="col-md-6">
+                                                <label>アンケート名</label>
+                                                <div class="form-group">
+                                                    {{ form_widget(searchForm.name) }}
+                                                </div>
+                                            </div>
                                             <div id="search_box__status" class="col-md-6">
                                                 <label>種別</label>
                                                 <div class="form-group">
                                                     {{ form_widget(searchForm.status) }}
+                                                </div>
+                                            </div>
+                                            <div id="search_box__application_period" class="col-sm-6">
+                                                <label>公開期間</label>
+                                                <div class="form-group range">
+                                                    {{ form_widget(searchForm.application_period_from, {'attr': {'class': 'input_cal'}}) }} ～ {{ form_widget(searchForm.application_period_to, {'attr': {'class': 'input_cal'}}) }}
                                                 </div>
                                             </div>
                                         </div><!-- /.row -->
@@ -227,7 +234,7 @@ $(function() {
                                             </div>
                                             <div id="result_list__image--{{ Product.id }}" class="item_photo td">
                                                 <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
-                                                    <img src="{{ app.config.product_image_save_urlpath }}/{{ Product.mainFileName|no_image_product }}" />
+                                                    <img src="{{ app.config.image_save_urlpath }}/{{ Product.mainFileName|no_image_product }}" />
                                                 </a>
                                             </div>
                                             <div id="result_list__name--{{ Product.id }}" class="item_detail td">

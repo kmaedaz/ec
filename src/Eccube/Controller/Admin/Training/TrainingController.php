@@ -863,7 +863,7 @@ class TrainingController extends AbstractController
 
                     // 移動
                     $file = new File($app['config']['image_temp_realdir'].'/'.$add_image);
-                    $file->move($app['config']['image_save_realdir']);
+                    $file->move($app['config']['product_image_save_realdir']);
                 }
 
                 // 画像の削除
@@ -883,7 +883,7 @@ class TrainingController extends AbstractController
                     // 削除
                     if (!empty($delete_image)) {
                         $fs = new Filesystem();
-                        $fs->remove($app['config']['image_save_realdir'].'/'.$delete_image);
+                        $fs->remove($app['config']['product_image_save_realdir'].'/'.$delete_image);
                     }
                 }
                 $app['orm.em']->persist($Product);
@@ -1761,7 +1761,7 @@ class TrainingController extends AbstractController
                     try {
                         if (!empty($deleteImage)) {
                             $fs = new Filesystem();
-                            $fs->remove($app['config']['image_save_realdir'].'/'.$deleteImage);
+                            $fs->remove($app['config']['product_image_save_realdir'].'/'.$deleteImage);
                         }
                     } catch (\Exception $e) {
                         // エラーが発生しても無視する
@@ -1835,7 +1835,7 @@ class TrainingController extends AbstractController
                     $filename = date('mdHis').uniqid('_').'.'.$extension;
                     try {
                         $fs = new Filesystem();
-                        $fs->copy($app['config']['image_save_realdir'].'/'.$Image->getFileName(), $app['config']['image_save_realdir'].'/'.$filename);
+                        $fs->copy($app['config']['product_image_save_realdir'].'/'.$Image->getFileName(), $app['config']['product_image_save_realdir'].'/'.$filename);
                     } catch (\Exception $e) {
                         // エラーが発生しても無視する
                     }

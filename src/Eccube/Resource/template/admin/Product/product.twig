@@ -101,7 +101,7 @@ $(function() {
     var proto_add = '{{ form_widget(form.add_images.vars.prototype) }}';
     var proto_del = '{{ form_widget(form.delete_images.vars.prototype) }}';
     {% for image in form.images %}
-    var $img = $(proto_img.replace(/__path__/g, '{{ app.config.image_save_urlpath }}/{{ image.vars.value }}'));
+    var $img = $(proto_img.replace(/__path__/g, '{{ app.config.product_image_save_urlpath }}/{{ image.vars.value }}'));
     var $widget = $('{{ form_widget(image) }}');
     $widget.val('{{ image.vars.value }}');
     $("#thumb").append($img.append($widget));
@@ -139,7 +139,7 @@ $(function() {
         var $new_delete_image = $(proto_del.replace(/__name__/g, count_del));
         var src = $(this).prev().attr('src')
                 .replace('{{ app.config.image_temp_urlpath }}/', '')
-                .replace('{{ app.config.image_save_urlpath }}/', '');
+                .replace('{{ app.config.product_image_save_urlpath }}/', '');
         $new_delete_image.val(src);
         $("#thumb").append($new_delete_image);
         $(this).parent("li").remove();
@@ -217,7 +217,7 @@ $(function() {
     var proto_file_add = '{{ form_widget(form.add_files.vars.prototype) }}';
     var proto_file_del = '{{ form_widget(form.delete_files.vars.prototype) }}';
     {% for file in form.files %}
-    var $file = $(proto_img.replace(/__path__/g, '{{ app.config.image_save_urlpath }}/{{ file.vars.value }}'));
+    var $file = $(proto_img.replace(/__path__/g, '{{ app.config.product_file_save_urlpath }}/{{ file.vars.value }}'));
     var $widget = $('{{ form_widget(form.file) }}');
     $widget.val('{{ image.vars.value }}');
     $("#thumb_file").append($file.append($widget));
@@ -255,7 +255,7 @@ $(function() {
         var $new_delete_file = $(proto_del.replace(/__name__/g, count_del));
         var src = $(this).prev().attr('src')
                 .replace('{{ app.config.image_temp_urlpath }}/', '')
-                .replace('{{ app.config.image_save_urlpath }}/', '');
+                .replace('{{ app.config.product_file_save_urlpath }}/', '');
         $new_delete_file.val(src);
         $("#thumb_file").append($new_delete_file);
         $(this).parent("li").remove();

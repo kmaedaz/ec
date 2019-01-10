@@ -15,6 +15,9 @@ Eccube\Entity\QuestionnaireAttachment:
         file_name:
             type: text
             nullable: false
+        label:
+            type: text
+            nullable: false
         rank:
             type: integer
             nullable: false

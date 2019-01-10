@@ -72,7 +72,7 @@ This file is Customized File
         var proto_add = '{{ form_widget(form.add_images.vars.prototype) }}';
         var proto_del = '{{ form_widget(form.delete_images.vars.prototype) }}';
         {% for image in form.images %}
-        var $img = $(proto_img.replace(/__path__/g, '{{ app.config.image_save_urlpath }}/{{ image.vars.value }}'));
+        var $img = $(proto_img.replace(/__path__/g, '{{ app.config.product_image_save_urlpath }}/{{ image.vars.value }}'));
         var $widget = $('{{ form_widget(image) }}');
         $widget.val('{{ image.vars.value }}');
         $("#thumb").append($img.append($widget));
@@ -110,7 +110,7 @@ This file is Customized File
             var $new_delete_image = $(proto_del.replace(/__name__/g, count_del));
             var src = $(this).prev().attr('src')
                     .replace('{{ app.config.image_temp_urlpath }}/', '')
-                    .replace('{{ app.config.image_save_urlpath }}/', '');
+                    .replace('{{ app.config.product_image_save_urlpath }}/', '');
             $new_delete_image.val(src);
             $("#thumb").append($new_delete_image);
             $(this).parent("li").remove();
@@ -149,7 +149,7 @@ This file is Customized File
                 $('#progress').show();
             },
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-            maxFileSize: 10000000,
+            maxFileSize: {{ app.config.max_customer_upload_size }},
             maxNumberOfFiles: 10,
             progressall: function (e, data) {
                 var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -403,7 +403,7 @@ This file is Customized File
                             <div id="detail_box__image" class="form-group">
                                 <label class="col-sm-2 control-label" for="admin_training_product_image">
                                     {{ form.product_image.vars.label }}<br>
-                                    <span class="small">620px以上推奨</span>
+                                    <span class="small">400px×400px推奨</span>
                                 </label>
                                 <div id="detail_files_box" class="col-sm-9 col-lg-10">
                                     <div class="photo_files" id="drag-drop-area">

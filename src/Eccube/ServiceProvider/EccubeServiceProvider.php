@@ -355,7 +355,9 @@ class EccubeServiceProvider implements ServiceProviderInterface
             return $app['orm.em']->getRepository('Eccube\Entity\Master\CustomerStatus');
         });
         $app['eccube.repository.customer_basic_info_status'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\Master\CustomerBasicInfoStatus');
+            $CustomerBaseInfoStatusRepository = $app['orm.em']->getRepository('Eccube\Entity\Master\CustomerBasicInfoStatus');
+            $CustomerBaseInfoStatusRepository->setApplication($app);
+            return $CustomerBaseInfoStatusRepository;
         });
         $app['eccube.repository.order_status'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\Master\OrderStatus');
@@ -495,7 +497,7 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Admin\ProductClassType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchProductType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchGeneralProductType($app);
-            $types[] = new \Eccube\Form\Type\Admin\SearchCustomerType($app['config']);
+            $types[] = new \Eccube\Form\Type\Admin\SearchCustomerType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchCustomerGroupType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\SearchRegularMemberType($app['config']);
             $types[] = new \Eccube\Form\Type\Admin\SearchOrderType($app['config']);

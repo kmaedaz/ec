@@ -105,9 +105,6 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->post('/customer/group/search/customer/html', '\Eccube\Controller\Admin\Customer\CustomerGroupEditController::searchCustomerHtml')->bind('admin_customer_group_search_customer_html');
         $c->match('/customer/group/search/customer/html/page/{page_no}', '\Eccube\Controller\Admin\Customer\CustomerGroupEditController::searchCustomerHtml')->assert('page_no', '\d+')->bind('admin_customer_group_search_customer_html_page');
         $c->post('/customer/group/search/customer/id', '\Eccube\Controller\Admin\Customer\CustomerGroupEditController::searchCustomerById')->bind('admin_customer_group_search_customer_by_id');
-        $c->match('/customer/membership', '\Eccube\Controller\Admin\Customer\CustomerMembershipController::index')->bind('admin_customer_membership_payment_list');
-        $c->match('/customer/membership/page/{page_no}', '\Eccube\Controller\Admin\Customer\CustomerMembershipController::index')->bind('admin_customer_membership_payment_list_page');
-        $c->match('/customer/membership/{id}/detail', '\Eccube\Controller\Admin\Customer\CustomerMembershipController::detail')->assert('id', '\d+')->bind('admin_customer_membership_payment_detail');
 
         // order
         $c->match('/order', '\Eccube\Controller\Admin\Order\OrderController::index')->bind('admin_order');

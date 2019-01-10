@@ -316,3 +316,5 @@ payment_pdf_account_no: "68705"
 payment_pdf_subscriber: 特非)ふまねっと
 max_attachment_size: 10485760
 max_customer_upload_size: 10485760
+max_questionnaire_detail: 0
+max_questionnaire_detail_choice: 5

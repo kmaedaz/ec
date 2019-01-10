@@ -164,4 +164,32 @@ class QuestionnaireAttachment extends \Eccube\Entity\AbstractEntity
     {
         return $this->Creator;
     }
+    /**
+     * @var string
+     */
+    private $label;
+
+
+    /**
+     * Set label
+     *
+     * @param string $label
+     * @return QuestionnaireAttachment
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get label
+     *
+     * @return string 
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
 }

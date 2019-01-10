@@ -3258,3 +3258,35 @@ textarea#log {
 .org_file {
     fontsize: 16px;
 }
+
+.questionnaire_detail_box {
+    border: 1px solid #d1d8d9;
+    overflow: hidden;
+}
+
+.questionnaire_detail_item {
+    overflow: hidden;
+    padding: 10px;
+}
+
+.questionnaire_detail_choice_box {
+    border-top: 1px dotted #D1D8D9;
+    overflow: hidden;
+}
+
+.choice_add_btn {
+    border-top: 1px dotted #D1D8D9;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.questionnaire_detail_choice_item {
+    overflow: hidden;
+    padding: 10px;
+}
+
+#choice_add:hover,
+#detail_add:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}

@@ -46,11 +46,10 @@ $(function() {
 {% endblock javascript %}
 
 {% block main %}
-
             <!--検索条件設定テーブルここから-->
             <div id="search_wrap" class="search-box">
                 <form name="search_form" id="search_form" method="post" action="{{ url('admin_training_type') }}">
-                    {{ form_widget(searchForm._token) }}
+                	{{ form_widget(searchForm._token) }}
                     <div id="search_box" class="row">
                         <div class="col-md-12 accordion">
                             {{ form_widget(searchForm.training_type_name, { attr: { placeholder: '講習会種別名', class : 'input_search' } } ) }}
@@ -106,30 +105,12 @@ $(function() {
                                 </div>
                             </div>
                             <div id="result_list__list" class="item_list">
-
-
                                 <div class="tableish tableish-striped">
-	                                <div  class="item_box tr" style="text-align:center;">
-	                                    <div  class="item_id td" style="width:6rem;">
-	                                    表示順
-	                                    </div>
-	                                    <div  class="item_id td" style="width:4rem;">
-	                                    No
-	                                    </div>
-	                                    <div  class="item_detail td">
-	                                    種別名称
-	                                    </div>
-	                                </div>
 
-			                        {% set count= (page_no-1) * page_count %}
                                     {% for TrainingType in pagination %}
                                         <div id="result_list__item--{{ TrainingType.id }}" class="item_box tr">
                                             <div id="result_list__id--{{ TrainingType.id }}" class="item_id td">
-                                                {{TrainingType.rank}}
-                                            </div>
-                                            <div id="result_list__id--{{ TrainingType.id }}" class="item_id td">
-                                                {% set count= count+1 %}
-                                                {{ count }}
+                                                {{TrainingType.id}}
                                             </div>
                                             <div id="result_list__name--{{ TrainingType.id }}" class="item_detail td">
                                                 <a href="{{ url('admin_training_type_edit', { id : TrainingType.id }) }}">
@@ -158,6 +139,9 @@ $(function() {
                                             {% else %}
                                                 <a href="{{ path('admin_training_type_page', {'page_no': page_no} ) }}">すべて</a>
                                             {% endif %}
+                                        </li>
+                                        <li>
+                                            <a href="{{ path('admin_training_type_page', {'page_no': page_no, 'status': app.config.admin_product_stock_status} ) }}">{{ app.translator.trans('admin.product.search.stock') }}</a>
                                         </li>
                                     </ul>
                                 </div>
