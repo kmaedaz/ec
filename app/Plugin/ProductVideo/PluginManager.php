@@ -54,7 +54,7 @@ class PluginManager extends AbstractPluginManager
      */
     public function uninstall($config, Application $app)
     {
-
+        $em = $app['orm.em'];
         $connection = $em->getConnection();
         $connection->executeUpdate(
 			   "DROP TABLE IF EXISTS `plg_product_video`"
