@@ -1,0 +1,78 @@
+{# default_frame.twigを継承して共通のヘッダー、フッターを表示するにはdtb_page_layout に登録が必要 #}
+{% extends 'default_frame.twig' %}
+
+
+{% block main %}
+
+{# { dump() } #}
+
+{% set body_class = 'productvideo_page' %}
+{% set favorite = BaseInfo.option_favorite_product %}
+<nav id="navi_list_box" class="local_nav {% if favorite == 1 %}favorite{% endif %}">
+    <ul id="navi_list">
+{% if app['mobile_detect'].isMobile %}
+        <li class="{% if mypageno|default('') == 'index'  %}active{% endif %}"    ><a href="{{ url('mypage') }}">ご注文履歴</a></li>
+        <li class="{% if mypageno|default('') == 'favorite' %}active{% endif %}"  ><a href="{{ url('mypage_favorite') }}">お気に入り一覧</a></li>
+        <li class="{% if mypageno|default('') == 'change'   %}active{% endif %}"  ><a href="{{ url('plugin_ProductVideo_history') }}">購入動画</a></li>
+        <li class="{% if mypageno|default('') == 'change'   %}active{% endif %}"  ><a href="{{ url('mypage_change') }}">会員情報編集</a></li>
+        <li class="{% if mypageno|default('') == 'delivery' %}active{% endif %}"  ><a href="{{ url('mypage_delivery') }}">お届け先編集</a></li>
+        <li class="{% if mypageno|default('') == 'withdraw' %}active{% endif %}"  ><a href="{{ url('mypage_withdraw') }}">退会手続き</a></li>
+{% else %}
+        <li class="{% if mypageno|default('') == 'index'  %}active{% endif %}"    style="width: 17%;"><a href="{{ url('mypage') }}">ご注文履歴</a></li>
+        <li class="{% if mypageno|default('') == 'favorite' %}active{% endif %}"  style="width: 17%;"><a href="{{ url('mypage_favorite') }}">お気に入り一覧</a></li>
+        <li class="{% if mypageno|default('') == 'change'   %}active{% endif %}"  style="width: 17%;"><a href="{{ url('plugin_ProductVideo_history') }}">購入動画</a></li>
+        <li class="{% if mypageno|default('') == 'change'   %}active{% endif %}"  style="width: 17%;"><a href="{{ url('mypage_change') }}">会員情報編集</a></li>
+        <li class="{% if mypageno|default('') == 'delivery' %}active{% endif %}"  style="width: 17%;"><a href="{{ url('mypage_delivery') }}">お届け先編集</a></li>
+        <li class="{% if mypageno|default('') == 'withdraw' %}active{% endif %}"  style="width: 15%;"><a href="{{ url('mypage_withdraw') }}">退会手続き</a></li>
+{% endif %}
+    </ul>
+
+</nav>
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <p class="text-danger">動画購入履歴</p>
+        </div>
+    </div>
+    
+    
+    {% if pagination %}
+        <div id="result_list" class="row">
+            <div class="col-md-12">
+                <div id="result_list_main" class="box">
+                    {% if pagination.totalItemCount > 0 %}
+                        <div id="result_list_main__body" class="box-body">
+                            <div id="result_list_main__menu" class="row">
+                                <div class="col-md-12">
+                                    
+                                    <ul class="sort-dd">
+                                        <li id="result_list_main__pagemax_menu" class="dropdown">
+                                            {% for pageMax in pageMaxis if pageMax.name == page_count %}
+                                            <a id="result_list_main__pagemax_menu_toggle" class="dropdown-toggle" data-toggle="dropdown">{{ pageMax.name|e }}件<svg class="cb cb-angle-down icon_down"> <use xlink:href="#cb-angle-down" /></svg></a>
+                                            <ul class="dropdown-menu">
+                                                {% endfor %}
+                                                {% for pageMax in pageMaxis if pageMax.name != page_count %}
+                                                    <li><a href="{{ path('admin_contacts_page', {'page_no': 1, 'page_count': pageMax.name}) }}">{{ pageMax.name|e }}件</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+
+                    {% else %}
+                        <div class="box-header with-arrow">
+                            <h3 class="box-title">該当するデータがありませんでした。</h3>
+                        </div><!-- /.box-header -->
+                    {% endif %}
+                </div><!-- /.box -->
+            </div><!-- /.col -->
+        </div>
+
+    {% endif %}
+
+    
+{% endblock %}
