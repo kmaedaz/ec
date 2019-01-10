@@ -3,7 +3,7 @@
 namespace Eccube\Repository\Master;
 
 use Doctrine\ORM\EntityRepository;
-
+use Eccube\Util\Str;
 /**
  * TrainingTypeRepository
  *
