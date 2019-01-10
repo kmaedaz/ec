@@ -5,9 +5,9 @@ namespace Eccube\Entity\Master;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ExemptionType
+ * NobulletinType
  */
-class ExemptionType extends \Eccube\Entity\AbstractEntity
+class NobulletinType extends \Eccube\Entity\AbstractEntity
 {
     /**
      * @return string
@@ -37,7 +37,7 @@ class ExemptionType extends \Eccube\Entity\AbstractEntity
      * Set id
      *
      * @param integer $id
-     * @return ExemptionType
+     * @return NobulletinType
      */
     public function setId($id)
     {
@@ -60,7 +60,7 @@ class ExemptionType extends \Eccube\Entity\AbstractEntity
      * Set name
      *
      * @param string $name
-     * @return ExemptionType
+     * @return NobulletinType
      */
     public function setName($name)
     {
@@ -83,7 +83,7 @@ class ExemptionType extends \Eccube\Entity\AbstractEntity
      * Set rank
      *
      * @param integer $rank
-     * @return ExemptionType
+     * @return NobulletinType
      */
     public function setRank($rank)
     {

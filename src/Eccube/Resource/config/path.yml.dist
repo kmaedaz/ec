@@ -27,6 +27,12 @@ image_temp_realdir: ${ROOT_DIR}/html/upload/temp_image
 # realdir::customer_image
 customer_image_save_realdir: ${ROOT_DIR}/html/upload/customer_image
 
+# realdir::product_image
+product_image_save_realdir: ${ROOT_DIR}/html/upload/product_image
+
+# realdir::product_file
+product_file_save_realdir: ${ROOT_DIR}/html/upload/product_file
+
 # realdir::questionnaire_attachment
 questionnaire_attachment_save_realdir: ${ROOT_DIR}/html/upload/questionnaire_attachment
 file_temp_realdir: ${ROOT_DIR}/html/upload/temp_file
@@ -61,7 +67,10 @@ front_urlpath: ${ROOT_PUBLIC_URLPATH}/template/${TEMPLATE_CODE}
 image_save_urlpath: ${ROOT_PUBLIC_URLPATH}/upload/save_image
 image_temp_urlpath: ${ROOT_PUBLIC_URLPATH}/upload/temp_image
 customer_image_save_urlpath: ${ROOT_PUBLIC_URLPATH}/upload/customer_image
+product_image_save_urlpath: ${ROOT_PUBLIC_URLPATH}/upload/product_image
+product_file_save_urlpath: ${ROOT_PUBLIC_URLPATH}/upload/product_file
 questionnaire_attachment_save_urlpath: ${ROOT_PUBLIC_URLPATH}/upload/questionnaire_attachment
 file_temp_urlpath: ${ROOT_PUBLIC_URLPATH}/upload/temp_file
 user_data_urlpath: ${ROOT_PUBLIC_URLPATH}/user_data
 plugin_urlpath: ${ROOT_PUBLIC_URLPATH}/plugin
+qr_code_get_url: http://153.126.136.244/qr-code/qr_img.php?d=

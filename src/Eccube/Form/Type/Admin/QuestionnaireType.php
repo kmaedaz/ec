@@ -38,11 +38,6 @@ class QuestionnaireType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /**
-         * @var ArrayCollection $arrCategory array of category
-         */
-        $arrCategory = $this->app['eccube.repository.category']->getGeneralList(null, true);
-
         $builder
             // 基本情報
             ->add('name', 'text', array(
@@ -50,6 +45,10 @@ class QuestionnaireType extends AbstractType
                 'constraints' => array(
                     new Assert\NotBlank(),
                 ),
+            ))
+            ->add('description', 'textarea', array(
+                'label' => 'アンケート説明',
+                'constraints' => array(),
             ))
             // 募集期間(From)
             ->add('application_period_from', 'text', array(
@@ -107,6 +106,13 @@ class QuestionnaireType extends AbstractType
                 'mapped' => false,
                 'allow_add' => true,
                 'allow_delete' => true,
+            ))
+            // アンケート詳細
+            ->add('QuestionnaireDetails', 'collection', array(
+                'type' => 'questionnaire_detail',
+                'allow_add' => true,
+                'allow_delete' => true,
+                'prototype' => true,
             ))
         ;
     }

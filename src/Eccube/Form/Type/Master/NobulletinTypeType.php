@@ -11,7 +11,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class BureauType extends AbstractType
+class NobulletinTypeType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -24,7 +24,7 @@ class BureauType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'class' => 'Eccube\Entity\Master\Bureau',
+            'class' => 'Eccube\Entity\Master\NobulletinType',
             'expanded' => true,
         ));
     }
@@ -36,6 +36,6 @@ class BureauType extends AbstractType
 
     public function getName()
     {
-        return 'bureau';
+        return 'nobulletin_type';
     }
 }

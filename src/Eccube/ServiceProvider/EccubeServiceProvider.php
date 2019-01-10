@@ -464,6 +464,7 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Master\MembershipBillingStatusType();
             $types[] = new \Eccube\Form\Type\Master\BureauType();
             $types[] = new \Eccube\Form\Type\Master\ExemptionTypeType();
+            $types[] = new \Eccube\Form\Type\Master\NobulletinTypeType();
 
             $types[] = new \Eccube\Form\Type\CustomerType($app); // 削除予定
 
@@ -543,6 +544,8 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Admin\FlyerType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchFlyerType($app);
             $types[] = new \Eccube\Form\Type\Admin\QuestionnaireType($app);
+            $types[] = new \Eccube\Form\Type\Admin\QuestionnaireDetailType($app);
+            $types[] = new \Eccube\Form\Type\Admin\QuestionnaireDetailChoiceType($app);
             $types[] = new \Eccube\Form\Type\Admin\SearchQuestionnaireType($app);
 
             $types[] = new \Eccube\Form\Type\Admin\MasterdataType($app);

@@ -953,6 +953,10 @@ textarea.form-control{
     fill: #d0d0d0;
     font-size: 60px;
 }
+#drag-drop-area .no-attachment {
+    fill: #d0d0d0;
+    font-size: 60px;
+}
 #drag-drop-area {
 }
 
@@ -3245,4 +3249,12 @@ textarea#log {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.save_file {
+    display: none;
+}
+
+.org_file {
+    fontsize: 16px;
 }
