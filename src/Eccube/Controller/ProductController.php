@@ -306,6 +306,13 @@ class ProductController
         if (count($Product->getProductClasses()) < 1) {
             throw new NotFoundHttpException();
         }
+        $is_free_price = false;
+        foreach ($Product->getProductCategories() as $ProductCategory) {
+            if ($ProductCategory->getCategoryId() == \Eccube\Entity\Category::DONATION_CATEGORY) {
+                $is_free_price = true;
+                break;
+            }
+        }
 
         /* @var $builder \Symfony\Component\Form\FormBuilderInterface */
         $builder = $app['form.factory']->createNamedBuilder('', 'add_cart', null, array(
@@ -330,6 +337,8 @@ class ProductController
 
             if ($form->isValid()) {
                 $addCartData = $form->getData();
+                log_info('addCartData:' . print_r($addCartData, true));
+                
                 if ($addCartData['mode'] === 'add_favorite') {
                     if ($app->isGranted('ROLE_USER')) {
                         $Customer = $app->user();
@@ -359,16 +368,20 @@ class ProductController
                     }
                 } elseif ($addCartData['mode'] === 'add_cart') {
 
-                    log_info('カート追加処理開始', array('product_id' => $Product->getId(), 'product_class_id' => $addCartData['product_class_id'], 'quantity' => $addCartData['quantity']));
+                    log_info('カート追加処理開始', array('product_id' => $Product->getId(), 'product_class_id' => $addCartData['product_class_id'], 'quantity' => ($is_free_price?1:$addCartData['quantity'])));
 
                     try {
-                        $app['eccube.service.cart']->addProduct($addCartData['product_class_id'], $addCartData['quantity'])->save();
+                        if ($is_free_price) {
+                            $app['eccube.service.cart']->addProductAndPrice($addCartData['product_class_id'], $addCartData['price'])->save();
+                        } else {
+                            $app['eccube.service.cart']->addProduct($addCartData['product_class_id'], $addCartData['quantity'])->save();
+                        }
                     } catch (CartException $e) {
                         log_info('カート追加エラー', array($e->getMessage()));
                         $app->addRequestError($e->getMessage());
                     }
 
-                    log_info('カート追加処理完了', array('product_id' => $Product->getId(), 'product_class_id' => $addCartData['product_class_id'], 'quantity' => $addCartData['quantity']));
+                    log_info('カート追加処理完了', array('product_id' => $Product->getId(), 'product_class_id' => $addCartData['product_class_id'], 'quantity' => ($is_free_price?1:$addCartData['quantity'])));
 
                     $event = new EventArgs(
                         array(
@@ -410,6 +423,7 @@ class ProductController
             'form' => $form->createView(),
             'Product' => $Product,
             'is_favorite' => $is_favorite,
+            'is_free_price' => $is_free_price,
         ));
     }
 

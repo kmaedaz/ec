@@ -269,15 +269,9 @@ class CustomerBasicInfo extends \Eccube\Entity\AbstractEntity
     private $regular_member_promoted;
 
     /**
-     * @var \Eccube\Entity\Master\SupporterType
+     * @var \Eccube\Entity\Master\Bureau
      */
     private $Bureau;
-
-    /**
-     * @var \Eccube\Entity\Master\SupporterType
-     */
-    private $ExemptionType;
-
 
     /**
      * Set qualification
@@ -374,10 +368,10 @@ class CustomerBasicInfo extends \Eccube\Entity\AbstractEntity
     /**
      * Set Bureau
      *
-     * @param \Eccube\Entity\Master\SupporterType $bureau
+     * @param \Eccube\Entity\Master\Bureau $bureau
      * @return CustomerBasicInfo
      */
-    public function setBureau(\Eccube\Entity\Master\SupporterType $bureau = null)
+    public function setBureau(\Eccube\Entity\Master\Bureau $bureau = null)
     {
         $this->Bureau = $bureau;
 
@@ -387,7 +381,7 @@ class CustomerBasicInfo extends \Eccube\Entity\AbstractEntity
     /**
      * Get Bureau
      *
-     * @return \Eccube\Entity\Master\SupporterType 
+     * @return \Eccube\Entity\Master\Bureau 
      */
     public function getBureau()
     {
@@ -395,25 +389,87 @@ class CustomerBasicInfo extends \Eccube\Entity\AbstractEntity
     }
 
     /**
-     * Set ExemptionType
+     * @var string
+     */
+    private $customer_number_old;
+
+    /**
+     * @var \Eccube\Entity\Master\NobulletinType
+     */
+    private $Nobulletin;
+
+
+    /**
+     * Set customer_number_old
      *
-     * @param \Eccube\Entity\Master\SupporterType $exemptionType
+     * @param string $customerNumberOld
      * @return CustomerBasicInfo
      */
-    public function setExemptionType(\Eccube\Entity\Master\SupporterType $exemptionType = null)
+    public function setCustomerNumberOld($customerNumberOld)
     {
-        $this->ExemptionType = $exemptionType;
+        $this->customer_number_old = $customerNumberOld;
 
         return $this;
     }
 
     /**
-     * Get ExemptionType
+     * Get customer_number_old
      *
-     * @return \Eccube\Entity\Master\SupporterType 
+     * @return string 
      */
-    public function getExemptionType()
+    public function getCustomerNumberOld()
     {
-        return $this->ExemptionType;
+        return $this->customer_number_old;
+    }
+
+    /**
+     * Set Nobulletin
+     *
+     * @param \Eccube\Entity\Master\NobulletinType $nobulletin
+     * @return CustomerBasicInfo
+     */
+    public function setNobulletin(\Eccube\Entity\Master\NobulletinType $nobulletin = null)
+    {
+        $this->Nobulletin = $nobulletin;
+
+        return $this;
+    }
+
+    /**
+     * Get Nobulletin
+     *
+     * @return \Eccube\Entity\Master\NobulletinType 
+     */
+    public function getNobulletin()
+    {
+        return $this->Nobulletin;
+    }
+    /**
+     * @var \Eccube\Entity\Master\ExemptionType
+     */
+    private $MembershipExemption;
+
+
+    /**
+     * Set MembershipExemption
+     *
+     * @param \Eccube\Entity\Master\ExemptionType $membershipExemption
+     * @return CustomerBasicInfo
+     */
+    public function setMembershipExemption(\Eccube\Entity\Master\ExemptionType $membershipExemption = null)
+    {
+        $this->MembershipExemption = $membershipExemption;
+
+        return $this;
+    }
+
+    /**
+     * Get MembershipExemption
+     *
+     * @return \Eccube\Entity\Master\ExemptionType 
+     */
+    public function getMembershipExemption()
+    {
+        return $this->MembershipExemption;
     }
 }

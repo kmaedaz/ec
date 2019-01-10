@@ -23,6 +23,9 @@ Eccube\Entity\CustomerBasicInfo:
         customer_number:
             type: text
             nullable: true
+        customer_number_old:
+            type: text
+            nullable: true
         customer_pin_code:
             type: integer
             nullable: true
@@ -37,7 +40,7 @@ Eccube\Entity\CustomerBasicInfo:
             nullable: true
         regular_member_promoted:
             type: datetime
-            nullable: true
+            nullable: false
         create_date:
             type: datetime
             nullable: false
@@ -50,6 +53,11 @@ Eccube\Entity\CustomerBasicInfo:
             joinColumn:
                 name: status
                 referencedColumnName: id
+        Nobulletin:
+            targetEntity: Eccube\Entity\Master\NobulletinType
+            joinColumn:
+                name: nobulletin
+                referencedColumnName: id
         InstructorType:
             targetEntity: Eccube\Entity\Master\InstructorType
             joinColumn:
@@ -61,12 +69,12 @@ Eccube\Entity\CustomerBasicInfo:
                 name: supporter_type
                 referencedColumnName: id
         Bureau:
-            targetEntity: Eccube\Entity\Master\SupporterType
+            targetEntity: Eccube\Entity\Master\Bureau
             joinColumn:
                 name: bureau
                 referencedColumnName: id
-        ExemptionType:
-            targetEntity: Eccube\Entity\Master\SupporterType
+        MembershipExemption:
+            targetEntity: Eccube\Entity\Master\ExemptionType
             joinColumn:
                 name: membership_exemption
                 referencedColumnName: id

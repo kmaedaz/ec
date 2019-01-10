@@ -46,6 +46,7 @@ $(function() {
 {% endblock javascript %}
 
 {% block main %}
+
             <!--検索条件設定テーブルここから-->
             <div id="search_wrap" class="search-box">
                 <form name="search_form" id="search_form" method="post" action="{{ url('admin_training_type') }}">
@@ -105,8 +106,22 @@ $(function() {
                                 </div>
                             </div>
                             <div id="result_list__list" class="item_list">
-                                <div class="tableish tableish-striped">
 
+
+                                <div class="tableish tableish-striped">
+	                                <div  class="item_box tr" style="text-align:center;">
+	                                    <div  class="item_id td" style="width:6rem;">
+	                                    表示順
+	                                    </div>
+	                                    <div  class="item_id td" style="width:4rem;">
+	                                    No
+	                                    </div>
+	                                    <div  class="item_detail td">
+	                                    種別名称
+	                                    </div>
+	                                </div>
+
+<<<<<<< HEAD
                                         <div class="item_box tr">
                                             <div  class="item_id td" style="width:6rem;">
                                             表示順
@@ -121,14 +136,23 @@ $(function() {
 
 
                                     {% set count =( page_no-1 )* page_count %}
+=======
+			                        {% set count= (page_no-1) * page_count %}
+>>>>>>> upstream/development
                                     {% for TrainingType in pagination %}
                                         <div id="result_list__item--{{ TrainingType.id }}" class="item_box tr">
                                             <div id="result_list__id--{{ TrainingType.id }}" class="item_id td">
                                                 {{TrainingType.rank}}
                                             </div>
+<<<<<<< HEAD
                                             <div  class="item_id td">
                                              {% set count= count+1 %} 
                                                {{count}}
+=======
+                                            <div id="result_list__id--{{ TrainingType.id }}" class="item_id td">
+                                                {% set count= count+1 %}
+                                                {{ count }}
+>>>>>>> upstream/development
                                             </div>
                                             <div id="result_list__name--{{ TrainingType.id }}" class="item_detail td">
                                                 <a href="{{ url('admin_training_type_edit', { id : TrainingType.id }) }}">
