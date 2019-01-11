@@ -56,15 +56,15 @@ $(function() {
     var attachment_add = '{{ form_widget(form.add_attachments.vars.prototype) }}';
     var attachment_del = '{{ form_widget(form.delete_attachments.vars.prototype) }}';
     {% for attachment in form.attachments %}
-    var $attachment = $(attachment_file.replace(/__path__/g, '{{ app.config.questionnaire_attachment_save_urlpath }}/{{ attachment.vars.value }}'));
+    var $attachment = $(attachment_file.replace(/__path__/g, '{{ app.config.questionnaire_attachment_save_urlpath }}/{{ attachment.vars.save_file.value }}').replace(/__filename__/g, {{ attachment.vars.org_file.value }}'));
     var $widget = $('{{ form_widget(attachment) }}');
-    $widget.val('{{ attachment.vars.value }}');
+    $widget.val('{{ attachment.save_file.vars.value }}');
     $("#thumb").append($attachment.append($widget));
     {% endfor %}
     {% for add_attachment in form.add_attachments %}
-    var $attachment = $(attachment_file.replace(/__path__/g, '{{ app.config.file_temp_urlpath }}/{{ add_attachment.vars.value }}'));
+    var $attachment = $(attachment_file.replace(/__path__/g, '{{ app.config.questionnaire_attachment_save_urlpath }}/{{ add_attachment.vars.save_file.value }}').replace(/__filename__/g, {{ add_attachment.vars.org_file.value }}'));
     var $widget = $('{{ form_widget(add_attachment) }}');
-    $widget.val('{{ add_attachment.vars.value }}');
+    $widget.val('{{ add_attachment.save_file.vars.value }}');
     $("#thumb").append($attachment.append($widget));
     {% endfor %}
     {% for delete_attachment in form.delete_attachments %}
@@ -160,8 +160,14 @@ $(function() {
             }
         }
     });
+    var add_detail_flag = 0;
+    var add_choice_flag = 0;
     // アンケート項目追加
     $('#detail_add').on('click', function () {
+        if (add_detail_flag == 1) {
+            return;
+        }
+        add_detail_flag = 1;
         var list = $('#questionnaire_detail_list');
         // prototype templateを取得.
         var newWidget = list.attr('data-prototype');
@@ -170,34 +176,20 @@ $(function() {
             ++questionnaire_details_count;
         });
         if ({{ app.config.max_questionnaire_detail }} <= questionnaire_details_count && 0 < {{ app.config.max_questionnaire_detail }}) {
+            add_detail_flag = 0;
             return;
         }
         // レコード数カウンタで置換.
-        newWidget = newWidget.replace(/\[QuestionnaireDetails\]\[__name__\]/g, "[QuestionnaireDetails]["+questionnaire_details_count+"]").replace(/QuestionnaireDetails___name___/g, "QuestionnaireDetails_"+questionnaire_details_count+"_").replace(/questionnaire_detail_list_item___index__/g, "questionnaire_detail_list_item_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/\[QuestionnaireDetails\]\[__name__\]/g, "[QuestionnaireDetails]["+questionnaire_details_count+"]");
+        newWidget = newWidget.replace(/QuestionnaireDetails___name___/g, "QuestionnaireDetails_"+questionnaire_details_count+"_");
+        newWidget = newWidget.replace(/detail_box__detail_name___index__/g, "detail_box__detail_name_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/detail_box__detail_description___index__/g, "detail_box__detail_description_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/questionnaire_detail_choice_listitem___index__/g, "questionnaire_detail_choice_listitem_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/choice_add___index__/g, "choice_add_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/delete_detail__index__/g, "delete_detail_" + questionnaire_details_count);
         // フォームのコールバックをセット
         $newWidget = $(newWidget);
-        // 選択肢追加
-        $newWidget.find('#choice_add').on('click', function () {
-            var list = $(this).parent().parent().find('#questionnaire_detail_choice_list');
-            parent = $(this).parent().parent();
-            var questionnaire_detail_choices_count = 0;
-            list.find('div[id^=questionnaire_detail_choice_list_item_]').each(function(){
-                ++questionnaire_detail_choices_count;
-            });
-            if ({{ app.config.max_questionnaire_detail_choice }} <= questionnaire_detail_choices_count && 0 < {{ app.config.max_questionnaire_detail_choice }}) {
-                return;
-            }
-            // prototype templateを取得.
-            var newWidget = list.attr('data-prototype');
-            // レコード数カウンタで置換.
-            newWidget = newWidget.replace(/__name__/g, questionnaire_detail_choices_count).replace(/__index__/g, questionnaire_detail_choices_count);
-            // フォーム入力値をセット
-            $newWidget = $(newWidget);
-            // 明細行に追加.
-            list.append($newWidget);
-            updateChoiceRank(list);
-        });
-        $newWidget.find("#questionnaire_detail_choice_list").sortable({
+        $newWidget.find('div[id^=questionnaire_detail_choice_list]').sortable({
             cursor: 'move',
             opacity: 0.7,
             placeholder: 'ui-state-highlight',
@@ -207,7 +199,12 @@ $(function() {
         });
         // 明細行に追加.
         list.append($newWidget);
-        questionnaire_details_count = parseInt(questionnaire_details_count) + 1;
+        updateDetailRank();
+        add_detail_flag = 0;
+    });
+    // 項目削除
+    $("#questionnaire_detail_list").on('click', 'a[id^=delete_detail_]', function () {
+        $(this).parent().parent().remove();
         updateDetailRank();
     });
     $("#questionnaire_detail_list").sortable({
@@ -229,16 +226,51 @@ $(function() {
     }
     updateDetailRank();
     function updateChoiceRank(target) {
-        target.find("div[id^=questionnaire_detail_choice_list_item_]").each(function (index) {
+        var questionnaire_detail_choices_count = 0;
+        target.find("div[id^=questionnaire_detail_choice_listitem_]").each(function (index) {
+            ++questionnaire_detail_choices_count;
             $(this).find(".rank_choices").remove();
             detailIndex = parseInt($(this).parent().parent().parent().attr('id').replace(/questionnaire_detail_list_item_/g, ""));
-            choiceIndex = parseInt($(this).attr('id').replace(/questionnaire_detail_choice_list_item_/g, ""));
+            choiceIndex = parseInt($(this).attr('id').replace(/questionnaire_detail_choice_listitem_/g, ""));
             $rank = $('<input type="hidden" class="rank_choices" name="rank_choices[]" />');
             $rank.val(detailIndex + "_" + choiceIndex + '//' + parseInt(index + 1));
             $(this).append($rank);
         });
     }
-    $("#questionnaire_detail_choice_list").sortable({
+    // 選択肢追加
+    var add_choice_flag = 0;
+    $("#questionnaire_detail_list").on('click', 'a[id^=choice_add_]', function () {
+        if (add_choice_flag == 1) {
+            return;
+        }
+        add_choice_flag = 1;
+        var choiceList = $(this).parent().parent().parent().find('div[id^=questionnaire_detail_choice_list_block_]');
+        var questionnaire_detail_choices_count = 0;
+        choiceList.find('div[id^=questionnaire_detail_choice_listitem_]').each(function(){
+            ++questionnaire_detail_choices_count;
+        });
+        if ({{ app.config.max_questionnaire_detail_choice }} <= questionnaire_detail_choices_count && 0 < {{ app.config.max_questionnaire_detail_choice }}) {
+            add_choice_flag = 0;
+            return;
+        }
+        // prototype templateを取得.
+        var newChoiceWidget = choiceList.attr('data-prototype');
+        // レコード数カウンタで置換.
+        newChoiceWidget = newChoiceWidget.replace(/__name__/g, questionnaire_detail_choices_count).replace(/__index__/g, questionnaire_detail_choices_count);
+        // フォーム入力値をセット
+        $newChoiceWidget = $(newChoiceWidget);
+        // 明細行に追加.
+        choiceList.append($newChoiceWidget);
+        updateChoiceRank(choiceList);
+        add_choice_flag = 0;
+    });
+    // 選択肢削除
+    $("#questionnaire_detail_list").on('click', 'a[id^=delete_choice]', function () {
+        list = $(this).parent().parent().parent().find('div[id^=questionnaire_detail_choice_list_block_]');
+        $(this).parent().parent().remove();
+        updateChoiceRank(list);
+    });
+    $('div[id^=questionnaire_detail_choice_list_block_]').sortable({
         cursor: 'move',
         opacity: 0.7,
         placeholder: 'ui-state-highlight',
@@ -246,7 +278,7 @@ $(function() {
             updateChoiceRank(ui.item);
         }
     });
-    $("#questionnaire_detail_choice_list").each(function () {
+    $('div[id^=questionnaire_detail_choice_list_block_]').each(function () {
         updateChoiceRank($(this));
     });
 });

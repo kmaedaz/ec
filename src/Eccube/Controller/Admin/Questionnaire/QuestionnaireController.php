@@ -185,7 +185,9 @@ class QuestionnaireController extends AbstractController
         if ('POST' === $request->getMethod()) {
             $form->handleRequest($request);
             if ($form->isValid()) {
-                log_info('会員登録開始', array($Customer->getId()));
+                log_info('アンケート登録開始', array($Customer->getId()));
+            }
+        }
 
         // 検索結果の保持
         $builder = $app['form.factory']

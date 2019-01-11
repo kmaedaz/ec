@@ -3285,8 +3285,15 @@ textarea#log {
     padding: 10px;
 }
 
-#choice_add:hover,
+#file_upload_image:hover,
 #detail_add:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+a[id^="delete_detail"]:hover,
+a[id^="choice_add"]:hover,
+a[id^="delete_choice"]:hover {
     opacity: 0.8;
     cursor: pointer;
 }
