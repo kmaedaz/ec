@@ -20,7 +20,7 @@ use Eccube\Application;
 class Version20190104014203 extends AbstractMigration
 {
     protected $entities = array(
-        'Plugin\FormDb\Entity\FormContent'
+        'Plugin\ProductVideo\Entity\ProductVideo'
     );
 
     /**

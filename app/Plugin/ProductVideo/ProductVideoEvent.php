@@ -109,14 +109,14 @@ class ProductVideoEvent
                     'label' => '動画本編埋め込みタグ',
                     'required' => false,
                     'mapped' => false,
-		     		'data' => $ProductVideo->getEmbedMain() 
+                    'data' => $ProductVideo->getEmbedMain() 
                         )
                 )
                 ->add('plg_productvideo_embed_preview', 'text', array(
                     'label' => '動画プレビュー埋め込みタグ',
                     'required' => false,
                     'mapped' => false,
-		     		'data' => $ProductVideo->getEmbedPreview()
+                    'data' => $ProductVideo->getEmbedPreview()
                         )
                 );
 
@@ -131,7 +131,7 @@ class ProductVideoEvent
 
         $form = $event->getArgument('form');
         $Product= $event->getArgument('Product');
-//		dump($form);
+//      dump($form);
         log_info('ビデオ商品登録開始', array($form));
 
                 
@@ -211,16 +211,16 @@ class ProductVideoEvent
     }
 
     /**
-	 * 商品一覧
+     * 商品一覧
      * @param EventArgs $event
      */
     public function onProductList(FilterResponseEvent  $event)
     {
-	//	dump("onProductList");
+    //  dump("onProductList");
     }
 
     /**
-	 * 商品詳細
+     * 商品詳細
      * @param EventArgs $event
      */
     public function onProductDetail(FilterResponseEvent  $event)
@@ -228,24 +228,22 @@ class ProductVideoEvent
 
        $request = $event->getRequest();
        $response = $event->getResponse();
-	   $id=$request->get('id');
+
+       $id=$request->get('id');
 
         $ProductVideo= $this->app['eccube.plugin.productvideo.repository.ProductVideo']->findOneBy(array('product_id' => $id));
  
         if (!$ProductVideo) {
-			return;
+            return;
         }
- 		$embed_preview_tag=$ProductVideo->getEmbedPreview();
- 		$embed_main_tag=$ProductVideo->getEmbedMain();
-//        $response = $event->getResponse();
-//		dump($event);
-//		dump($request);
+        $embed_preview_tag=$ProductVideo->getEmbedPreview();
+        $embed_main_tag=$ProductVideo->getEmbedMain();
 
-		$tag_arr = array("<!--VIDEO_MAIN_EMBED-->", "<!--VIDEO_PREVIEW_EMBED-->");
-		$embed_arr = array($embed_main_tag, $embed_preview_tag);
+	    $tag_arr = array("<!--VIDEO_MAIN_EMBED-->", "<!--VIDEO_PREVIEW_EMBED-->");
+	    $embed_arr = array($embed_main_tag, $embed_preview_tag);
 
         $src_html = $response->getContent();
-		$new_html = str_replace($tag_arr, $embed_arr, $src_html);
+        $new_html = str_replace($tag_arr, $embed_arr, $src_html);
 
         $response->setContent($new_html);
 
@@ -267,14 +265,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
 
         }
     }
@@ -290,14 +288,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -312,14 +310,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -335,14 +333,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -357,14 +355,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -380,14 +378,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -402,14 +400,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -424,14 +422,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -446,14 +444,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -468,14 +466,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -491,14 +489,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
@@ -513,14 +511,14 @@ class ProductVideoEvent
         if ($this->isAuthRouteFront()) {
             $Customer = $this->app->user();
             $id = $Customer->GetId();
-	        $parameters = $event->getParameters();
-	        $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
-	        // twigコードに挿入
-	        // 要素箇所の取得
-	        $search = "{% include 'Mypage/navi.twig' %}";
-	        $replace = $parts ;
-	        $source = str_replace($search, $replace, $event->getSource());
-	        $event->setSource($source);
+            $parameters = $event->getParameters();
+            $parts = $this->app['twig']->getLoader()->getSource('ProductVideo/Resource/template/Mypage/navi.twig');
+            // twigコードに挿入
+            // 要素箇所の取得
+            $search = "{% include 'Mypage/navi.twig' %}";
+            $replace = $parts ;
+            $source = str_replace($search, $replace, $event->getSource());
+            $event->setSource($source);
         }
     }
 
