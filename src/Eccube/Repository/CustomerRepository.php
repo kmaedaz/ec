@@ -307,14 +307,14 @@ class CustomerRepository extends EntityRepository implements UserProviderInterfa
         if (!empty($searchData['customer_number']) && $searchData['customer_number']) {
             $qb
                 ->andWhere('bc.customer_number LIKE :customer_number')
-                ->setParameter('customer_number', $searchData['customer_number']);
+                ->setParameter('customer_number', '%' . $searchData['customer_number'] . '%');
         }
 
         // CustomerNumberOld
         if (!empty($searchData['customer_number_old']) && $searchData['customer_number_old']) {
             $qb
                 ->andWhere('bc.customer_number_old LIKE :customer_number_old')
-                ->setParameter('customer_number_old', $searchData['customer_number_old']);
+                ->setParameter('customer_number_old', '%' . $searchData['customer_number_old'] . '%');
         }
 
         // BasicInfoStatus
