@@ -63,8 +63,13 @@ class ProductTrainingType extends AbstractType
             ->add('place', 'text', array(
                 'label' => '会場',
             ))
-            ->add('place_kana', 'kana', array(
+            ->add('place_kana', 'text', array(
                 'label' => '会場(カナ)',
+                'constraints' => array(
+                    new Assert\Regex(array(
+                        'pattern' => "/^[ァ-ヶｦ-ﾟー]+$/u",
+                    )),
+                ),
             ))
             ->add('place_room', 'text', array(
                 'label' => '会場(部屋名)',
@@ -79,10 +84,10 @@ class ProductTrainingType extends AbstractType
                 'required' => true,
             ))
             ->add('tel', 'tel', array(
-                'required' => true,
+                'required' => false,
             ))
             ->add('tel_second', 'tel', array(
-                'required' => true,
+                'required' => false,
             ))
             ->add('fax', 'tel', array(
                 'required' => false,
