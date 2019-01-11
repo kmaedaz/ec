@@ -142,7 +142,7 @@ class TrainingController extends AbstractController
 
         if ('POST' === $request->getMethod()) {
             $request_data = $request->request->all();
-            $request_data['admin_training']['class']['product_type'] = $app['config']['product_type_training'];
+            $request_data['admin_training']['class']['product_type'] = $app['eccube.repository.master.product_type']->find($app['config']['product_type_training']);
             $request->request->add($request_data);
             $form->handleRequest($request);
             if ($form->isValid()) {
@@ -792,8 +792,9 @@ class TrainingController extends AbstractController
         $form['images']->setData($images);
 
         if ('POST' === $request->getMethod()) {
+            // 入力制限回避
             $request_data = $request->request->all();
-            $request_data['admin_training']['class']['product_type'] = $app['config']['product_type_training'];
+            $request_data['admin_training']['class']['product_type'] = $app['config']['product_type_normal'];
             $request->request->add($request_data);
             $form->handleRequest($request);
             if ($form->isValid()) {
@@ -801,6 +802,7 @@ class TrainingController extends AbstractController
                 // 講習会情報の登録
                 $Product = $form->getData();
                 $ProductClass = $form['class']->getData();
+                $ProductClass->setProductType($app['eccube.repository.master.product_type']->find($app['config']['product_type_training']));
 
                 // 個別消費税
                 $BaseInfo = $app['eccube.repository.base_info']->get();
