@@ -1038,11 +1038,13 @@ function plg_formDb_delete(id){
      }
 
 function plg_formDb_list(){
-    $.ajax({
+	var url_str=location.pathname;
+	url_str = url_str.replace(/\/page\/\d/g, '');
+	$.ajax({
         type: 'POST',
         dataType: 'html',
         data: {  
-                   'urlpath' :location.pathname,
+                   'urlpath' :url_str,
                    },
         url: '{{ url('plugin_FormDb_getList') }}',
         success: function(data) {
@@ -1064,13 +1066,16 @@ function plg_formDb_save(val){
 	  ]
 	});
     var str_val=formStorage.getSerialize();
+	var url_str=location.pathname;
+	url_str = url_str.replace(/\/page\/\d/g, '');
+
     console.log("#plg_formDb_save");
 // サーバに状態保存
             $.ajax({
                 type: 'POST',
                 dataType: 'html',
                 data: { 'save_name' : val, 
-                           'urlpath' :location.pathname,
+                           'urlpath' :url_str,
                            'formdata' :formStorage.getSerialize()
                            },
                 url: '{{ url('plugin_FormDb_save') }}',
