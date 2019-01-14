@@ -110,6 +110,8 @@ class FrontControllerProvider implements ControllerProviderInterface
         // flyer
         $c->match('/flyer/download/{id}', '\Eccube\Controller\FlyerController::download')->bind('flyer_download')->assert('id', '\d+');
 
+        $c->match('/block/flyer_notice', '\Eccube\Controller\Block\FlyerNoticeController::index')->bind('block_flyer_notice');
+
         // shopping
         $c->match('/shopping', '\Eccube\Controller\ShoppingController::index')->bind('shopping');
         $c->match('/shopping/confirm', '\Eccube\Controller\ShoppingController::confirm')->bind('shopping_confirm');
