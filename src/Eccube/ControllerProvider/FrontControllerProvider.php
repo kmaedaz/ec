@@ -77,6 +77,9 @@ class FrontControllerProvider implements ControllerProviderInterface
         $c->match('/block/news', '\Eccube\Controller\Block\NewsController::index')->bind('block_news');
         $c->match('/block/login', '\Eccube\Controller\Block\LoginController::index')->bind('block_login');
 
+        $c->match('/block/flyer_notice', '\Eccube\Controller\Block\FlyerNoticeController::index')->bind('block_flyer_notice');
+
+
         // 特定商取引 order -> help/traderaw
         $c->match('/help/about', '\Eccube\Controller\HelpController::about')->bind('help_about');
         $c->match('/help/guide', '\Eccube\Controller\HelpController::guide')->bind('help_guide');
@@ -110,7 +113,6 @@ class FrontControllerProvider implements ControllerProviderInterface
         // flyer
         $c->match('/flyer/download/{id}', '\Eccube\Controller\FlyerController::download')->bind('flyer_download')->assert('id', '\d+');
 
-        $c->match('/block/flyer_notice', '\Eccube\Controller\Block\FlyerNoticeController::index')->bind('block_flyer_notice');
 
         // shopping
         $c->match('/shopping', '\Eccube\Controller\ShoppingController::index')->bind('shopping');
