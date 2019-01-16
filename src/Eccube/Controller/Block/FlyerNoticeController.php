@@ -13,14 +13,25 @@ class FlyerNoticeController
 {
     public function index(Application $app)
     {
-        $NewsList = $app['orm.em']->getRepository('\Eccube\Entity\News')
-            ->findBy(
-                array(),
-                array('rank' => 'DESC')
-            );
 
+        $now = new \DateTime();
+        $TrainingTypes = $app['eccube.repository.master.training_type']->getList();
+        $qb = $app['eccube.repository.flyer']->createQueryBuilder('f')
+        ->addSelect(array('pt','p'))
+        ->innerJoin('f.ProductTraining', 'pt')
+        ->innerJoin('pt.Product', 'p')
+        ->where('f.Status = 1')
+        ->andwhere('f.disp_from <= :DispFrom')
+        ->andwhere('f.disp_to >= :DispTo')
+        ->setParameter('DispFrom', $now)
+        ->setParameter('DispTo', $now)
+        // Order By
+        ->addOrderBy('f.disp_from', 'DESC')
+        ->getQuery()
+        ->getResult();
+//	dump($qb);
         return $app->render('Block/flyer_notice.twig', array(
-            'NewsList' => $NewsList,
+            'FlyerList' => $qb,
         ));
     }
 }
