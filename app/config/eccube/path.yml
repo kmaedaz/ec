@@ -5,7 +5,7 @@ admin_tpl: /user_data/packages/admin/
 image_path: /upload/save_image/
 customer_image_path: /upload/customer_image/
 questionnaire_attachment_path: /upload/questionnaire_attachment/
-root_dir: /var/www/ec_trial
+root_dir: /var/www/fumanet.com
 root_urlpath: null
 template_code: L3001
 admin_route: ecTrial
