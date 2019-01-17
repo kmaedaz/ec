@@ -1,10 +1,9 @@
 {# default_frame.twigを継承して共通のヘッダー、フッターを表示するにはdtb_page_layout に登録が必要 #}
 {% extends 'default_frame.twig' %}
 
-
 {% block main %}
 
-{# { dump() } #}
+{#{ dump() }#}
 
 {% set body_class = 'productvideo_page' %}
 {% set favorite = BaseInfo.option_favorite_product %}
@@ -36,43 +35,71 @@
         </div>
     </div>
     
-    
-    {% if pagination %}
-        <div id="result_list" class="row">
-            <div class="col-md-12">
-                <div id="result_list_main" class="box">
-                    {% if pagination.totalItemCount > 0 %}
-                        <div id="result_list_main__body" class="box-body">
-                            <div id="result_list_main__menu" class="row">
-                                <div class="col-md-12">
-                                    
-                                    <ul class="sort-dd">
-                                        <li id="result_list_main__pagemax_menu" class="dropdown">
-                                            {% for pageMax in pageMaxis if pageMax.name == page_count %}
-                                            <a id="result_list_main__pagemax_menu_toggle" class="dropdown-toggle" data-toggle="dropdown">{{ pageMax.name|e }}件<svg class="cb cb-angle-down icon_down"> <use xlink:href="#cb-angle-down" /></svg></a>
-                                            <ul class="dropdown-menu">
-                                                {% endfor %}
-                                                {% for pageMax in pageMaxis if pageMax.name != page_count %}
-                                                    <li><a href="{{ path('admin_contacts_page', {'page_no': 1, 'page_count': pageMax.name}) }}">{{ pageMax.name|e }}件</a></li>
-                                                {% endfor %}
-                                            </ul>
-                                        </li>
-                                    </ul>
+        <div id="history_list" class="row">
+            <div id="history_list__body" class="col-md-12">
 
-                                </div>
+                {% if pagination.totalItemCount > 0 %}
+                    <p id="history_list__total_count" class="intro"><strong>{{ pagination.totalItemCount }}件</strong>の動画があります。</p>
+
+                    {% for Order in pagination %}
+                        <div id="history_list__item--{{ Order.id }}" class="historylist_column row">
+
+                            <div id="history_list__item_info--{{ Order.id }}" class="col-sm-3">
+                                <h3 id="history_list__order_date--{{ Order.id }}" class="order_date">{{ Order.order_date|date("Y/m/d H:i:s") }}</h3>
+
+                                <dl id="history_list__order_detail--{{ Order.id }}" class="order_detail">
+                                    <dt id="history_list__header_order_id--{{ Order.id }}">ご注文番号：</dt>
+                                    <dd id="history_list__order_id--{{ Order.id }}">{{ Order.id }}</dd>
+                                </dl>
+
+
+
                             </div>
-                        </div><!-- /.box-body -->
+                            <div id="history_detail_list--{{ Order.id }}" class="col-sm-9">
+                                {% for OrderDetail in Order.OrderDetails %}
+                                    <div id="history_detail_list__body--{{ Order.id }}_{{ OrderDetail.id }}" class="item_box table">
+                                        <div id="history_detail_list__body_inner--{{ Order.id }}_{{ OrderDetail.id }}" class="tbody">
+                                            <div id="history_detail_list__item--{{ Order.id }}_{{ OrderDetail.id }}" class="tr">
+                                                <div id="history_detail_list__image--{{ Order.id }}_{{ OrderDetail.id }}" class="item_photo td">
+                                                    {% if OrderDetail.Product is null %}
+                                                        <img src="{{ app.config.image_save_urlpath }}/{{ '' | no_image_product }}" />
+                                                    {% else %}
+                                                        {% if OrderDetail.enable %}
+                                                            <img src="{{ app.config.image_save_urlpath }}/{{ OrderDetail.product.MainListImage|no_image_product }}">
+                                                        {% else %}
+                                                            <img src="{{ app.config.image_save_urlpath }}/{{ ''|no_image_product }}" />
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                                <dl id="history_detail_list__item_info--{{ Order.id }}_{{ OrderDetail.id }}" class="item_detail td">
+                                                    <dt id="history_detail_list__product_name--{{ Order.id }}_{{ OrderDetail.id }}" class="item_name">{{ OrderDetail.product_name }}</dt>
+                                                    <dd id="history_detail_list__category_name--{{ Order.id }}_{{ OrderDetail.id }}" class="item_pattern small">
+                                                        {% if OrderDetail.class_category_name1 is not empty %}
+                                                            {{ OrderDetail.class_category_name1 }}
+                                                        {% endif %}
+                                                        {% if OrderDetail.class_category_name1 is not empty %}
+                                                            / {{ OrderDetail.class_category_name2 }}
+                                                        {% endif %}
+                                                    </dd>
+					                                <p id="history_list__detail_button--{{ Order.id }}"><a class="btn btn-default btn-sm" href="{{ url('plugin_ProductVideo_play', {'product_id':OrderDetail.Product.id}) }}">動画を見る</a></p>
 
-                    {% else %}
-                        <div class="box-header with-arrow">
-                            <h3 class="box-title">該当するデータがありませんでした。</h3>
-                        </div><!-- /.box-header -->
-                    {% endif %}
-                </div><!-- /.box -->
+
+                                                </dl>
+                                            </div>
+                                        </div>
+                                    </div><!--/item_box-->
+                                {% endfor %}
+                            </div>
+                        </div><!--/historylist_column-->
+                    {% endfor %}
+
+                    {% include "pagination.twig" with {'pages': pagination.paginationData} %}
+
+                {% else %}
+                    <p id="history_list__not_result_message" class="intro">閲覧できる動画はありません。</p>
+                {% endif %}
+
             </div><!-- /.col -->
-        </div>
-
-    {% endif %}
-
+        </div><!-- /.row -->
     
 {% endblock %}

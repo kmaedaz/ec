@@ -51,9 +51,11 @@ class ProductVideoServiceProvider implements ServiceProviderInterface
         // Form
         $app['form.types'] = $app->share($app->extend('form.types', function ($types) use ($app) {
             $types[] = new ProductVideoConfigType();
-
             return $types;
         }));
+
+
+
 
         // Repository
         $app['eccube.plugin.productvideo.repository.ProductVideo'] = $app->share(function () use ($app) {

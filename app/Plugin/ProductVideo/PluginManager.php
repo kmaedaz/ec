@@ -36,6 +36,8 @@ class PluginManager extends AbstractPluginManager
      */
     public function uninstall($config, Application $app)
     {
+       $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code'], 0);
+
     }
 
     /**
@@ -47,19 +49,7 @@ class PluginManager extends AbstractPluginManager
      */
     public function enable($config, Application $app)
     {
-        $em = $app['orm.em'];
-        $connection = $em->getConnection();
-        $connection->executeUpdate(
-            "INSERT INTO  dtb_page_layout (page_id, device_type_id, page_name, url, file_name, edit_flg, create_date, update_date)" .
-            "VALUES (NULL, '10',  '動画購入履歴',  'plugin_ProductVideo_history',  '/plugin/productvideo/history/{page_no}', '2', NOW(), NOW())"
-        );
-
-        $connection->executeUpdate(
-            "INSERT INTO  dtb_page_layout (page_id, device_type_id, page_name, url, file_name, edit_flg, create_date, update_date)" .
-            "VALUES (NULL, '10',  '動画閲覧',  'plugin_ProductVideo_play',  '/plugin/productvideo/play/{product_id}', '2', NOW(), NOW())"
-        );
-
-
+       $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code']);
     }
 
 
