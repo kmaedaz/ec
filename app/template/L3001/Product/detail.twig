@@ -94,6 +94,7 @@ $(function(){
 {% endblock %}
 
 {% block main %}
+
     {# todo ブロック化}
     <div id="topicpath" class="row">
         {% for ProductCategory in Product.ProductCategories %}
@@ -298,8 +299,9 @@ $(function(){
             </section>
             <!--詳細ここまで-->
         </div>
-
         {# フリーエリア #}
+<!--VIDEO_MAIN_EMBED-->", "<!--VIDEO_PREVIEW_EMBED-->
+
         {% if Product.freearea %}
         <div id="sub_area" class="row">
             <div class="col-sm-10">
