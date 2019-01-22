@@ -10,10 +10,10 @@ This file is Customized file
 
 {% block main %}
     <div style="text-align: right;">
-    過去の講習会は<a href="{{ url('product_training_history_list') }}">こちら</a>
-    </div>
+    現在申し込み可能な講習会は<a href="{{ url('product_training_list') }}">こちら</a>
+    </div><!--/row-->
     <div class="row">
-        <h1 class="page-heading">講習会一覧</h1>
+        <h1 class="page-heading">過去講習会一覧</h1>
     </div><!--/row-->
     <form name="form1" id="form1" method="post" action="?">
         <div class="training_search form-inline pc col-xs-12">
@@ -68,37 +68,14 @@ This file is Customized file
                                                     </tbody>
                                                 </table>
                                             </td>
-                                            <td align="right">
-                                                <table cellpadding="0" cellspacing="0" class="font10" bgcolor="#FCEEDF">
-                                                    <tbody>
-                                                        <tr>
-                                                            <td colspan="2" align="center" bgcolor="#F9DBBA">定員の記号</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>◎</td>
-                                                            <td>：充分余裕が有ります </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>○</td>
-                                                            <td>：少し余裕が有ります</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>△</td>
-                                                            <td>：残りわずかです</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Ｘ</td>
-                                                            <td>：定員に満たしています</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </td>
                         </tr>
                     </tbody>
+                    <br>
+                    <br>
                     {% for form in forms %}
                         {% if 0 < form.ProductsCount %}
                         <table width="900" cellpadding="1" cellspacing="3">
@@ -114,22 +91,12 @@ This file is Customized file
                                     <td nowrap="" bgcolor="#D8DEEC" align="center">地域</td>
                                     <td nowrap="" bgcolor="#D8DEEC" align="center">日付</td>
                                     <td nowrap="" bgcolor="#D8DEEC" align="center">会場</td>
-                                    <td nowrap="" bgcolor="#D8DEEC" align="center">定員</td>
                                 </tr>
                                 {% for product in form['Product'] %}
                                 <tr onmouseover="setPointer(this, '#F9F1DA', '#ffffff')" onmouseout="setPointer(this, '#ffffff', '#ffffff')" bgcolor="#ffffff">
                                     <td valign="top" nowrap="" bgcolor="#ffffff" align="center">{{ product.ProductTraining.addr01 }}</td>
-                                    <td nowrap="" bgcolor="#ffffff"><a href="{{ url('product_detail', {'id': product.id}) }}">{{ form['Training_Date'][product.id] }}</a></td>
-                                    <td width="100%" bgcolor="#ffffff"><a href="{{ url('product_detail', {'id': product.id}) }}">{{ product.ProductTraining.place }}（{{ product.ProductTraining.addr01 }}{{ product.ProductTraining.addr02 }}）</a></td>
-                                    {% if product.ProductClasses.0.stock < 1 %}
-                                        <td bgcolor="#ffffff" align="center">×</td>
-                                    {% elseif product.ProductClasses.0.stock < 50 %}
-                                        <td bgcolor="#ffffff" align="center">△</td>
-                                    {% elseif product.ProductClasses.0.stock < 100 %}
-                                        <td bgcolor="#ffffff" align="center">○</td>
-                                    {% else %}
-                                        <td bgcolor="#ffffff" align="center">◎</td>
-                                    {% endif %}
+                                    <td nowrap="" bgcolor="#ffffff">{{ form['Training_Date'][product.id] }}</td>
+                                    <td width="100%" bgcolor="#ffffff">{{ product.ProductTraining.place }}（{{ product.ProductTraining.addr01 }}{{ product.ProductTraining.addr02 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
