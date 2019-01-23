@@ -291,6 +291,12 @@ $(function(){
                         <div class="category_header">
                             <h2 class="heading02">商品について</h2>
                         </div>
+                    <!--★寄付★-->
+						{% for ProductCategory in Product.ProductCategories %}
+						    {% if ProductCategory.Category_id == 2 %}
+                            <p id="detail_not_stock_box__description_detail" class="item_comment"><p>法人ホームページに掲載する寄付者名簿への非掲載を希望される方は</p><p><span style="font-size:110%;">「寄付者名簿非掲載」</span>へチェックを入れてください。</p></p>
+						    {% endif %}
+						{% endfor %}
                         <div class="item_comment-area">
                             <p id="detail_not_stock_box__description_detail" class="item_comment">{{ Product.description_detail|raw|nl2br }}</p>
                         </div>
@@ -299,9 +305,12 @@ $(function(){
             </section>
             <!--詳細ここまで-->
         </div>
-        {# フリーエリア #}
-<!--VIDEO_MAIN_EMBED-->", "<!--VIDEO_PREVIEW_EMBED-->
 
+        {# 動画 #}
+       <!--VIDEO_MAIN_EMBED--><!--VIDEO_PREVIEW_EMBED-->
+
+
+        {# フリーエリア #}
         {% if Product.freearea %}
         <div id="sub_area" class="row">
             <div class="col-sm-10">
