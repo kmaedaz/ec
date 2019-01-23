@@ -248,14 +248,24 @@ class CustomerEditController extends AbstractController
 
         $searchCustomerGroupModalForm = $builder->getForm();
 
-        //dtb_category.id 2 == 寄付
-        $ProductCategory = $app['eccube.repository.category']->find(2); 
-        $Products = $app['eccube.repository.product_category']->getProductsForCategory($ProductCategory);
+        $CustomerCheckInfo = ['isRegister' => true];
+        if ($Customer->getId() != null) {
+            $CustomerCheckInfo['isRegister'] = false;
+            if (sizeof($app['eccube.repository.order']->getProductTrainingOrders($app, $Customer)) > 0) {
+                $CustomerCheckInfo['hasTrainingOrders'] = true;
+            } else {
+                $CustomerCheckInfo['hasTrainingOrders'] = false;
+            }
 
-        if (sizeof($app['eccube.repository.order']->getContributionOrders($app, $Customer, $Products)) > 0) {
-            $Customer->hasContributionOrders = true;
-        } else {
-            $Customer->hasContributionOrders = false;
+            //dtb_category.id 2 == 寄付
+            $ProductCategory = $app['eccube.repository.category']->find(2); 
+            $Products = $app['eccube.repository.product_category']->getProductsForCategory($ProductCategory);
+
+            if (sizeof($app['eccube.repository.order']->getContributionOrders($app, $Customer, $Products)) > 0) {
+                $CustomerCheckInfo['hasContributionOrders'] = true;
+            } else {
+                $CustomerCheckInfo['hasContributionOrders'] = false;
+            }
         }
 
         return $app->render('Customer/edit.twig', array(
