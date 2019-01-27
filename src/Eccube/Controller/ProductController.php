@@ -307,9 +307,12 @@ class ProductController
             throw new NotFoundHttpException();
         }
         $is_free_price = false;
+        $is_kifu_no_pub = false; //  寄付者名簿非掲載 説明文言　
+
         foreach ($Product->getProductCategories() as $ProductCategory) {
             if ($ProductCategory->getCategoryId() == \Eccube\Entity\Category::DONATION_CATEGORY) {
                 $is_free_price = true;
+	        	$is_kifu_no_pub = true;   //   寄付者名簿非掲載のチェック及び確認画面を無効にする場合はコメント化
                 break;
             }
         }
@@ -332,13 +335,23 @@ class ProductController
         /* @var $form \Symfony\Component\Form\FormInterface */
         $form = $builder->getForm();
 
+        if( $is_kifu_no_pub === true){
+            // 寄付者名簿非掲載のチェック及び確認画面　を付加
+            $form ->add('kifu_no_pub', 'checkbox', array(
+            'label'     => '寄付者名簿非掲載',
+            'required'  => false,
+            'attr'=>array('title'=>"寄付者名簿非掲載"), 
+                'data' => false 
+                    )
+            );
+        }
+
         if ($request->getMethod() === 'POST') {
             $form->handleRequest($request);
 
             if ($form->isValid()) {
                 $addCartData = $form->getData();
                 log_info('addCartData:' . print_r($addCartData, true));
-                
                 if ($addCartData['mode'] === 'add_favorite') {
                     if ($app->isGranted('ROLE_USER')) {
                         $Customer = $app->user();
@@ -353,6 +366,7 @@ class ProductController
                             $request
                         );
                         $app['eccube.event.dispatcher']->dispatch(EccubeEvents::FRONT_PRODUCT_DETAIL_FAVORITE, $event);
+
 
                         if ($event->getResponse() !== null) {
                             return $event->getResponse();
@@ -369,7 +383,6 @@ class ProductController
                 } elseif ($addCartData['mode'] === 'add_cart') {
 
                     log_info('カート追加処理開始', array('product_id' => $Product->getId(), 'product_class_id' => $addCartData['product_class_id'], 'quantity' => ($is_free_price?1:$addCartData['quantity'])));
-
                     try {
                         if ($is_free_price) {
                             $app['eccube.service.cart']->addProductAndPrice($addCartData['product_class_id'], $addCartData['price'])->save();
@@ -391,6 +404,16 @@ class ProductController
                         $request
                     );
                     $app['eccube.event.dispatcher']->dispatch(EccubeEvents::FRONT_PRODUCT_DETAIL_COMPLETE, $event);
+        
+                    $kifu_no_pub=array();
+                    $wSESSION = $app['request']->getSession();
+                    if($wSESSION->get('kifu_no_pub')){
+                        $kifu_no_pub=$wSESSION->get('kifu_no_pub');
+                    }
+                    $kifu_no_pub[$Product->getId()]=$request->get('kifu_no_pub', '0');
+
+                    $app['session']->set('kifu_no_pub', $kifu_no_pub); //test
+
 
                     if ($event->getResponse() !== null) {
                         return $event->getResponse();
@@ -416,7 +439,6 @@ class ProductController
             $Customer = $app->user();
             $is_favorite = $app['eccube.repository.customer_favorite_product']->isFavorite($Customer, $Product);
         }
-
         return $app->render('Product/detail.twig', array(
             'title' => $this->title,
             'subtitle' => $Product->getName(),
@@ -424,6 +446,7 @@ class ProductController
             'Product' => $Product,
             'is_favorite' => $is_favorite,
             'is_free_price' => $is_free_price,
+            'is_kifu_no_pub'=> $is_kifu_no_pub
         ));
     }
 
