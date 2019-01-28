@@ -221,7 +221,6 @@ class ProductController
 
         // paginator
         $searchData = $searchForm->getData();
-        file_put_contents("/var/www/ec_ohtsuki/app/log/debug.log", "searchData:" . print_r($searchData, true), FILE_APPEND);
         $TrainingTypes = $app['eccube.repository.master.training_type']->getList();
         $TrainingTypes[] = null;
 

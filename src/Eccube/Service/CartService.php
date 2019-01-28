@@ -416,7 +416,6 @@ class CartService
                 ->setClassId((string)$ProductClass->getId())
                 ->setPrice($price)
                 ->setQuantity(1);
-            file_put_contents("/var/www/ec_ohtsuki/app/log/debug.log", "price:" . $price, FILE_APPEND);
 
             $this->cart->setCartItem($CartItem);
         }

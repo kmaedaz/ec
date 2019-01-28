@@ -147,12 +147,10 @@ class FlyerPdfService extends AbstractFPDIService
         $this->lfMultiText(34.8, 188.8, 88.0, 10.0, $flyer_data->getProductTraining()->getItem(), 13, 'B');
         // 期限
         $limit = date('Y/m/d', strtotime($flyer_data->getProductTraining()->getTrainingDateStart() . " -24 day"));
-        file_put_contents("/var/www/ec_trial2/app/log/debug.log", "limit:" . $limit . "\n", FILE_APPEND);
         $holidayRepository = new HolidayRepository();
         while($holidayRepository->isHoliday($limit)) {
             $limit = date('Y/m/d', strtotime($limit . " -1 day"));
         }
-        file_put_contents("/var/www/ec_trial2/app/log/debug.log", "limit:" . $limit . "\n", FILE_APPEND);
         $this->lfText(81.8, 202.5, date('m月d日', strtotime($limit)), 13, 'B');
         // 定員
         $ProductClasses = $flyer_data->getProductTraining()->getProduct()->getProductClasses();
