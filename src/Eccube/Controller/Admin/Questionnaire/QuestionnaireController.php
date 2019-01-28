@@ -56,20 +56,13 @@ class QuestionnaireController extends AbstractController
         $page_status = null;
         $active = false;
 
-/*
         if ('POST' === $request->getMethod()) {
             $searchForm->handleRequest($request);
             if ($searchForm->isValid()) {
                 $searchData = $searchForm->getData();
 
                 // paginator
-                $qb = $app['eccube.repository.product']->getQueryBuilderBySearchDataForAdmin($searchData);
-                if (empty($searchData['category_id']) || !($searchData['category_id'])) {
-                    $qb
-                        ->leftJoin('p.QuestionnaireCategories', 'pct')
-                        ->leftJoin('pct.Category', 'c')
-                        ->andWhere('c.id <> 1 or pct IS NULL');
-                }
+                $qb = $app['eccube.repository.questionnaire']->getQueryBuilderBySearchDataForAdmin($searchData);
                 $page_no = 1;
                 $pagination = $app['paginator']()->paginate(
                     $qb,
@@ -100,17 +93,8 @@ class QuestionnaireController extends AbstractController
                     // 表示件数
                     $page_count = $request->get('page_count', $page_count);
                     $searchData = FormUtil::submitAndGetData($searchForm, $viewData);
-                    if ($viewData['link_status']) {
-                        $searchData['link_status'] = $app['eccube.repository.master.disp']->find($viewData['link_status']);
-                    }
                     $session->set('eccube.admin.questionnaire.search', $viewData);
-                    $qb = $app['eccube.repository.product']->getQueryBuilderBySearchDataForAdmin($searchData);
-                    if (empty($searchData['category_id']) || !($searchData['category_id'])) {
-                        $qb
-                            ->innerJoin('p.QuestionnaireCategories', 'pct')
-                            ->innerJoin('pct.Category', 'c')
-                            ->andWhere('pct.Category <> 1');
-                    }
+                    $qb = $app['eccube.repository.questionnaire']->getQueryBuilderBySearchDataForAdmin($searchData);
                     $pagination = $app['paginator']()->paginate(
                         $qb,
                         $page_no,
@@ -120,7 +104,6 @@ class QuestionnaireController extends AbstractController
                 }
             }
         }
-*/
 
         return $app->render('Questionnaire/index.twig', array(
             'searchForm' => $searchForm->createView(),
@@ -146,7 +129,6 @@ class QuestionnaireController extends AbstractController
         if (count($attachments) > 0) {
             foreach ($attachments as $attachmentFile) {
                 foreach ($attachmentFile as $attachment) {
-                    log_info('attachment:' . print_r($attachment, true));
                     //ファイルフォーマット検証
                     $mimeType = $attachment->getMimeType();
                     $extension = $attachment->getClientOriginalExtension();
@@ -166,26 +148,132 @@ class QuestionnaireController extends AbstractController
             $Questionnaire = new \Eccube\Entity\Questionnaire();
         } else {
             $Questionnaire = $app['eccube.repository.questionnaire']->find($id);
-            if (!$Product) {
+            if (!$Questionnaire) {
                 throw new NotFoundHttpException();
             }
         }
         $builder = $app['form.factory']
-            ->createBuilder('admin_questionnaire');
+            ->createBuilder('admin_questionnaire', $Questionnaire);
         $form = $builder->getForm();
 
         // ファイルの登録
-        $images = array();
-        $QuestionnaireAttachments = $Questionnaire->getQuestionnaireAttachments();
-        foreach ($QuestionnaireAttachments as $QuestionnaireAttachment) {
-            $attachments[] = ['save_file' => $QuestionnaireAttachment->getFileName(), 'org_file' => $QuestionnaireAttachment->getLabel()];
-        }
-        $form['attachments']->setData($attachments);
+        $form['attachments']->setData($Questionnaire->getQuestionnaireAttachments());
 
         if ('POST' === $request->getMethod()) {
             $form->handleRequest($request);
             if ($form->isValid()) {
-                log_info('アンケート登録開始', array($Customer->getId()));
+                log_info('アンケート登録開始:', array($id));
+                $rank_details = $request->get('rank_details');
+                $detail_rank_info = [];
+                if ($rank_details) {
+                    foreach ($rank_details as $rank_detail) {
+                        list($index, $rank_val) = explode('//', $rank_detail);
+                        $detail_rank_info[(string)($index)] = $rank_val;
+                    }
+                }
+                $rank_choices = $request->get('rank_choices');
+                $choice_rank_info = [];
+                if ($rank_choices) {
+                    foreach ($rank_choices as $rank_choice) {
+                        list($index_info_str, $rank_val) = explode('//', $rank_choice);
+                        $index_info = explode('_', $index_info_str);
+                        $choice_rank_info[(string)($index_info[0])][(string)($index_info[1])] = $rank_val;
+                    }
+                }
+
+                // 子要素を登録
+                $Questionnaire = $form->getData();
+                $QuestionnaireDetails = $form->get('QuestionnaireDetails')->getData();
+                $idx = 0;
+                foreach ($QuestionnaireDetails as $QuestionnaireDetail) {
+                    $QuestionnaireDetail->setRank(isset($detail_rank_info[(string)$idx])?$detail_rank_info[(string)$idx]:0)
+                                        ->setQuestionnaire($Questionnaire);
+                    $choice = 0;
+                    foreach ($QuestionnaireDetail['QuestionnaireDetailChoices'] as $QuestionnaireDetailChoice) {
+                        $QuestionnaireDetailChoice->setRank(isset($choice_rank_info[(string)$idx][(string)$choice])?$choice_rank_info[(string)$idx][(string)$choice]:0)
+                                                ->setQuestionnaireDetail($QuestionnaireDetail);
+                        $app['orm.em']->persist($QuestionnaireDetailChoice);
+                        ++$choice;
+                    }
+                    $app['orm.em']->persist($QuestionnaireDetail);
+                    ++$idx;
+                }
+
+                // 添付ファイルの登録
+                $add_attachments = $form->get('add_attachments')->getData();
+                $idx = 0;
+                foreach ($add_attachments as $add_attachment) {
+                    $fileinfo = json_decode($add_attachment, true);
+                    $QuestionnaireAttachment = new \Eccube\Entity\QuestionnaireAttachment();
+                    $QuestionnaireAttachment
+                        ->setFileName($fileinfo['save_file'])
+                        ->setLabel($fileinfo['org_file'])
+                        ->setQuestionnaire($Questionnaire)
+                        ->setRank(isset($detail_rank_info[(string)$idx])?$detail_rank_info[(string)$idx]:0);
+                    $Questionnaire->addQuestionnaireAttachment($QuestionnaireAttachment);
+                    $app['orm.em']->persist($QuestionnaireAttachment);
+
+                    // 移動
+                    $file = new File($app['config']['file_temp_realdir'].'/'.$fileinfo['save_file']);
+                    $file->move($app['config']['questionnaire_attachment_save_realdir']);
+                    ++$idx;
+                }
+
+                // 添付ファイルの削除
+                $delete_attachments = $form->get('delete_attachments')->getData();
+                foreach ($delete_attachments as $delete_attachment) {
+                    $fileinfo = json_decode($delete_attachment, true);
+                    $QuestionnaireAttachment = $app['eccube.repository.questionnaire_attachment']
+                        ->findOneBy(array('file_name' => $fileinfo['save_file']));
+
+                    // 追加してすぐに削除した添付ファイルは、Entityに追加されない
+                    if ($QuestionnaireAttachment instanceof \Eccube\Entity\QuestionnaireAttachment) {
+                        $Questionnaire->removeQuestionnaireAttachment($QuestionnaireAttachment);
+                        $app['orm.em']->remove($QuestionnaireAttachment);
+
+                    }
+                    // 削除
+                    if (!empty($delete_attachment)) {
+                        $fs = new Filesystem();
+                        $fs->remove($app['config']['questionnaire_attachment_save_realdir'].'/'.$fileinfo['save_file']);
+                    }
+                }
+
+                $rank_files = $request->get('rank_files');
+                $rank_file_info = [];
+                if ($rank_files) {
+                    foreach ($rank_files as $rank_file) {
+                        list($fileinfo_json, $rank_val) = explode('//', $rank_file);
+                        $fileinfo = json_decode($fileinfo_json, true);
+                        $rank_file_info[$fileinfo['save_file']] = $rank_val;
+                    }
+                }
+                $rank_files = $request->get('rank_files');
+                if ($rank_files) {
+                    foreach ($rank_files as $rank_file) {
+                        list($fileinfo_json, $rank_val) = explode('//', $rank_file);
+                        $fileinfo = json_decode($fileinfo_json, true);
+                        $QuestionnaireAttachment = $app['eccube.repository.questionnaire_attachment']
+                            ->findOneBy(array(
+                                'file_name' => $fileinfo['save_file'],
+                                'Questionnaire' => $Questionnaire,
+                            ));
+                        $QuestionnaireAttachment->setRank($rank_val);
+                        $app['orm.em']->persist($QuestionnaireAttachment);
+                    }
+                }
+
+                $Questionnaire->setUpdateDate(new \DateTime());
+                $app['orm.em']->persist($Questionnaire);
+                $app['orm.em']->flush();
+
+                log_info('アンケート登録完了', array($id));
+                $app->addSuccess('admin.register.complete', 'admin');
+
+                return $app->redirect($app->url('admin_questionnaire_edit', array('id' => $Questionnaire->getId())));
+            } else {
+                log_info('アンケート登録チェックエラー', array($id));
+                $app->addError('admin.register.failed', 'admin');
             }
         }
 
@@ -208,12 +296,96 @@ class QuestionnaireController extends AbstractController
     public function delete(Application $app, Request $request, $id = null)
     {
         $this->isTokenValid($app);
+        $session = $request->getSession();
+        $page_no = intval($session->get('eccube.admin.questionnaire.search.page_no'));
+        $page_no = $page_no ? $page_no : Constant::ENABLED;
+
+        if (!is_null($id)) {
+            $Questionnaire = $app['eccube.repository.questionnaire']->find($id);
+            if (!$Questionnaire) {
+                $app->deleteMessage();
+
+                return $app->redirect($app->url('admin_questionnaire_page', array('page_no' => $page_no)).'?resume='.Constant::ENABLED);
+            }
+
+            if ($Questionnaire instanceof \Eccube\Entity\Questionnaire) {
+                log_info('アンケート削除開始', array($id));
+
+                $Questionnaire->setDelFlg(Constant::ENABLED);
+
+                $app['orm.em']->persist($Questionnaire);
+                $app['orm.em']->flush();
+
+                log_info('アンケート削除完了', array($id));
+
+                $app->addSuccess('admin.delete.complete', 'admin');
+            } else {
+                log_info('アンケート削除エラー', array($id));
+                $app->addError('admin.delete.failed', 'admin');
+            }
+        } else {
+            log_info('アンケート削除エラー', array($id));
+            $app->addError('admin.delete.failed', 'admin');
+        }
+
         return $app->redirect($app->url('admin_questionnaire_page', array('page_no' => $page_no)).'?resume='.Constant::ENABLED);
     }
 
     public function copy(Application $app, Request $request, $id = null)
     {
         $this->isTokenValid($app);
+        if (!is_null($id)) {
+            $Questionnaire = $app['eccube.repository.questionnaire']->find($id);
+            if ($Questionnaire instanceof \Eccube\Entity\Questionnaire) {
+                $CopyQuestionnaire = clone $Questionnaire;
+                $Disp = $app['eccube.repository.master.disp']->find(\Eccube\Entity\Master\Disp::DISPLAY_HIDE);
+                $CopyQuestionnaire->setStatus($Disp);
+
+                // 子要素を複製
+                $QuestionnaireDetails = $CopyQuestionnaire->getQuestionnaireDetails();
+                foreach ($QuestionnaireDetails as $QuestionnaireDetail) {
+                    $CopyQuestionnaireDetail = clone $QuestionnaireDetail;
+                    $CopyQuestionnaireDetail->setQuestionnaire($CopyQuestionnaire);
+                    $app['orm.em']->persist($CopyQuestionnaireDetail);
+                    $app['orm.em']->persist($CopyQuestionnaire);
+                    foreach ($QuestionnaireDetail['QuestionnaireDetailChoices'] as $QuestionnaireDetailChoice) {
+                        $CopyQuestionnaireDetailChoice = clone $QuestionnaireDetailChoice;
+                        $CopyQuestionnaireDetailChoice->setQuestionnaireDetail($CopyQuestionnaireDetail);
+                        $app['orm.em']->persist($CopyQuestionnaireDetailChoice);
+                        $app['orm.em']->persist($CopyQuestionnaireDetail);
+                    }
+                }
+
+                // 添付ファイルを複製
+                $Attachments = $CopyQuestionnaire->getQuestionnaireAttachments();
+                foreach ($Attachments as $Attachment) {
+
+                    // 添付ファイルを新規作成
+                    $extension = pathinfo($Attachment->getFileName(), PATHINFO_EXTENSION);
+                    $filename = date('mdHis').uniqid('_').'.'.$extension;
+                    try {
+                        $fs = new Filesystem();
+                        $fs->copy($app['config']['questionnaire_attachment_save_realdir'].'/'.$Attachment->getFileName(), $app['config']['questionnaire_attachment_save_realdir'].'/'.$filename);
+                    } catch (\Exception $e) {
+                        // エラーが発生しても無視する
+                    }
+                    $Attachment->setFileName($filename);
+
+                    $app['orm.em']->persist($Attachment);
+                }
+
+                $app['orm.em']->persist($CopyQuestionnaire);
+                $app['orm.em']->flush();
+
+                $app->addSuccess('アンケートを複製しました。', 'admin');
+
+                return $app->redirect($app->url('admin_questionnaire_edit', array('id' => $CopyQuestionnaire->getId())));
+            } else {
+                $app->addError('アンケートの複製に失敗しました。', 'admin');
+            }
+        } else {
+            $app->addError('アンケートの複製に失敗しました。', 'admin');
+        }
         return $app->redirect($app->url('admin_questionnaire'));
     }
 

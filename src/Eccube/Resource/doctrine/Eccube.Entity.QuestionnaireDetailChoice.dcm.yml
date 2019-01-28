@@ -12,10 +12,10 @@ Eccube\Entity\QuestionnaireDetailChoice:
             generator:
                 strategy: AUTO
     fields:
-        chice_name:
+        choice_name:
             type: text
             nullable: false
-        chice_description:
+        choice_description:
             type: text
             nullable: false
         rank:

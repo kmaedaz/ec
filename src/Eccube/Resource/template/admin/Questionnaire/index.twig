@@ -80,7 +80,7 @@ $(function() {
 {% block main %}
             <!--検索条件設定テーブルここから-->
             <div id="search_wrap" class="search-box">
-                <form name="search_form" id="search_form" method="post" action="{{ url('admin_product') }}">
+                <form name="search_form" id="search_form" method="post" action="{{ url('admin_questionnaire') }}">
                 	{{ form_widget(searchForm._token) }}
                     <div id="search_box" class="row">
                         <div class="col-md-12 accordion">
@@ -181,7 +181,7 @@ $(function() {
                                         {% if page_status is null %}
                                         <a>すべて</a>
                                         {% else %}
-                                        <a href="{{ path('admin_product_page', {'page_no': 1} ) }}">すべて</a>
+                                        <a href="{{ path('admin_questionnaire_page', {'page_no': 1} ) }}">すべて</a>
                                         {% endif %}
                                     </li>
                                     {% for disp in disps %}
@@ -189,17 +189,10 @@ $(function() {
                                       {% if page_status == disp.id %}
                                       <a>{{ disp.name|e }}</a>
                                       {% else %}
-                                      <a href="{{ path('admin_product_page', {'page_no': 1, 'status': disp.id} ) }}">{{ disp.name|e }}</a>
+                                      <a href="{{ path('admin_questionnaire_page', {'page_no': 1, 'status': disp.id} ) }}">{{ disp.name|e }}</a>
                                       {% endif %}
                                       </li>
                                     {% endfor %}
-                                      <li>
-                                      {% if page_status == app.config.admin_product_stock_status %}
-                                          <a>{{ app.translator.trans('admin.product.search.stock') }}</a>
-                                      {% else %}
-                                          <a href="{{ path('admin_product_page', {'page_no': 1, 'status': app.config.admin_product_stock_status} ) }}">{{ app.translator.trans('admin.product.search.stock') }}</a>
-                                      {% endif %}
-                                      </li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6">
@@ -210,16 +203,9 @@ $(function() {
                                             <ul class="dropdown-menu">
                                         {% endfor %}
                                         {% for pageMax in pageMaxis if pageMax.name != page_count %}
-                                                <li><a href="{{ path('admin_product_page', {'page_no': 1, 'page_count': pageMax.name}) }}">{{ pageMax.name|e }}件</a></li>
+                                                <li><a href="{{ path('admin_questionnaire_page', {'page_no': 1, 'page_count': pageMax.name}) }}">{{ pageMax.name|e }}件</a></li>
                                         {% endfor %}
                                             </ul>
-                                    </li>
-                                    <li id="result_list__csv_menu" class="dropdown">
-                                        <a class="dropdown-toggle" data-toggle="dropdown">CSVダウンロード<svg class="cb cb-angle-down icon_down"><use xlink:href="#cb-angle-down"></svg></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="{{ url('admin_product_export') }}">CSVダウンロード</a></li>
-                                            <li><a href="{{ url('admin_setting_shop_csv', { id : constant('\\Eccube\\Entity\\Master\\CsvType::CSV_TYPE_PRODUCT') }) }}">出力項目設定</a></li>
-                                        </ul>
                                     </li>
                                     </ul>
                                 </div>
@@ -227,34 +213,23 @@ $(function() {
                             <div id="result_list__list" class="item_list">
                                 <div class="tableish tableish-striped">
 
-                                    {% for Product in pagination %}
-                                        <div id="result_list__item--{{ Product.id }}" class="item_box tr">
-                                            <div id="result_list__id--{{ Product.id }}" class="item_id td">
-                                                {{Product.id}}
+                                    {% for Questionnaire in pagination %}
+                                        <div id="result_list__item--{{ Questionnaire.id }}" class="item_box tr">
+                                            <div id="result_list__id--{{ Questionnaire.id }}" class="item_id td">
+                                                {{Questionnaire.id}}
                                             </div>
-                                            <div id="result_list__image--{{ Product.id }}" class="item_photo td">
-                                                <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
-                                                    <img src="{{ app.config.image_save_urlpath }}/{{ Product.mainFileName|no_image_product }}" />
-                                                </a>
-                                            </div>
-                                            <div id="result_list__name--{{ Product.id }}" class="item_detail td">
-                                                <a href="{{ url('admin_product_product_edit', { id : Product.id }) }}">
-                                                    {{ Product.name }}
+                                            <div id="result_list__name--{{ Questionnaire.id }}" class="item_detail td">
+                                                <a href="{{ url('admin_questionnaire_edit', { id : Questionnaire.id }) }}">
+                                                    {{ Questionnaire.name }}
                                                 </a><br>
-                                                <span  id="result_list__code--{{ Product.id }}">
-                                                    {{ Product.code_min }}
-                                                    {% if Product.code_min != Product.code_max %} ～ {{ Product.code_max }}
-                                                    {% endif %}
-                                                </span>
                                             </div>
-                                            <div id="result_list__item_menu_box--{{ Product.id }}"class="icon_edit td">
-                                                <div id="result_list__item_menu_toggle--{{ Product.id }}" class="dropdown">
+                                            <div id="result_list__item_menu_box--{{ Questionnaire.id }}"class="icon_edit td">
+                                                <div id="result_list__item_menu_toggle--{{ Questionnaire.id }}" class="dropdown">
                                                     <a class="dropdown-toggle" data-toggle="dropdown"><svg class="cb cb-ellipsis-h"><use xlink:href="#cb-ellipsis-h"></svg></a>
-                                                    <ul id="result_list__item_menu--{{ Product.id }}" class="dropdown-menu dropdown-menu-right">
-                                                    <li><a href="{{ url('admin_product_product_class', { id : Product.id }) }}">規格</a></li>
-                                                    <li><a href="{{ url('admin_product_product_display', {'id' : Product.id}) }}" target="_blank">確認</a></li>
-                                                    <li><a href="{{ url('admin_product_product_copy', {'id' : Product.id}) }}" {{ csrf_token_for_anchor() }} data-method="post" data-message="商品情報を複製してもよろしいですか？">複製</a></li>
-                                                    <li><a href="{{ url('admin_product_product_delete', {'id' : Product.id}) }}" {{ csrf_token_for_anchor() }} data-method="delete" data-message="商品情報を削除してもよろしいですか？">削除</a></li>
+                                                    <ul id="result_list__item_menu--{{ Questionnaire.id }}" class="dropdown-menu dropdown-menu-right">
+                                                    <li><a href="{{ url('admin_questionnaire_display', {'id' : Questionnaire.id}) }}" target="_blank">確認</a></li>
+                                                    <li><a href="{{ url('admin_questionnaire_copy', {'id' : Questionnaire.id}) }}" {{ csrf_token_for_anchor() }} data-method="post" data-message="アンケート情報を複製してもよろしいですか？">複製</a></li>
+                                                    <li><a href="{{ url('admin_questionnaire_delete', {'id' : Questionnaire.id}) }}" {{ csrf_token_for_anchor() }} data-method="delete" data-message="アンケート情報を削除してもよろしいですか？">削除</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -264,7 +239,7 @@ $(function() {
                             </div>
                         </div><!-- /.box-body -->
                         {% if pagination.totalItemCount > 0 %}
-                            {% include "pager.twig" with { 'pages' : pagination.paginationData, 'routes' : 'admin_product_page' } %}
+                            {% include "pager.twig" with { 'pages' : pagination.paginationData, 'routes' : 'admin_questionnaire_page' } %}
                         {% endif %}
                         {% else %}
                         <div id="result_list__header" class="box-header with-arrow">
@@ -278,7 +253,7 @@ $(function() {
                                             {% if page_status is null %}
                                                 <a>すべて</a>
                                             {% else %}
-                                                <a href="{{ path('admin_product_page', {'page_no': page_no} ) }}">すべて</a>
+                                                <a href="{{ path('admin_questionnaire_page', {'page_no': page_no} ) }}">すべて</a>
                                             {% endif %}
                                         </li>
                                         {% for disp in disps %}
@@ -286,17 +261,10 @@ $(function() {
                                                 {% if page_status == disp.id %}
                                                     <a>{{ disp.name|e }}</a>
                                                 {% else %}
-                                                    <a href="{{ path('admin_product_page', {'page_no': page_no, 'status': disp.id} ) }}">{{ disp.name|e }}</a>
+                                                    <a href="{{ path('admin_questionnaire_page', {'page_no': page_no, 'status': disp.id} ) }}">{{ disp.name|e }}</a>
                                                 {% endif %}
                                             </li>
                                         {% endfor %}
-                                        <li>
-                                            {% if page_status == app.config.admin_product_stock_status %}
-                                                <a>{{ app.translator.trans('admin.product.search.stock') }}</a>
-                                            {% else %}
-                                                <a href="{{ path('admin_product_page', {'page_no': page_no, 'status': app.config.admin_product_stock_status} ) }}">{{ app.translator.trans('admin.product.search.stock') }}</a>
-                                            {% endif %}
-                                        </li>
                                     </ul>
                                 </div>
                             </div>

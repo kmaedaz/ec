@@ -154,7 +154,7 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/questionnaire/page/{page_no}', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::index')->assert('page_no', '\d+')->bind('admin_questionnaire_page');
         $c->match('/questionnaire/new', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::edit')->bind('admin_questionnaire_new');
         $c->match('/questionnaire/{id}/edit', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::edit')->assert('id', '\d+')->bind('admin_questionnaire_edit');
-        $c->match('/questionnaire/{id}/display', '\Eccube\Controller\Admin\Product\ProductController::display')->assert('id', '\d+')->bind('admin_product_product_display');
+        $c->match('/questionnaire/{id}/display', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::display')->assert('id', '\d+')->bind('admin_questionnaire_display');
         $c->delete('/questionnaire/{id}/delete', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::delete')->assert('id', '\d+')->bind('admin_questionnaire_delete');
         $c->post('/questionnaire/{id}/copy', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::copy')->assert('id', '\d+')->bind('admin_questionnaire_copy');
         $c->post('/questionnaire/attachment/add', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::addAttachment')->bind('admin_questionnaire_attachment_add');

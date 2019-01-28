@@ -92,6 +92,7 @@ class QuestionnaireType extends AbstractType
                 'mapped' => false,
                 'allow_add' => true,
                 'allow_delete' => true,
+                'options' => array('data_class' => 'Eccube\Entity\QuestionnaireAttachment'),
             ))
             ->add('add_attachments', 'collection', array(
                 'type' => 'hidden',
@@ -122,6 +123,9 @@ class QuestionnaireType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
+        $resolver->setDefaults(array(
+            'allow_extra_fields' => true,
+        ));
     }
 
     /**

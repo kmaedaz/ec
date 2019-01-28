@@ -26,6 +26,12 @@ Eccube\Entity\Questionnaire:
             unsigned: false
             options:
                 default: '0'
+        application_period_from:
+            type: datetime
+            nullable: false
+        application_period_to:
+            type: datetime
+            nullable: false
         create_date:
             type: datetime
             nullable: false
@@ -54,6 +60,7 @@ Eccube\Entity\Questionnaire:
     oneToMany:
         QuestionnaireAttachments:
             targetEntity: Eccube\Entity\QuestionnaireAttachment
+            cascade: ["persist", "remove"]
             mappedBy: Questionnaire
             orderBy:
                 rank: ASC

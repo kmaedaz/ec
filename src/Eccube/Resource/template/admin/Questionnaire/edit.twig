@@ -46,26 +46,25 @@ $(function() {
             + '<svg class="cb cb-close">'
             + '<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cb-close"></use>'
             + '</svg>'
+            + '</a>'
             + '<svg class="cb cb-attachment">'
             + '<use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cb-attachment"></use>'
             + '</svg>'
             + '<span class="save_file">__path__</span>'
             + '<span class="org_file">__filename__</span>'
-            + '</a>'
             + '</li>';
     var attachment_add = '{{ form_widget(form.add_attachments.vars.prototype) }}';
     var attachment_del = '{{ form_widget(form.delete_attachments.vars.prototype) }}';
     {% for attachment in form.attachments %}
-    var $attachment = $(attachment_file.replace(/__path__/g, '{{ app.config.questionnaire_attachment_save_urlpath }}/{{ attachment.vars.save_file.value }}').replace(/__filename__/g, {{ attachment.vars.org_file.value }}'));
-    var $widget = $('{{ form_widget(attachment) }}');
-    $widget.val('{{ attachment.save_file.vars.value }}');
-    $("#thumb").append($attachment.append($widget));
+    var $attachment_tag = $(attachment_file.replace(/__path__/g, '{{ app.config.questionnaire_attachment_save_urlpath }}/{{ attachment.vars.value.file_name }}').replace(/__filename__/g, '{{ attachment.vars.value.label }}'));
+    var $widget = $('<input type="hidden" id="admin_questionnaire_attachments_{{ loop.index }}" name="admin_questionnaire[attachments_][{{ loop.index }}]" value=' + "'" + '{"save_file":"{{ attachment.vars.value.file_name }}","org_file":"{{ attachment.vars.value.label }}"}' + "'" + '>');
+    $("#thumb").append($attachment_tag.append($widget));
     {% endfor %}
     {% for add_attachment in form.add_attachments %}
-    var $attachment = $(attachment_file.replace(/__path__/g, '{{ app.config.questionnaire_attachment_save_urlpath }}/{{ add_attachment.vars.save_file.value }}').replace(/__filename__/g, {{ add_attachment.vars.org_file.value }}'));
+    var $attachment_tag = $(attachment_file.replace(/__path__/g, '{{ app.config.questionnaire_attachment_save_urlpath }}/{{ add_attachment.vars.save_file.value }}').replace(/__filename__/g, '{{ add_attachment.vars.org_file.value }}'));
     var $widget = $('{{ form_widget(add_attachment) }}');
     $widget.val('{{ add_attachment.save_file.vars.value }}');
-    $("#thumb").append($attachment.append($widget));
+    $("#thumb").append($attachment_tag.append($widget));
     {% endfor %}
     {% for delete_attachment in form.delete_attachments %}
     $("#thumb").append('{{ form_widget(delete_attachment) }}');
@@ -125,10 +124,10 @@ $(function() {
             $('#progress').hide();
             $.each(data.result.files, function (index, file) {
                 var path = '{{ app.config.file_temp_urlpath }}/' + file['save_file'];
-                var $attachment = $(attachment_file.replace(/__path__/g, path).replace(/__filename__/g, file['org_file']));
+                var $attachment_tag = $(attachment_file.replace(/__path__/g, path).replace(/__filename__/g, file['org_file']));
                 var $new_attachment = $(attachment_add.replace(/__name__/g, count_add));
                 $new_attachment.val(JSON.stringify(file));
-                $child = $attachment.append($new_attachment);
+                $child = $attachment_tag.append($new_attachment);
                 $('#thumb').append($child);
                 count_add++;
             });
@@ -182,19 +181,19 @@ $(function() {
         // レコード数カウンタで置換.
         newWidget = newWidget.replace(/\[QuestionnaireDetails\]\[__name__\]/g, "[QuestionnaireDetails]["+questionnaire_details_count+"]");
         newWidget = newWidget.replace(/QuestionnaireDetails___name___/g, "QuestionnaireDetails_"+questionnaire_details_count+"_");
-        newWidget = newWidget.replace(/detail_box__detail_name___index__/g, "detail_box__detail_name_" + questionnaire_details_count);
-        newWidget = newWidget.replace(/detail_box__detail_description___index__/g, "detail_box__detail_description_" + questionnaire_details_count);
-        newWidget = newWidget.replace(/questionnaire_detail_choice_listitem___index__/g, "questionnaire_detail_choice_listitem_" + questionnaire_details_count);
-        newWidget = newWidget.replace(/choice_add___index__/g, "choice_add_" + questionnaire_details_count);
-        newWidget = newWidget.replace(/delete_detail__index__/g, "delete_detail_" + questionnaire_details_count);
-        // フォームのコールバックをセット
+        newWidget = newWidget.replace(/questionnaire_detail_choice_list_block___detail__/g, "questionnaire_detail_choice_list_block_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/questionnaire_detail_list_item___detail__/g, "questionnaire_detail_list_item_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/detail_box__detail_name___detail__/g, "detail_box__detail_name_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/detail_box__detail_description___detail__/g, "detail_box__detail_description_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/choice_add___detail__/g, "choice_add_" + questionnaire_details_count);
+        newWidget = newWidget.replace(/delete_detail__detail__/g, "delete_detail_" + questionnaire_details_count);
         $newWidget = $(newWidget);
-        $newWidget.find('div[id^=questionnaire_detail_choice_list]').sortable({
+        $newWidget.find("div[id^=questionnaire_detail_choice_list_block_]").sortable({
             cursor: 'move',
             opacity: 0.7,
             placeholder: 'ui-state-highlight',
             update: function (event, ui) {
-                updateChoiceRank(this);
+                updateChoiceRank($(this));
             }
         });
         // 明細行に追加.
@@ -230,10 +229,10 @@ $(function() {
         target.find("div[id^=questionnaire_detail_choice_listitem_]").each(function (index) {
             ++questionnaire_detail_choices_count;
             $(this).find(".rank_choices").remove();
-            detailIndex = parseInt($(this).parent().parent().parent().attr('id').replace(/questionnaire_detail_list_item_/g, ""));
-            choiceIndex = parseInt($(this).attr('id').replace(/questionnaire_detail_choice_listitem_/g, ""));
+            var indexInfoStr = $(this).attr('id').replace(/questionnaire_detail_choice_listitem_/g, "");
+            var indexInfo = indexInfoStr.split('_')
             $rank = $('<input type="hidden" class="rank_choices" name="rank_choices[]" />');
-            $rank.val(detailIndex + "_" + choiceIndex + '//' + parseInt(index + 1));
+            $rank.val(indexInfo[0] + "_" + indexInfo[1] + '//' + parseInt(index + 1));
             $(this).append($rank);
         });
     }
@@ -245,6 +244,7 @@ $(function() {
         }
         add_choice_flag = 1;
         var choiceList = $(this).parent().parent().parent().find('div[id^=questionnaire_detail_choice_list_block_]');
+        var detailIndex =$(this).attr('id').replace(/choice_add_/g, "");
         var questionnaire_detail_choices_count = 0;
         choiceList.find('div[id^=questionnaire_detail_choice_listitem_]').each(function(){
             ++questionnaire_detail_choices_count;
@@ -256,7 +256,7 @@ $(function() {
         // prototype templateを取得.
         var newChoiceWidget = choiceList.attr('data-prototype');
         // レコード数カウンタで置換.
-        newChoiceWidget = newChoiceWidget.replace(/__name__/g, questionnaire_detail_choices_count).replace(/__index__/g, questionnaire_detail_choices_count);
+        newChoiceWidget = newChoiceWidget.replace(/__detail__/g, detailIndex).replace(/__name__/g, questionnaire_detail_choices_count).replace(/__index__/g, questionnaire_detail_choices_count);
         // フォーム入力値をセット
         $newChoiceWidget = $(newChoiceWidget);
         // 明細行に追加.
@@ -265,7 +265,7 @@ $(function() {
         add_choice_flag = 0;
     });
     // 選択肢削除
-    $("#questionnaire_detail_list").on('click', 'a[id^=delete_choice]', function () {
+    $("div[id^=questionnaire_detail_list]").on('click', 'a[id^=delete_choice_]', function () {
         list = $(this).parent().parent().parent().find('div[id^=questionnaire_detail_choice_list_block_]');
         $(this).parent().parent().remove();
         updateChoiceRank(list);
@@ -275,7 +275,7 @@ $(function() {
         opacity: 0.7,
         placeholder: 'ui-state-highlight',
         update: function (event, ui) {
-            updateChoiceRank(ui.item);
+            updateChoiceRank($(this));
         }
     });
     $('div[id^=questionnaire_detail_choice_list_block_]').each(function () {
@@ -399,10 +399,10 @@ function fnClass(action) {
                                     class="tableish"
                                     data-prototype="
                                     {% filter escape %}
-                                    {{ include('Questionnaire/questionnaire_detail_prototype.twig', { 'questionnaireDetailForm': form.QuestionnaireDetails.vars.prototype, 'index': '__index__' }) }}
+                                    {{ include('Questionnaire/questionnaire_detail_prototype.twig', { 'questionnaireDetailForm': form.QuestionnaireDetails.vars.prototype, 'detail': '__detail__' }) }}
                                     {% endfilter %}">
                                     {% for questionnaireDetailForm in form.QuestionnaireDetails %}
-                                        {{ include('Questionnaire/questionnaire_detail_prototype.twig', { 'questionnaireDetailForm': form.QuestionnaireDetails.vars.prototype, 'index': loop.index }) }}
+                                        {{ include('Questionnaire/questionnaire_detail_prototype.twig', { 'questionnaireDetailForm': questionnaireDetailForm, 'detail': (loop.index - 1) }) }}
                                     {% endfor %}
                                 </div>
                                 <div id="questionnaire_detail_add_buttun">
@@ -465,11 +465,7 @@ function fnClass(action) {
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    {% if is_membership == true %}
-                                                    <button class="btn btn-default btn-block btn-sm" disabled>
-                                                    {% else %}
                                                     <a class="btn btn-default btn-block btn-sm" href="{{ url('admin_questionnaire_copy', {'id' : Questionnaire.id}) }}"  {{ csrf_token_for_anchor() }} data-method="post" data-message="このアンケート情報を複製してもよろしいですか？">
-                                                    {% endif %}
                                                         複製
                                                     </a>
                                                 </li>
