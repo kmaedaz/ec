@@ -106,11 +106,28 @@ $(function() {
                             </div>
                             <div id="result_list__list" class="item_list">
                                 <div class="tableish tableish-striped">
+                                    <div class="item_box tr">
+                                        <div  class="item_id td" style="width:6rem;">
+                                        表示順
+                                        </div>
+                                        <div  class="item_id td" style="width:4rem;">
+                                        No
+                                        </div>
+                                        <div  class="item_detail td">
+                                        種別名称
+                                        </div>
+                                    </div><!-- /.item_box -->
+
+                                    {% set count =( page_no-1 )* page_count %}
 
                                     {% for TrainingType in pagination %}
                                         <div id="result_list__item--{{ TrainingType.id }}" class="item_box tr">
                                             <div id="result_list__id--{{ TrainingType.id }}" class="item_id td">
-                                                {{TrainingType.id}}
+                                                {{TrainingType.rank}}
+                                            </div>
+                                            <div  class="item_id td">
+                                             {% set count= count+1 %} 
+                                               {{count}}
                                             </div>
                                             <div id="result_list__name--{{ TrainingType.id }}" class="item_detail td">
                                                 <a href="{{ url('admin_training_type_edit', { id : TrainingType.id }) }}">
@@ -139,9 +156,6 @@ $(function() {
                                             {% else %}
                                                 <a href="{{ path('admin_training_type_page', {'page_no': page_no} ) }}">すべて</a>
                                             {% endif %}
-                                        </li>
-                                        <li>
-                                            <a href="{{ path('admin_training_type_page', {'page_no': page_no, 'status': app.config.admin_product_stock_status} ) }}">{{ app.translator.trans('admin.product.search.stock') }}</a>
                                         </li>
                                     </ul>
                                 </div>
