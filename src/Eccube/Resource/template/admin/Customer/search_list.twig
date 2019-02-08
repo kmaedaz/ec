@@ -1,0 +1,21 @@
+{% if  formlist %}
+  {% for  item in formlist %}
+    <tr>
+      <td data-id="{{item.id}}" class="plg_formdb_form_list" style="table-layout:fixed;width:80%;">
+        <a class="btn btn-default" role="button" style="width:100%;"  onclick='search_select({{item.id}})'>{{item.search_name }}</a>
+      </td>
+      <td data-id="{{item.id}}" style="text-align:center;table-layout:fixed;width:120px;">
+        <button type="button" onclick="search_add({{item.id}}, '{{item.search_name }}', 0)" id="add_custom" class="btn-sm btn-primary">追加</button>
+      </td>
+      <td data-id="{{item.id}}" style="text-align:right;table-layout:fixed;width:120px;">
+        <a class="btn btn-default" role="button"  onclick='search_delete({{item.id}})'><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>
+      </td>
+    </tr>
+  {% endfor %}
+{% else %}
+  <tr>
+    <td colspan="3">
+      登録された検索条件はありません。
+    </td>
+</tr>
+{% endif %}

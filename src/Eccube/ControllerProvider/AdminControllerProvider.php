@@ -88,6 +88,10 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/customer', '\Eccube\Controller\Admin\Customer\CustomerController::index')->bind('admin_customer');
         $c->match('/customer/page/{page_no}', '\Eccube\Controller\Admin\Customer\CustomerController::index')->assert('page_no', '\d+')->bind('admin_customer_page');
         $c->match('/customer/export', '\Eccube\Controller\Admin\Customer\CustomerController::export')->bind('admin_customer_export');
+        $c->match('/customer/search/get', '\Eccube\Controller\Admin\Customer\CustomerController::getSearch')->bind('admin_customer_search_get');
+        $c->match('/customer/search/save', '\Eccube\Controller\Admin\Customer\CustomerController::saveSearch')->bind('admin_customer_search_save');
+        $c->match('/customer/search/select', '\Eccube\Controller\Admin\Customer\CustomerController::selectSearch')->bind('admin_customer_search_select');
+        $c->match('/customer/search/delete', '\Eccube\Controller\Admin\Customer\CustomerController::deleteSearch')->bind('admin_customer_search_delete');
         $c->match('/customer/new', '\Eccube\Controller\Admin\Customer\CustomerEditController::index')->bind('admin_customer_new');
         $c->match('/customer/{id}/edit', '\Eccube\Controller\Admin\Customer\CustomerEditController::index')->assert('id', '\d+')->bind('admin_customer_edit');
         $c->match('/customer/{id}/annual_fee', '\Eccube\Controller\Admin\Customer\CustomerController::annualFeeReport')->assert('id', '\d+')->bind('admin_customer_annual_fee_report');

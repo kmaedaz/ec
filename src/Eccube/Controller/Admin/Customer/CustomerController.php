@@ -38,8 +38,10 @@ class CustomerController extends AbstractController
 {
     public function index(Application $app, Request $request, $page_no = null)
     {
+        log_info('index Start');
         $session = $request->getSession();
         $pagination = array();
+        $custom_searchs = array();
         $builder = $app['form.factory']
             ->createBuilder('admin_search_customer');
 
@@ -55,6 +57,8 @@ class CustomerController extends AbstractController
 
         //アコーディオンの制御初期化( デフォルトでは閉じる )
         $active = false;
+        //カスタム検索アコーディオンの制御初期化( デフォルトでは閉じる )
+        $activeCustom = false;
 
         $pageMaxis = $app['eccube.repository.master.page_max']->findAll();
 
@@ -75,16 +79,36 @@ class CustomerController extends AbstractController
         }
 
         if ('POST' === $request->getMethod()) {
-
+            $custom_search_input = ($request->request->has('custom_select')?$request->request->get('custom_select'):array());
+            $activeCustom = ($request->request->has('open_customer_search')?($request->request->get('open_customer_search')==1):false);
+            $original_searchs = array();
+            foreach ($custom_search_input as $searchId => $custom_search) {
+                $OrignalSearch = $app['eccube.repository.orignal_search']->findOneBy(array('id' => $searchId, 'del_flg' => 0));
+                if ($OrignalSearch) {
+                    $custom_searchs[] = array('id' => $searchId, 'name' => $OrignalSearch->getSearchName(), 'type' => $custom_search['join']);
+                    $original_searchs[] = array('entity' => $OrignalSearch, 'join' => $custom_search['join']);
+                }
+            }
+            $is_custom_search = $request->request->has('custom_search');
             $searchForm->handleRequest($request);
-
             if ($searchForm->isValid()) {
-                $searchData = $searchForm->getData();
+                if ((!$is_custom_search) || (count($original_searchs) < 1)) {
+                    $searchData = $searchForm->getData();
 
-                // paginator
-                $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchData($searchData);
+                    // paginator
+                    $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchData($searchData);
+                } else {
+                    $searchDatas = array();
+                    foreach($original_searchs as $original_search) {
+                        $builder = $app['form.factory']
+                            ->createBuilder('admin_search_customer');
+                        $searchFormTemp = $builder->getForm();
+                        $searchDatas[] = array('searchData' => \Eccube\Util\FormUtil::submitAndGetData($searchFormTemp, json_decode($original_search['entity']->getSearchValue(), true)), 'join' => $original_search['join']);
+                    }
+                    // paginator
+                    $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchDatas($searchDatas);
+                }
                 $page_no = 1;
-
                 $event = new EventArgs(
                     array(
                         'form' => $searchForm,
@@ -104,6 +128,9 @@ class CustomerController extends AbstractController
                 $viewData = \Eccube\Util\FormUtil::getViewData($searchForm);
                 $session->set('eccube.admin.customer.search', $viewData);
                 $session->set('eccube.admin.customer.search.page_no', $page_no);
+                $session->set('eccube.admin.customer.search.is_custom_search', $is_custom_search);
+            } else {
+                log_info('Invalid!');
             }
         } else {
             if (is_null($page_no) && $request->get('resume') != Constant::ENABLED) {
@@ -111,6 +138,7 @@ class CustomerController extends AbstractController
                 $session->remove('eccube.admin.customer.search');
                 $session->remove('eccube.admin.customer.search.page_no');
                 $session->remove('eccube.admin.customer.search.page_count');
+                $session->remove('eccube.admin.customer.search.is_custom_search');
             } else {
                 // pagingなどの処理
                 if (is_null($page_no)) {
@@ -118,31 +146,40 @@ class CustomerController extends AbstractController
                 } else {
                     $session->set('eccube.admin.customer.search.page_no', $page_no);
                 }
-                $viewData = $session->get('eccube.admin.customer.search');
-                if (!is_null($viewData)) {
-                    // sessionに保持されている検索条件を復元.
-                    $searchData = \Eccube\Util\FormUtil::submitAndGetData($searchForm, $viewData);
-
+                $is_custom_search = boolval($session->get('eccube.admin.customer.search.is_custom_search'));
+                if ((!$is_custom_search) || (count($original_searchs) < 1)) {
+                    $viewData = $session->get('eccube.admin.customer.search');
+                    $searchData = array();
+                    if (!is_null($viewData)) {
+                        // sessionに保持されている検索条件を復元.
+                        $searchData = \Eccube\Util\FormUtil::submitAndGetData($searchForm, $viewData);
+                    }
                     // 表示件数
                     $page_count = $request->get('page_count', $page_count);
 
                     $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchData($searchData);
-
-                    $event = new EventArgs(
-                        array(
-                            'form' => $searchForm,
-                            'qb' => $qb,
-                        ),
-                        $request
-                    );
-                    $app['eccube.event.dispatcher']->dispatch(EccubeEvents::ADMIN_CUSTOMER_INDEX_SEARCH, $event);
-
-                    $pagination = $app['paginator']()->paginate(
-                        $qb,
-                        $page_no,
-                        $page_count
-                    );
+                } else {
+                    $searchDatas = array();
+                    foreach($original_searchs as $original_search) {
+                        $searchDatas[] = array('searchData' => \Eccube\Util\FormUtil::submitAndGetData($searchForm, json_decode($original_search['entity']->getSearchValue(), true)), 'join' => $original_search['join']);
+                    }
+                    // paginator
+                    $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchDatas($searchDatas);
                 }
+                $event = new EventArgs(
+                    array(
+                        'form' => $searchForm,
+                        'qb' => $qb,
+                    ),
+                    $request
+                );
+                $app['eccube.event.dispatcher']->dispatch(EccubeEvents::ADMIN_CUSTOMER_INDEX_SEARCH, $event);
+
+                $pagination = $app['paginator']()->paginate(
+                    $qb,
+                    $page_no,
+                    $page_count
+                );
             }
         }
 
@@ -166,11 +203,170 @@ class CustomerController extends AbstractController
 
         return $app->render('Customer/index.twig', array(
             'searchForm' => $searchForm->createView(),
+            'custom_searchs' => $custom_searchs,
             'pagination' => $pagination,
             'pageMaxis' => $pageMaxis,
             'page_no' => $page_no,
             'page_count' => $page_count,
             'active' => $active,
+            'activeCustom' => $activeCustom,
+        ));
+    }
+
+    public function getSearch(Application $app, Request $request)
+    {
+        log_info('getSearch Start');
+        $getlist = $app['orm.em']->createQueryBuilder('a')
+            ->select('a')
+            ->from('\Eccube\Entity\OrignalSearch', 'a')
+            ->where('a.target_type = :target_type and a.del_flg = :del_flg')
+            ->setParameter('del_flg',  0)
+            ->setParameter('target_type',  'customer_search')
+            ->getQuery()
+            ->execute();
+        return $app->render('Customer/search_list.twig', array(
+            // add parameter...
+            'formlist'=>$getlist
+        ));
+    }
+
+    public function saveSearch(Application $app, Request $request)
+    {
+        log_info('saveSearch Start');
+        $session = $request->getSession();
+        $builder = $app['form.factory']
+            ->createBuilder('admin_search_customer');
+        $searchForm = $builder->getForm();
+
+        $save_name = $request->request->all()['form_save_name'];
+        $searchForm->handleRequest($request);
+        if ((strlen($save_name) < 1) || (!$searchForm->isValid())) {
+            $message="値が不正です。　登録できませんでした。";
+        } else {
+            $OrignalSearch = $app['eccube.repository.orignal_search']->findOneBy(array('search_name' => $save_name, 'target_type' => 'customer_search'));
+            if (!$OrignalSearch) {
+                $OrignalSearch = new \Eccube\Entity\OrignalSearch();
+                $message=$save_name."は新規登録されました。";
+            } else {
+                $message=$save_name."は再登録されました。";
+            }
+            $OrignalSearch->setSearchValue(json_encode(\Eccube\Util\FormUtil::getViewData($searchForm)));
+            $OrignalSearch->setSearchName($save_name);
+            $OrignalSearch->setTargetType('customer_search');
+            $app['orm.em']->persist($OrignalSearch);
+            $app['orm.em']->flush($OrignalSearch);
+        }
+        return $app->render('Customer/search_save.twig', array(
+            // add parameter...
+            "message"=>$message,
+        ));
+    }
+
+    public function selectSearch(Application $app, Request $request)
+    {
+        $id = $request->get('id');
+        log_info('selectSearch Start', array($id));
+        $pagination = array();
+        $session = $request->getSession();
+        $builder = $app['form.factory']
+            ->createBuilder('admin_search_customer');
+        $searchForm = $builder->getForm();
+        $OrignalSearch = $app['eccube.repository.orignal_search']->findOneBy(array('id' => $id, 'del_flg' => 0));
+        //アコーディオンの制御初期化( デフォルトでは閉じる )
+        $active = false;
+
+        $pageMaxis = $app['eccube.repository.master.page_max']->findAll();
+        // 表示件数は順番で取得する、1.SESSION 2.設定ファイル
+        $page_count = $session->get('eccube.admin.customer.search.page_count', $app['config']['default_page_count']);
+        $page_count_param = $request->get('page_count');
+        // 表示件数はURLパラメターから取得する
+        if($page_count_param && is_numeric($page_count_param)){
+            foreach($pageMaxis as $pageMax){
+                if($page_count_param == $pageMax->getName()){
+                    $page_count = $pageMax->getName();
+                    // 表示件数入力値正し場合はSESSIONに保存する
+                    $session->set('eccube.admin.customer.search.page_count', $page_count);
+                    break;
+                }
+            }
+        }
+        if ($OrignalSearch) {
+            // sessionに保持されている検索条件を復元.
+            $searchData = \Eccube\Util\FormUtil::submitAndGetData($searchForm, json_decode($OrignalSearch->getSearchValue(), true));
+            // 表示件数
+            $page_no = 1;
+            $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchData($searchData);
+            $pagination = $app['paginator']()->paginate(
+                $qb,
+                $page_no,
+                $page_count
+            );
+        } else {
+            $app->addError('該当する。登録はありません。', 'admin');
+            // pagingなどの処理
+            $page_no = intval($session->get('eccube.admin.customer.search.page_no'));
+            $viewData = $session->get('eccube.admin.customer.search');
+            if (!is_null($viewData)) {
+                // sessionに保持されている検索条件を復元.
+                $searchData = \Eccube\Util\FormUtil::submitAndGetData($searchForm, $viewData);
+                // 表示件数
+                $page_count = $request->get('page_count', $page_count);
+                $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchData($searchData);
+                $pagination = $app['paginator']()->paginate(
+                    $qb,
+                    $page_no,
+                    $page_count
+                );
+            }
+        }
+
+        //dtb_category.id 2 == 寄付
+        $ProductCategory = $app['eccube.repository.category']->find(2); 
+        $Products = $app['eccube.repository.product_category']->getProductsForCategory($ProductCategory);
+
+        foreach ($pagination as $Customer) {
+            if (sizeof($app['eccube.repository.order']->getProductTrainingOrders($app, $Customer)) > 0) {
+                $Customer->hasTrainingOrders = true;
+            } else {
+                $Customer->hasTrainingOrders = false;
+            }
+
+            if (sizeof($app['eccube.repository.order']->getContributionOrders($app, $Customer, $Products)) > 0) {
+                $Customer->hasContributionOrders = true;
+            } else {
+                $Customer->hasContributionOrders = false;
+            }
+        }
+
+        return $app->render('Customer/index.twig', array(
+            'searchForm' => $searchForm->createView(),
+            'custom_searchs' => null,
+            'pagination' => $pagination,
+            'pageMaxis' => $pageMaxis,
+            'page_no' => $page_no,
+            'page_count' => $page_count,
+            'active' => $active,
+            'activeCustom' => true,
+        ));
+    }
+
+    public function deleteSearch(Application $app, Request $request)
+    {
+        $message="";
+        $id = $request->get('id');
+        log_info('deleteSearch Start', array($id));
+        $OrignalSearch = $app['eccube.repository.orignal_search']->findOneBy(array('id' => $id, 'del_flg' => 0));
+        if ($OrignalSearch) {
+            $searchName = $OrignalSearch->getSearchName();
+            $message= $searchName . "を削除しました。";
+            $OrignalSearch->setDelFlg(1);
+            $app['orm.em']->persist($OrignalSearch);
+            $app['orm.em']->flush($OrignalSearch);
+        } else {
+            $message="該当する。登録はありません。";
+        }
+        return $app->render('Customer/search_delete.twig', array(
+            "message"=>$message,
         ));
     }
 

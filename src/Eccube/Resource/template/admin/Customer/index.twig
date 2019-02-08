@@ -84,6 +84,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         showTodayButton: true
       });
     }
+    $('#collapseCustomSerch').on('show.bs.collapse', function(event) {
+        $('#open_customer_search').val(1);
+    });
+    {% if activeCustom %}
+      $('#collapseCustomSerch').collapse('show');
+    {% endif %}
+
+
+    $('#search_save').click(function() {
+      var $form = $('#search_form');
+      $.ajax({
+        type: 'POST',
+        dataType: 'html',
+        data: $form.serialize(),
+        url: '{{ url('admin_customer_search_save') }}',
+        success: function(data) {
+          $('#formInfomationLIST').html(data);
+          plg_formDb_list();
+          setTimeout(function() {
+            //一定時間後に消してトーストもどきにする
+            $('#formInfomationLIST').empty();
+          }, 5000);
+
+        },
+        error: function() {
+          alert('search customer failed.');
+        }
+      });
+    });
 
     // フォーム値を確認し、アコーディオンを制御
     // 値あり : 開く / 値なし : 閉じる
@@ -106,13 +135,130 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             $ac.slideUp(0);
         }
     })($, formPropStateSubscriber);
+    plg_formDb_list();
+    refresh_custom_search();
   });
+  {% for custom_search in custom_searchs %}
+  search_add({{ custom_search['id'] }}, '{{ custom_search['name'] }}', {{custom_search['type']}});
+  {% endfor %}
+
+  function plg_formDb_list(){
+    $.ajax({
+      type: 'GET',
+      dataType: 'html',
+      url: '{{ url('admin_customer_search_get') }}',
+      success: function(data) {
+        $('#plg_fomdb_list').html(data);
+      },
+      error: function(e) {
+        alert('通信エラー');
+      }
+    });
+  };
+
+  function search_select(target_id) {
+    var form = document.createElement("form");
+    var input = document.createElement("input");
+    form.method = "POST";
+    form.target = "_self";
+    input.name = "id";
+    input.value = target_id;
+    form.appendChild(input);
+    form.action = "{{ url('admin_customer_search_select') }}";
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+  };
+
+  function search_delete(target_id) {
+    $.ajax({
+      type: 'POST',
+      dataType: 'html',
+      data: {  
+       'id' :target_id,
+      },
+      url: '{{ url('admin_customer_search_delete') }}',
+      success: function(data) {
+        $('#formInfomationLIST').html(data);
+        plg_formDb_list();
+        setTimeout(function() {
+          //一定時間後に消してトーストもどきにする
+          $('#formInfomationLIST').empty();
+        }, 5000);
+      },
+      fail: function (e, data) {
+        alert('通信に失敗しました。');
+      }
+    });
+  };
+
+  function search_add(target_id, disp_name, join_type) {
+    var exitsts = false;
+    $("#custome_search_list > tr").each( function(index, element) {
+        if (target_id == $(element).find('input[name^=custom_select_id]').val()) {
+            exitsts = true;
+        }
+    });
+    if (!exitsts) {
+        var custom_select = '<tr><input type="hidden" name="custom_select_id[]" value="' + target_id + '">';
+        if (join_type == 0) {
+            custom_select += '<td style="table-layout:fixed;width:70px;"><div id="custom_select_join_and_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="0" checked>AND</div></td><td style="table-layout:fixed;width:70px;"><div id="custom_select_join_or_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="1">OR</div></td><td style="table-layout:fixed;width:70px;"><div id="custom_select_join_not_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="2">除く</td></td>';
+        } else if (join_type == 1) {
+            custom_select += '<td style="table-layout:fixed;width:70px;"><div id="custom_select_join_and_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="0">AND</div></td><td style="table-layout:fixed;width:70px;"><div id="custom_select_join_or_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="1" checked>OR</div></td><td style="table-layout:fixed;width:70px;"><div id="custom_select_join_not_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="2">除く</td></td>';
+        } else {
+            custom_select += '<td style="table-layout:fixed;width:70px;"><div id="custom_select_join_and_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="0">AND</div></td><td style="table-layout:fixed;width:70px;"><div id="custom_select_join_or_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="1">OR</div></td><td style="table-layout:fixed;width:70px;"><div id="custom_select_join_not_' + target_id + '"><input type="radio" name="custom_select[' + target_id + '][join]" value="2" checked>除く</td></td>';
+        }
+        custom_select += '<td style="text-align:center;table-layout:fixed;width:70%;">' + disp_name + '</td><td style="table-layout:fixed;width:120px;"><a class="btn btn-default" role="button" onclick="custom_search_delete(' + target_id + ')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td></tr>';
+        $("#custome_search_list").append(custom_select);
+        refresh_custom_search();
+    }
+  };
+
+  function custom_search_delete(target_id) {
+    $("#custome_search_list > tr").each( function(index, element) {
+        if (target_id == $(element).find('input[name^=custom_select_id]').val()) {
+            $(element).remove();
+        }
+    });
+    refresh_custom_search();
+  };
+
+  function refresh_custom_search() {
+    $("#custome_search_list > tr").each( function(index, element) {
+        if (index == 0) {
+            var target_id = $(element).find("input[name^=custom_select_id]").val();
+            $(element).find("#custom_select_join_and_" + target_id).css('visibility','hidden');
+            $(element).find("#custom_select_join_or_" + target_id).css('visibility','hidden');
+            $(element).find("#custom_select_join_not_" + target_id).css('visibility','hidden');
+        } else {
+            var target_id = $(element).find("input[name^=custom_select_id]").val();
+            $(element).find("#custom_select_join_and_" + target_id).css('visibility','visible');
+            $(element).find("#custom_select_join_or_" + target_id).css('visibility','visible');
+            $(element).find("#custom_select_join_not_" + target_id).css('visibility','visible');
+        }
+    });
+    if (0 < $("#custome_search_list > tr").length) {
+        $("#custom_customer_search_btn").prop("disabled", false);
+    } else {
+        $("#custom_customer_search_btn").prop("disabled", true);
+    }
+  };
+  function custom_search_start() {
+    var form = document.forms.search_form;
+    form.method = "POST";
+    form.target = "_self";
+    var input = document.createElement("input");
+    input.name = "custom_search";
+    input.value = 1;
+    form.appendChild(input);
+    form.submit();
+  };
 
 </script>
 {% endblock javascript %}
 
 {% block main %}
-<form name="search_form" id="search_form" method="post" action="">
+<form name="search_form" id="search_form" method="post" action="{{ url('admin_customer') }}">
   {{ form_widget(searchForm._token) }}
   <!--検索条件設定テーブルここから-->
   <div id="search_wrap" class="search-box">
@@ -258,6 +404,76 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
       </button>
     </div>
     <!-- /.col -->
+  </div>
+  <input type="hidden" id="open_customer_search"  name="open_customer_search" value="0">
+  <div  class="row">
+    <div class="col-md-8"></div>
+    <div class="col-md-2">
+      <button type="button" title="検索条件の呼び出し" class="btn btn-primary" data-toggle="collapse" data-target="#collapseCustomSerch" aria-expanded="false" aria-controls="collapseExample">
+       <span class="glyphicon glyphicon-paperclip"  aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="col-md-2"></div>
+  </div>
+  <p></p>
+  <div class="collapse" id="collapseCustomSerch" >
+    <div class="well">
+      <div class="center-block" style="width: 60%; text-align: center; background-color: #f0eff0; border: 1px solid #efe0d0;" >
+      MY検索
+      </div>
+      <div class="table-responsive table-hover">
+        <table class="table table-striped table-hover">
+          <thead style="display:block;">
+            <tr id="result_list_main__header">
+              <th id="result_list_main__header_name" style="text-align:center;table-layout:fixed;width:80%;">名称</th>
+              <th id="result_list_main__header_add_box" style="table-layout:fixed;width:120px;">&nbsp;</th>
+              <th id="result_list_main__header_menu_box" style="table-layout:fixed;width:120px;">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody id="plg_fomdb_list" style="overflow-y:scroll;height:200px;display:block;">
+          </tbody>
+        </table>
+      </div>
+      <div  class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6">
+          <div id="formInfomationLIST"></div>
+        </div>
+        <div class="col-md-3">
+        </div>
+      </div>
+      <div  class="row">
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6">
+          <div class="input-group">
+            <input type="text" id="form_save_name" name="form_save_name" class="form-control" placeholder="検索条件を保存する名前">
+            <span class="input-group-addon" id="basic-addon2">  <button type="button" id="search_save" class="btn-sm btn-primary">保存する</button></span>
+          </div>
+        </div>
+        <div class="col-md-3">
+        </div>
+      </div>
+    </div>
+    <div class="well">
+      カスタム検索
+      <div class="table-responsive table-hover">
+        <table class="table table-striped table-hover">
+          <thead style="display:block;">
+            <tr id="result_list_main__header">
+              <th id="result_list_join_and"></th>
+              <th id="result_list_join_or"></th>
+              <th id="result_list_join_not"></th>
+              <th id="result_list_main__header_name" style="text-align:center;table-layout:fixed;width:70%;">名称</th>
+              <th id="result_list_main__header_menu_box">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody id="custome_search_list" style="overflow-y:scroll;height:200px;display:block;">
+          </tbody>
+        </table>
+        <div style="text-align:center;"><button type="button" id="custom_customer_search_btn" class="btn btn-primary btn-block btn-lg" onclick="custom_search_start()">検索する</button></div>
+      </div>
   </div>
 </div>
 <!--検索条件設定テーブルここまで-->

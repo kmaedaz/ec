@@ -1,9 +1,5 @@
 eccube.event.app.controller:
     - [onAppController, NORMAL]
-admin.customer.edit.index.initialize:
-    - [onAdminCustomerEditIndexInitialize, NORMAL]
-Admin/Customer/index.twig:
-    - [onAdminCustomerIndexRender, NORMAL]
 Admin/Product/index.twig:
     - [onAdminCustomerIndexRender, NORMAL]
 Admin/Order/index.twig:
