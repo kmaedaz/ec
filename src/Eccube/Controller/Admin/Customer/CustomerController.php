@@ -128,7 +128,9 @@ class CustomerController extends AbstractController
                 $viewData = \Eccube\Util\FormUtil::getViewData($searchForm);
                 $session->set('eccube.admin.customer.search', $viewData);
                 $session->set('eccube.admin.customer.search.page_no', $page_no);
+                $session->set('eccube.admin.customer.search.custom_search_input', json_encode($custom_search_input));
                 $session->set('eccube.admin.customer.search.is_custom_search', $is_custom_search);
+                $session->set('eccube.admin.customer.search.active_custom', $activeCustom);
             } else {
                 log_info('Invalid!');
             }
@@ -138,13 +140,25 @@ class CustomerController extends AbstractController
                 $session->remove('eccube.admin.customer.search');
                 $session->remove('eccube.admin.customer.search.page_no');
                 $session->remove('eccube.admin.customer.search.page_count');
+                $session->remove('eccube.admin.customer.search.custom_search_input');
                 $session->remove('eccube.admin.customer.search.is_custom_search');
+                $session->remove('eccube.admin.customer.search.active_custom');
             } else {
                 // pagingなどの処理
                 if (is_null($page_no)) {
                     $page_no = intval($session->get('eccube.admin.customer.search.page_no'));
                 } else {
                     $session->set('eccube.admin.customer.search.page_no', $page_no);
+                }
+                $custom_search_input = json_decode($session->get('eccube.admin.customer.search.custom_search_input'), true);
+                $activeCustom = boolval($session->get('eccube.admin.customer.search.active_custom'));
+                $original_searchs = array();
+                foreach ($custom_search_input as $searchId => $custom_search) {
+                    $OrignalSearch = $app['eccube.repository.orignal_search']->findOneBy(array('id' => $searchId, 'del_flg' => 0));
+                    if ($OrignalSearch) {
+                        $custom_searchs[] = array('id' => $searchId, 'name' => $OrignalSearch->getSearchName(), 'type' => $custom_search['join']);
+                        $original_searchs[] = array('entity' => $OrignalSearch, 'join' => $custom_search['join']);
+                    }
                 }
                 $is_custom_search = boolval($session->get('eccube.admin.customer.search.is_custom_search'));
                 if ((!$is_custom_search) || (count($original_searchs) < 1)) {
@@ -161,7 +175,10 @@ class CustomerController extends AbstractController
                 } else {
                     $searchDatas = array();
                     foreach($original_searchs as $original_search) {
-                        $searchDatas[] = array('searchData' => \Eccube\Util\FormUtil::submitAndGetData($searchForm, json_decode($original_search['entity']->getSearchValue(), true)), 'join' => $original_search['join']);
+                        $builder = $app['form.factory']
+                            ->createBuilder('admin_search_customer');
+                        $searchFormTemp = $builder->getForm();
+                        $searchDatas[] = array('searchData' => \Eccube\Util\FormUtil::submitAndGetData($searchFormTemp, json_decode($original_search['entity']->getSearchValue(), true)), 'join' => $original_search['join']);
                     }
                     // paginator
                     $qb = $app['eccube.repository.customer']->getQueryBuilderBySearchDatas($searchDatas);
