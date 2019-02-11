@@ -46,6 +46,10 @@ class FrontControllerProvider implements ControllerProviderInterface
         $c->match('/', '\Eccube\Controller\TopController::index')->bind('top'); // deprecated since 3.0.0, to be removed in 3.1
         $c->match('/', '\Eccube\Controller\TopController::index')->bind('index'); // deprecated since 3.0.0, to be removed in 3.1
 
+        // second login
+        $c->match('/second_login', '\Eccube\Controller\SecondLoginController::index')->bind('second_login');
+        $c->match('/second_login/cancel', '\Eccube\Controller\SecondLoginController::cancel')->bind('second_cancel');
+
         // cart
         $c->match('/cart', '\Eccube\Controller\CartController::index')->bind('cart');
         $c->post('/cart/add', '\Eccube\Controller\CartController::add')->bind('cart_add');
@@ -114,7 +118,6 @@ class FrontControllerProvider implements ControllerProviderInterface
         // flyer
         $c->match('/flyer/download/{id}', '\Eccube\Controller\FlyerController::download')->bind('flyer_download')->assert('id', '\d+');
 
-
         // shopping
         $c->match('/shopping', '\Eccube\Controller\ShoppingController::index')->bind('shopping');
         $c->match('/shopping/confirm', '\Eccube\Controller\ShoppingController::confirm')->bind('shopping_confirm');
@@ -132,6 +135,10 @@ class FrontControllerProvider implements ControllerProviderInterface
         $c->match('/shopping/shipping_multiple_change', '\Eccube\Controller\ShoppingController::shippingMultipleChange')->bind('shopping_shipping_multiple_change');
         $c->match('/shopping/shipping_multiple', '\Eccube\Controller\ShoppingController::shippingMultiple')->bind('shopping_shipping_multiple');
         $c->match('/shopping/shipping_multiple_edit', '\Eccube\Controller\ShoppingController::shippingMultipleEdit')->bind('shopping_shipping_multiple_edit');
+
+        // questionnaire
+        $c->match('/block/questionnaire', '\Eccube\Controller\Block\QuestionnaireController::index')->bind('block_questionnaire');
+        $c->match('/questionnaire', '\Eccube\Controller\QuestionnaireController::index')->bind('questionnaire');
 
         return $c;
     }
