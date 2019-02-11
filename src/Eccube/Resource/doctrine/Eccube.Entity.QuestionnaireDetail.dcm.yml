@@ -12,6 +12,9 @@ Eccube\Entity\QuestionnaireDetail:
             generator:
                 strategy: AUTO
     fields:
+        detail_name:
+            type: text
+            nullable: false
         detail_description:
             type: text
             nullable: false
@@ -24,8 +27,8 @@ Eccube\Entity\QuestionnaireDetail:
             nullable: false
     manyToOne:
         Questionnaire:
-            targetEntity: Eccube\Entity\QuestionnaireDetail
-            inversedBy: QuestionnaireDetailChoice
+            targetEntity: Eccube\Entity\Questionnaire
+            inversedBy: QuestionnaireDetail
             joinColumn:
                 name: questionnaire_id
                 referencedColumnName: questionnaire_id
@@ -39,6 +42,7 @@ Eccube\Entity\QuestionnaireDetail:
     oneToMany:
         QuestionnaireDetailChoices:
             targetEntity: Eccube\Entity\QuestionnaireDetailChoice
+            cascade: ["persist", "remove"]
             mappedBy: QuestionnaireDetail
             orderBy:
                 rank: ASC

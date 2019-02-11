@@ -51,16 +51,15 @@ class TrainingTypeType extends AbstractType
                 'required' => false,
                 'constraints' => array(
                     new Assert\NotBlank(),
-		            //長さ制限。 Assert\も色々ある。
-		            new Assert\Length(array(
-	                //最大4文字
-	                'max' => 4,
-	                //それぞれに引っかかったときのエラーメッセージ
-	                'maxMessage' => '4桁以下の数字を入力してください。',
-	            )),
-	            ),
-				'attr' => array('max' => '9999','min' => '0'),
-
+                    //長さ制限。 Assert\も色々ある。
+                    new Assert\Length(array(
+                    //最大4文字
+                    'max' => 4,
+                    //それぞれに引っかかったときのエラーメッセージ
+                    'maxMessage' => '4桁以下の数字を入力してください。',
+                )),
+                ),
+        'attr' => array('max' => '9999','min' => '0'),
             ))
         ;
     }

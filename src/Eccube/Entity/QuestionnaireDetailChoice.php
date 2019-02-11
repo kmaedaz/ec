@@ -15,16 +15,6 @@ class QuestionnaireDetailChoice extends \Eccube\Entity\AbstractEntity
     private $id;
 
     /**
-     * @var string
-     */
-    private $chice_name;
-
-    /**
-     * @var string
-     */
-    private $chice_description;
-
-    /**
      * @var integer
      */
     private $rank;
@@ -53,29 +43,6 @@ class QuestionnaireDetailChoice extends \Eccube\Entity\AbstractEntity
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set chice_name
-     *
-     * @param string $chiceName
-     * @return QuestionnaireDetailChoice
-     */
-    public function setChiceName($chiceName)
-    {
-        $this->chice_name = $chiceName;
-
-        return $this;
-    }
-
-    /**
-     * Get chice_name
-     *
-     * @return string 
-     */
-    public function getChiceName()
-    {
-        return $this->chice_name;
     }
 
     /**
@@ -191,5 +158,61 @@ class QuestionnaireDetailChoice extends \Eccube\Entity\AbstractEntity
     public function getCreator()
     {
         return $this->Creator;
+    }
+    /**
+     * @var string
+     */
+    private $choice_name;
+
+    /**
+     * @var string
+     */
+    private $choice_description;
+
+
+    /**
+     * Set choice_name
+     *
+     * @param string $choiceName
+     * @return QuestionnaireDetailChoice
+     */
+    public function setChoiceName($choiceName)
+    {
+        $this->choice_name = $choiceName;
+
+        return $this;
+    }
+
+    /**
+     * Get choice_name
+     *
+     * @return string 
+     */
+    public function getChoiceName()
+    {
+        return $this->choice_name;
+    }
+
+    /**
+     * Set choice_description
+     *
+     * @param string $choiceDescription
+     * @return QuestionnaireDetailChoice
+     */
+    public function setChoiceDescription($choiceDescription)
+    {
+        $this->choice_description = $choiceDescription;
+
+        return $this;
+    }
+
+    /**
+     * Get choice_description
+     *
+     * @return string 
+     */
+    public function getChoiceDescription()
+    {
+        return $this->choice_description;
     }
 }

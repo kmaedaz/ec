@@ -239,16 +239,16 @@ class EccubeServiceProvider implements ServiceProviderInterface
             return $app['orm.em']->getRepository('Eccube\Entity\Flyer');
         });
         $app['eccube.repository.questionnaire'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireRepository');
+            return $app['orm.em']->getRepository('Eccube\Entity\Questionnaire');
         });
         $app['eccube.repository.questionnaire_attachment'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireAttachmentRepository');
+            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireAttachment');
         });
         $app['eccube.repository.questionnaire_detail'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireDetailRepository');
+            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireDetail');
         });
         $app['eccube.repository.questionnaire_detail_choice'] = $app->share(function () use ($app) {
-            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireDetailChoiceRepository');
+            return $app['orm.em']->getRepository('Eccube\Entity\QuestionnaireDetailChoice');
         });
         $app['eccube.repository.mail_history'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\MailHistory');
@@ -275,6 +275,9 @@ class EccubeServiceProvider implements ServiceProviderInterface
         });
         $app['eccube.repository.group_order'] = $app->share(function () use ($app) {
             return $app['orm.em']->getRepository('Eccube\Entity\GroupOrder');
+        });
+        $app['eccube.repository.orignal_search'] = $app->share(function () use ($app) {
+            return $app['orm.em']->getRepository('Eccube\Entity\OrignalSearch');
         });
         $app['eccube.repository.product'] = $app->share(function () use ($app) {
             $productRepository = $app['orm.em']->getRepository('Eccube\Entity\Product');
@@ -477,6 +480,7 @@ class EccubeServiceProvider implements ServiceProviderInterface
                 $types[] = new \Eccube\Form\Type\AddCartType($app['config'], $app['security'], $app['eccube.repository.customer_favorite_product']);
             }
             $types[] = new \Eccube\Form\Type\SearchProductType($app);
+            $types[] = new \Eccube\Form\Type\SearchProductTrainingType($app);
             $types[] = new \Eccube\Form\Type\SearchProductBlockType($app);
             $types[] = new \Eccube\Form\Type\OrderSearchType($app);
             $types[] = new \Eccube\Form\Type\ShippingItemType($app);
@@ -491,6 +495,7 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\Front\ShoppingShippingType();
             $types[] = new \Eccube\Form\Type\Front\CustomerAddressType($app['config']);
             $types[] = new \Eccube\Form\Type\Front\ForgotType();
+            $types[] = new \Eccube\Form\Type\Front\SecondLoginType();
             $types[] = new \Eccube\Form\Type\Front\CustomerLoginType($app['session']);
 
             // admin

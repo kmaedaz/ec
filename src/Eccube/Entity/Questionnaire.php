@@ -265,6 +265,16 @@ class Questionnaire extends \Eccube\Entity\AbstractEntity
     }
 
     /**
+     * Clear QuestionnaireDetails
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function clearQuestionnaireDetails()
+    {
+        $this->QuestionnaireDetails->clear();
+    }
+
+    /**
      * Set Creator
      *
      * @param \Eccube\Entity\Member $creator
@@ -331,5 +341,61 @@ class Questionnaire extends \Eccube\Entity\AbstractEntity
     public function getTarget()
     {
         return $this->Target;
+    }
+    /**
+     * @var \DateTime
+     */
+    private $application_period_from;
+
+    /**
+     * @var \DateTime
+     */
+    private $application_period_to;
+
+
+    /**
+     * Set application_period_from
+     *
+     * @param \DateTime $applicationPeriodFrom
+     * @return Questionnaire
+     */
+    public function setApplicationPeriodFrom($applicationPeriodFrom)
+    {
+        $this->application_period_from = $applicationPeriodFrom;
+
+        return $this;
+    }
+
+    /**
+     * Get application_period_from
+     *
+     * @return \DateTime 
+     */
+    public function getApplicationPeriodFrom()
+    {
+        return $this->application_period_from;
+    }
+
+    /**
+     * Set application_period_to
+     *
+     * @param \DateTime $applicationPeriodTo
+     * @return Questionnaire
+     */
+    public function setApplicationPeriodTo($applicationPeriodTo)
+    {
+        $this->application_period_to = $applicationPeriodTo;
+
+        return $this;
+    }
+
+    /**
+     * Get application_period_to
+     *
+     * @return \DateTime 
+     */
+    public function getApplicationPeriodTo()
+    {
+        return $this->application_period_to;
     }
 }

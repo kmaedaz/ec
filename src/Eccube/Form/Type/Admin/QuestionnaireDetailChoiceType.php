@@ -11,6 +11,7 @@ use Eccube\Application;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -41,7 +42,10 @@ class QuestionnaireDetailChoiceType extends AbstractType
         $builder
             ->add('choice_name', 'text', array(
                 'label' => '選択肢',
-                'constraints' => array(),
+                'required' => true,
+                'constraints' => array(
+                    new Assert\NotBlank(),
+                ),
             ))
         ;
     }
@@ -51,6 +55,16 @@ class QuestionnaireDetailChoiceType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => 'Eccube\Entity\QuestionnaireDetailChoice',
+        ));
     }
 
     /**

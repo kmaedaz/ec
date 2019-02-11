@@ -382,17 +382,42 @@ class CsvExportService
     public function getCustomerQueryBuilder(Request $request)
     {
         $session = $request->getSession();
-        $viewData = $session->get('eccube.admin.customer.search', array());
-
         $app = \Eccube\Application::getInstance();
-        $searchForm = $app['form.factory']
-            ->create('admin_search_customer', null, array('csrf_protection' => true));
-
-        $searchData = \Eccube\Util\FormUtil::submitAndGetData($searchForm, $viewData);
-
-        // 会員データのクエリビルダを構築.
-        $qb = $this->customerRepository
-            ->getQueryBuilderBySearchData($searchData);
+        $custom_search_input = json_decode($session->get('eccube.admin.customer.search.custom_search_input'), true);
+        $activeCustom = boolval($session->get('eccube.admin.customer.search.active_custom'));
+        $original_searchs = array();
+        foreach ($custom_search_input as $searchId => $custom_search) {
+            $OrignalSearch = $app['eccube.repository.orignal_search']->findOneBy(array('id' => $searchId, 'del_flg' => 0));
+            if ($OrignalSearch) {
+                $custom_searchs[] = array('id' => $searchId, 'name' => $OrignalSearch->getSearchName(), 'type' => $custom_search['join']);
+                $original_searchs[] = array('entity' => $OrignalSearch, 'join' => $custom_search['join']);
+            }
+        }
+        $is_custom_search = boolval($session->get('eccube.admin.customer.search.is_custom_search'));
+        if ((!$is_custom_search) || (count($original_searchs) < 1)) {
+            $viewData = $session->get('eccube.admin.customer.search');
+            $searchForm = $app['form.factory']
+                ->create('admin_search_customer', null, array('csrf_protection' => true));
+            $searchData = array();
+            if (!is_null($viewData)) {
+                // sessionに保持されている検索条件を復元.
+                $searchData = \Eccube\Util\FormUtil::submitAndGetData($searchForm, $viewData);
+            }
+            // 会員データのクエリビルダを構築.
+            $qb = $this->customerRepository->getQueryBuilderBySearchData($searchData);
+        } else {
+            $searchDatas = array();
+            $searchForm = $app['form.factory']
+                ->create('admin_search_customer', null, array('csrf_protection' => true));
+            foreach($original_searchs as $original_search) {
+                $builder = $app['form.factory']
+                    ->createBuilder('admin_search_customer');
+                $searchFormTemp = $builder->getForm();
+                $searchDatas[] = array('searchData' => \Eccube\Util\FormUtil::submitAndGetData($searchFormTemp, json_decode($original_search['entity']->getSearchValue(), true)), 'join' => $original_search['join']);
+            }
+            // 会員データのクエリビルダを構築.
+            $qb = $this->customerRepository->getQueryBuilderBySearchDatas($searchDatas);
+        }
 
         return $qb;
     }

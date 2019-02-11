@@ -1,0 +1,63 @@
+Eccube\Entity\OrignalSearch:
+    type: entity
+    table: dtb_orignal_search
+    repositoryClass: Eccube\Repository\OrignalSearchRepository
+    indexes:
+        # requires a length on MySQL
+        # dtb_order_pre_order_id_idx:
+        #     columns:
+        #         - pre_order_id
+        # dtb_order_order_email_idx:
+        #     columns:
+        #         - order_email
+        dtb_orignal_search_create_date_idx:
+            columns:
+                - create_date
+        dtb_orignal_search_update_date_idx:
+            columns:
+                - update_date
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: false
+            id: true
+            column: orignal_search_id
+            generator:
+                strategy: AUTO
+    fields:
+        target_type:
+            type: text
+            nullable: true
+        search_name:
+            type: text
+            nullable: true
+        search_value:
+            type: text
+            nullable: true
+        create_date:
+            type: datetime
+            nullable: false
+        update_date:
+            type: datetime
+            nullable: false
+        del_flg:
+            type: smallint
+            nullable: false
+            unsigned: false
+            options:
+                default: '0'
+    manyToOne:
+        Creator:
+            targetEntity: Eccube\Entity\Member
+            joinColumn:
+                name: creator_id
+                referencedColumnName: member_id
+                nullable: false
+        Updater:
+            targetEntity: Eccube\Entity\Member
+            joinColumn:
+                name: updater_id
+                referencedColumnName: member_id
+                nullable: false
+    lifecycleCallbacks: {  }

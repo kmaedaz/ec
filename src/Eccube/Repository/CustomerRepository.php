@@ -162,10 +162,10 @@ class CustomerRepository extends EntityRepository implements UserProviderInterfa
         }
 
         // CusotmerId
-        if (!empty($searchData['customer_id']) && $searchData['pref']) {
+        if (!empty($searchData['customer_id']) && $searchData['customer_id']) {
             $qb
                 ->andWhere('c.customer_id = :customer_id')
-                ->setParameter('pref', $searchData['customer_id']);
+                ->setParameter('customer_id', $searchData['customer_id']);
         }
 
         // Pref
@@ -331,6 +331,224 @@ class CustomerRepository extends EntityRepository implements UserProviderInterfa
                 ->leftJoin('o.OrderDetails', 'od')
                 ->andWhere('od.product_name LIKE :buy_product_name OR od.product_code LIKE :buy_product_name')
                 ->setParameter('buy_product_name', '%' . $searchData['buy_product_code'] . '%');
+        }
+
+        // Order By
+        $qb->addOrderBy('c.update_date', 'DESC');
+
+        return $qb;
+    }
+
+    public function getQueryBuilderBySearchDatas($searchDatas)
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select('c')
+            ->leftJoin('c.CustomerBasicInfo', 'bc')
+            ->andWhere('c.del_flg = 0');
+
+        $subQueryIndex = 1;
+        $params = array();
+        foreach($searchDatas as $searchData) {
+            $alias = 'c'.$subQueryIndex;
+            $subQuery = $this->createQueryBuilder($alias)
+                ->select($alias.'.id')
+                ->leftJoin($alias.'.CustomerBasicInfo', 'bc' . $subQueryIndex)
+                ->andWhere($alias.'.del_flg = 0');
+            if (isset($searchData['searchData']['multi']) && Str::isNotBlank($searchData['searchData']['multi'])) {
+                //スペース除去
+                $clean_key_multi = preg_replace('/\s+|[　]+/u', '', $searchData['searchData']['multi']);
+                $id = preg_match('/^\d+$/', $clean_key_multi) ? $clean_key_multi : null;
+                $subQuery
+                    ->andWhere($alias.'.id = :customer_id' . $subQueryIndex . ' OR ' . 'bc' . $subQueryIndex . '.customer_number LIKE :customer_number' . $subQueryIndex . ' OR ' . 'bc' . $subQueryIndex . '.customer_number_old LIKE :customer_number_old' . $subQueryIndex . ' OR CONCAT(' . $alias . '.name01, ' . $alias . '.name02) LIKE :name' . $subQueryIndex . ' OR CONCAT(' . $alias . '.kana01, ' . $alias . '.kana02) LIKE :kana' . $subQueryIndex . ' OR ' . $alias . '.email LIKE :email' . $subQueryIndex);
+                    $params['customer_id' . $subQueryIndex] = $id;
+                    $params['customer_number' . $subQueryIndex] = '%' . $clean_key_multi . '%';
+                    $params['customer_number_old' . $subQueryIndex] = '%' . $clean_key_multi . '%';
+                    $params['name' . $subQueryIndex] = '%' . $clean_key_multi . '%';
+                    $params['kana' . $subQueryIndex] = '%' . $clean_key_multi . '%';
+                    $params['email' . $subQueryIndex] = '%' . $clean_key_multi . '%';
+            }
+
+            // CusotmerId
+            if (!empty($searchData['searchData']['customer_id']) && $searchData['searchData']['customer_id']) {
+                $subQuery
+                    ->andWhere($alias.'.customer_id = :customer_id_full' . $subQueryIndex);
+                $params['customer_id_full' . $subQueryIndex] = $searchData['searchData']['customer_id'];
+            }
+
+            // Pref
+            if (!empty($searchData['searchData']['pref']) && $searchData['searchData']['pref']) {
+                $subQuery
+                    ->andWhere($alias.'.Pref = :pref' . $subQueryIndex);
+                    $params['pref' . $subQueryIndex] = $searchData['searchData']['pref']->getId();
+            }
+
+            // sex
+            if (!empty($searchData['searchData']['sex']) && count($searchData['searchData']['sex']) > 0) {
+                $sexs = array();
+                foreach ($searchData['searchData']['sex'] as $sex) {
+                    $sexs[] = $sex->getId();
+                }
+                $subQuery
+                    ->andWhere($subQuery->expr()->in($alias.'.Sex', ':sexs' . $subQueryIndex));
+                $params['sexs' . $subQueryIndex] = $sexs;
+            }
+
+            if (!empty($searchData['searchData']['birth_month']) && $searchData['searchData']['birth_month']) {
+                $subQuery
+                    ->andWhere('EXTRACT(MONTH FROM c.birth) = :birth_month' . $subQueryIndex);
+                $params['birth_month' . $subQueryIndex] = $searchData['searchData']['birth_month'];
+            }
+
+            // birth
+            if (!empty($searchData['searchData']['birth_start']) && $searchData['searchData']['birth_start']) {
+                $date = $searchData['searchData']['birth_start']
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.birth >= :birth_start' . $subQueryIndex);
+                $params['birth_start' . $subQueryIndex] = $date;
+            }
+            if (!empty($searchData['searchData']['birth_end']) && $searchData['searchData']['birth_end']) {
+                $date = clone $searchData['searchData']['birth_end'];
+                $date = $date
+                    ->modify('+1 days')
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.birth < :birth_end' . $subQueryIndex);
+                $params['birth_end' . $subQueryIndex] = $date;
+            }
+
+            // tel
+            if (isset($searchData['searchData']['tel']) && Str::isNotBlank($searchData['searchData']['tel'])) {
+                $subQuery
+                    ->andWhere('CONCAT(c.tel01, c.tel02, c.tel03) LIKE :tel' . $subQueryIndex);
+                $params['tel' . $subQueryIndex] = '%' . $searchData['searchData']['tel'] . '%';
+            }
+
+            // buy_total
+            if (isset($searchData['searchData']['buy_total_start']) && Str::isNotBlank($searchData['searchData']['buy_total_start'])) {
+                $subQuery
+                    ->andWhere($alias.'.buy_total >= :buy_total_start' . $subQueryIndex);
+                $params['buy_total_start' . $subQueryIndex] = $searchData['searchData']['buy_total_start'];
+            }
+            if (isset($searchData['searchData']['buy_total_end']) && Str::isNotBlank($searchData['searchData']['buy_total_end'])) {
+                $subQuery
+                    ->andWhere($alias.'.buy_total <= :buy_total_end' . $subQueryIndex);
+                $params['buy_total_end' . $subQueryIndex] = $date;
+            }
+
+            // buy_times
+            if (!empty($searchData['searchData']['buy_times_start']) && $searchData['searchData']['buy_times_start']) {
+                $subQuery
+                    ->andWhere($alias.'.buy_times >= :buy_times_start' . $subQueryIndex);
+                $params['buy_times_start' . $subQueryIndex] = $searchData['searchData']['buy_times_start'];
+            }
+            if (!empty($searchData['searchData']['buy_times_end']) && $searchData['searchData']['buy_times_end']) {
+                $subQuery
+                    ->andWhere($alias.'.buy_times <= :buy_times_end' . $subQueryIndex);
+                $params['buy_times_end' . $subQueryIndex] = $searchData['searchData']['buy_times_end'];
+            }
+
+            // create_date
+            if (!empty($searchData['searchData']['create_date_start']) && $searchData['searchData']['create_date_start']) {
+                $date = $searchData['searchData']['create_date_start']
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.create_date >= :create_date_start' . $subQueryIndex);
+                $params['create_date_start' . $subQueryIndex] = $date;
+            }
+            if (!empty($searchData['searchData']['create_date_end']) && $searchData['searchData']['create_date_end']) {
+                $date = clone $searchData['searchData']['create_date_end'];
+                $date = $date
+                    ->modify('+1 days')
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.create_date < :create_date_end' . $subQueryIndex);
+                $params['create_date_end' . $subQueryIndex] = $date;
+            }
+
+            // update_date
+            if (!empty($searchData['searchData']['update_date_start']) && $searchData['searchData']['update_date_start']) {
+                $date = $searchData['searchData']['update_date_start']
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.update_date >= :update_date_start' . $subQueryIndex);
+                $params['update_date_start' . $subQueryIndex] = $date;
+            }
+            if (!empty($searchData['searchData']['update_date_end']) && $searchData['searchData']['update_date_end']) {
+                $date = clone $searchData['searchData']['update_date_end'];
+                $date = $date
+                    ->modify('+1 days')
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.update_date < :update_date_end' . $subQueryIndex);
+                $params['update_date_end' . $subQueryIndex] = $date;
+            }
+
+            // last_buy
+            if (!empty($searchData['searchData']['last_buy_start']) && $searchData['searchData']['last_buy_start']) {
+                $date = $searchData['searchData']['last_buy_start']
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.last_buy_date >= :last_buy_start' . $subQueryIndex);
+                $params['last_buy_start' . $subQueryIndex] = $date;
+            }
+            if (!empty($searchData['searchData']['last_buy_end']) && $searchData['searchData']['last_buy_end']) {
+                $date = clone $searchData['searchData']['last_buy_end'];
+                $date = $date
+                    ->modify('+1 days')
+                    ->format('Y-m-d H:i:s');
+                $subQuery
+                    ->andWhere($alias.'.last_buy_date < :last_buy_end' . $subQueryIndex);
+                $params['last_buy_end' . $subQueryIndex] = $date;
+            }
+
+            // status
+            if (!empty($searchData['searchData']['customer_status']) && count($searchData['searchData']['customer_status']) > 0) {
+                $subQuery
+                    ->andWhere($subQuery->expr()->in($alias.'.Status', ':statuses' . $subQueryIndex));
+                $params['statuses' . $subQueryIndex] = $searchData['searchData']['customer_status'];
+            }
+
+            // CustomerNumber
+            if (!empty($searchData['searchData']['customer_number']) && $searchData['searchData']['customer_number']) {
+                $subQuery
+                    ->andWhere('bc' . $subQueryIndex . '.customer_number LIKE :customer_number' . $subQueryIndex);
+                $params['customer_number' . $subQueryIndex] = '%' . $searchData['searchData']['customer_number'] . '%';
+            }
+
+            // CustomerNumberOld
+            if (!empty($searchData['searchData']['customer_number_old']) && $searchData['searchData']['customer_number_old']) {
+                $subQuery
+                    ->andWhere('bc' . $subQueryIndex . '.customer_number_old LIKE :customer_number_old' . $subQueryIndex);
+                $params['customer_number_old' . $subQueryIndex] = '%' . $searchData['searchData']['customer_number_old'] . '%';
+            }
+
+            // BasicInfoStatus
+            if (!empty($searchData['searchData']['customer_basicinfo_status']) && count($searchData['searchData']['customer_basicinfo_status']) > 0) {
+                $subQuery
+                    ->andWhere($subQuery->expr()->in('bc' . $subQueryIndex . '.Status', ':statuses' . $subQueryIndex));
+                $params['statuses' . $subQueryIndex] = $searchData['searchData']['customer_basicinfo_status'];
+            }
+
+            // buy_product_name、buy_product_code
+            if (isset($searchData['searchData']['buy_product_code']) && Str::isNotBlank($searchData['searchData']['buy_product_code'])) {
+                $subQuery
+                    ->leftJoin($alias.'.Orders', 'o' . $subQueryIndex)
+                    ->leftJoin('o' . $subQueryIndex . '.OrderDetails', 'od' . $subQueryIndex)
+                    ->andWhere('od' . $subQueryIndex . '.product_name LIKE :buy_product_name' . $subQueryIndex . ' OR ' . 'od' . $subQueryIndex . '.product_code LIKE :buy_product_name' . $subQueryIndex);
+                $params['buy_product_name' . $subQueryIndex] = '%' . $searchData['searchData']['buy_product_code'] . '%';
+            }
+            if ($searchData['join'] == 1) {
+                $qb->orWhere("c.id IN ({$subQuery->getDQL()})");
+            } else if ($searchData['join'] == 2) {
+                $qb->andWhere("c.id NOT IN ({$subQuery->getDQL()})");
+            } else {
+                $qb->andWhere("c.id IN ({$subQuery->getDQL()})");
+            }
+            ++$subQueryIndex;
+        }
+        foreach($params as $key => $param) {
+            $qb->setParameter($key, $param);
         }
 
         // Order By

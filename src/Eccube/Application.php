@@ -560,6 +560,16 @@ class Application extends ApplicationTrait
                 'anonymous' => true,
             ),
         );
+        $this['security.authentication.success_handler.customer'] = $this->share(function ()  {
+            $handler = new \Eccube\Security\DefaultAuthenticationSuccessHandler(
+                $this,
+                $this['security.http_utils'],
+                $this['security.firewalls']['customer']['form']
+            );
+            $handler->setProviderKey('customer');
+
+            return $handler;
+        });
 
         $channel = null;
         // 強制SSL
@@ -1275,5 +1285,34 @@ class Application extends ApplicationTrait
         }
 
         return $pluginConfigs;
+    }
+
+    public function setCustomerType($customerType) {
+        $this['session']->set('eccube.customer.type', $customerType);
+    }
+
+    public function getCustomerType() {
+        $customerType = $this['config']['customer_type_guest'];
+        if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
+            $customerType = $this['config']['customer_type_normal'];
+            if ($this['session']->has('eccube.customer.type')) {
+                $customerType = $this['session']->get('eccube.customer.type');
+            }
+        }
+        return $customerType;
+    }
+
+    public function getCustomerTarget() {
+        $customerTarget = array(1);
+        switch ($this->getCustomerType()) {
+        case $this['config']['customer_type_normal']:
+            $customerTarget[] = 2;
+            break;
+        case $this['config']['customer_type_fumanet']:
+            $customerTarget[] = 2;
+            $customerTarget[] = 3;
+            break;
+        }
+        return $customerTarget;
     }
 }

@@ -88,9 +88,14 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/customer', '\Eccube\Controller\Admin\Customer\CustomerController::index')->bind('admin_customer');
         $c->match('/customer/page/{page_no}', '\Eccube\Controller\Admin\Customer\CustomerController::index')->assert('page_no', '\d+')->bind('admin_customer_page');
         $c->match('/customer/export', '\Eccube\Controller\Admin\Customer\CustomerController::export')->bind('admin_customer_export');
+        $c->match('/customer/search/get', '\Eccube\Controller\Admin\Customer\CustomerController::getSearch')->bind('admin_customer_search_get');
+        $c->match('/customer/search/save', '\Eccube\Controller\Admin\Customer\CustomerController::saveSearch')->bind('admin_customer_search_save');
+        $c->match('/customer/search/select', '\Eccube\Controller\Admin\Customer\CustomerController::selectSearch')->bind('admin_customer_search_select');
+        $c->match('/customer/search/delete', '\Eccube\Controller\Admin\Customer\CustomerController::deleteSearch')->bind('admin_customer_search_delete');
         $c->match('/customer/new', '\Eccube\Controller\Admin\Customer\CustomerEditController::index')->bind('admin_customer_new');
         $c->match('/customer/{id}/edit', '\Eccube\Controller\Admin\Customer\CustomerEditController::index')->assert('id', '\d+')->bind('admin_customer_edit');
         $c->match('/customer/{id}/annual_fee', '\Eccube\Controller\Admin\Customer\CustomerController::annualFeeReport')->assert('id', '\d+')->bind('admin_customer_annual_fee_report');
+        $c->post('/customer/membership_exemption', '\Eccube\Controller\Admin\Customer\CustomerController::membershipExemption')->bind('admin_customer_membership_exemption');
         $c->match('/customer/{id}/training_order_history', '\Eccube\Controller\Admin\Customer\CustomerController::trainingOrderHistory')->assert('id', '\d+')->bind('admin_customer_training_order_history');
         $c->match('/customer/{id}/contribution_order_history', '\Eccube\Controller\Admin\Customer\CustomerController::contributionOrderHistory')->assert('id', '\d+')->bind('admin_customer_contribution_order_history');
         $c->delete('/customer/{id}/delete', '\Eccube\Controller\Admin\Customer\CustomerController::delete')->assert('id', '\d+')->bind('admin_customer_delete');
@@ -153,7 +158,7 @@ class AdminControllerProvider implements ControllerProviderInterface
         $c->match('/questionnaire/page/{page_no}', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::index')->assert('page_no', '\d+')->bind('admin_questionnaire_page');
         $c->match('/questionnaire/new', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::edit')->bind('admin_questionnaire_new');
         $c->match('/questionnaire/{id}/edit', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::edit')->assert('id', '\d+')->bind('admin_questionnaire_edit');
-        $c->match('/questionnaire/{id}/display', '\Eccube\Controller\Admin\Product\ProductController::display')->assert('id', '\d+')->bind('admin_product_product_display');
+        $c->match('/questionnaire/{id}/display', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::display')->assert('id', '\d+')->bind('admin_questionnaire_display');
         $c->delete('/questionnaire/{id}/delete', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::delete')->assert('id', '\d+')->bind('admin_questionnaire_delete');
         $c->post('/questionnaire/{id}/copy', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::copy')->assert('id', '\d+')->bind('admin_questionnaire_copy');
         $c->post('/questionnaire/attachment/add', '\Eccube\Controller\Admin\Questionnaire\QuestionnaireController::addAttachment')->bind('admin_questionnaire_attachment_add');

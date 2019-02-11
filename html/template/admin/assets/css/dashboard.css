@@ -3301,3 +3301,8 @@ a[id^="delete_choice"]:hover {
 .margin-top-15 {
     margin-top: 15px;
 }
+#result_list_join_and, 
+#result_list_join_or, 
+#result_list_join_not {
+    width: 70px;
+} 

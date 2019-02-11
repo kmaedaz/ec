@@ -12,4 +12,103 @@ use Doctrine\ORM\EntityRepository;
  */
 class QuestionnaireRepository extends EntityRepository
 {
+    /**
+     * get query builder.
+     *
+     * @param  array $searchData
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    public function getQueryBuilderBySearchDataForAdmin($searchData)
+    {
+        $qb = $this->createQueryBuilder('q');
+
+        // id
+        if (isset($searchData['id']) && Str::isNotBlank($searchData['id'])) {
+            $id = preg_match('/^\d+$/', $searchData['id']) ? $searchData['id'] : null;
+            $qb
+                ->andWhere('q.id = :id OR q.name LIKE :likeid')
+                ->setParameter('id', $id)
+                ->setParameter('likeid', '%' . $searchData['id'] . '%');
+        }
+
+        // name
+        if (!empty($searchData['name']) && $searchData['name']) {
+            $keywords = preg_split('/[\s@]+/u', $searchData['name'], -1, PREG_SPLIT_NO_EMPTY);
+            foreach ($keywords as $keyword) {
+                $qb
+                    ->andWhere('q.name LIKE :name')
+                    ->setParameter('name', '%' . $keyword . '%');
+            }
+        }
+
+        // status
+        if (!empty($searchData['status']) && $searchData['status']->toArray()) {
+            $qb
+                ->andWhere($qb->expr()->in('q.Status', ':Status'))
+                ->setParameter('Status', $searchData['status']->toArray());
+        }
+
+        // crate_date
+        if (!empty($searchData['create_date_start']) && $searchData['create_date_start']) {
+            $date = $searchData['create_date_start']
+                ->format('Y-m-d H:i:s');
+            $qb
+                ->andWhere('q.create_date >= :create_date_start')
+                ->setParameter('create_date_start', $date);
+        }
+
+        if (!empty($searchData['create_date_end']) && $searchData['create_date_end']) {
+            $date = clone $searchData['create_date_end'];
+            $date = $date
+                ->modify('+1 days')
+                ->format('Y-m-d H:i:s');
+            $qb
+                ->andWhere('q.create_date < :create_date_end')
+                ->setParameter('create_date_end', $date);
+        }
+
+        // application_period
+        if (!empty($searchData['application_period_from']) && $searchData['application_period_from']) {
+            $date = $searchData['application_period_from']
+                ->format('Y-m-d H:i:s');
+            $qb
+                ->andWhere('q.application_period_from >= :application_period_from')
+                ->setParameter('application_period_from', $date);
+        }
+
+        if (!empty($searchData['application_period_to']) && $searchData['application_period_to']) {
+            $date = clone $searchData['application_period_to'];
+            $date = $date
+                ->format('Y-m-d H:i:s');
+            $qb
+                ->andWhere('q.application_period_to <= :application_period_to')
+                ->setParameter('application_period_to', $date);
+        }
+
+        // update_date
+        if (!empty($searchData['update_date_start']) && $searchData['update_date_start']) {
+            $date = $searchData['update_date_start']
+                ->format('Y-m-d H:i:s');
+            $qb
+                ->andWhere('q.update_date >= :update_date_start')
+                ->setParameter('update_date_start', $date);
+        }
+        if (!empty($searchData['update_date_end']) && $searchData['update_date_end']) {
+            $date = clone $searchData['update_date_end'];
+            $date = $date
+                ->modify('+1 days')
+                ->format('Y-m-d H:i:s');
+            $qb
+                ->andWhere('q.update_date < :update_date_end')
+                ->setParameter('update_date_end', $date);
+        }
+
+
+        // Order By
+        $qb
+            ->orderBy('q.update_date', 'DESC');
+
+        return $qb;
+    }
+
 }

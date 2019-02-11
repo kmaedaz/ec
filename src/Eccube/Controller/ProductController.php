@@ -209,9 +209,7 @@ class ProductController
         }
         // searchForm
         /* @var $builder \Symfony\Component\Form\FormBuilderInterface */
-        $builder = $app['form.factory']->createNamedBuilder('', 'search_product');
-        $builder->setAttribute('freeze', true);
-        $builder->setAttribute('freeze_display_text', false);
+        $builder = $app['form.factory']->createNamedBuilder('', 'search_product_training', null, array('history' => false));
         if ($request->getMethod() === 'GET') {
             $builder->setMethod('GET');
         }
@@ -237,9 +235,9 @@ class ProductController
             if (!is_null($TrainingType)) {
                 $TrainingTypeId = $TrainingType->getId();
                 $TrainingTypeName = $TrainingType->getName();
-                $Products = $app['eccube.repository.product']->getProductTrainingList($TrainingTypeId);
+                $Products = $app['eccube.repository.product']->getProductTrainingList($TrainingTypeId, $searchData);
             } else {
-                $Products = $app['eccube.repository.product']->getProductTrainingList(null);
+                $Products = $app['eccube.repository.product']->getProductTrainingList(null, $searchData);
             }
             $forms[$TrainingTypeId]['TrainingType'] = $TrainingType;
             $productCnt = 0;
@@ -279,15 +277,101 @@ class ProductController
                 $headerRow = array();
             }
         }
-        $Category = $searchForm->get('category_id')->getData();
 
         return $app->render('Product/training_list.twig', array(
-            'subtitle' => $this->getPageTitle($searchData),
+            'subtitle' => '講習会一覧',
             'search_form' => $searchForm->createView(),
             'forms' => $forms,
             'headerInfos' => $headerInfos,
             'tainingCnt' => $tainingCnt,
-            'Category' => $Category,
+        ));
+    }
+
+    public function indexTrainingHistory(Application $app, Request $request)
+    {
+        $BaseInfo = $app['eccube.repository.base_info']->get();
+
+        // Doctrine SQLFilter
+        if ($BaseInfo->getNostockHidden() === Constant::ENABLED) {
+            $app['orm.em']->getFilters()->enable('nostock_hidden');
+        }
+        // searchForm
+        /* @var $builder \Symfony\Component\Form\FormBuilderInterface */
+        $builder = $app['form.factory']->createNamedBuilder('', 'search_product_training', null, array('history' => true));
+        if ($request->getMethod() === 'GET') {
+            $builder->setMethod('GET');
+        }
+
+        /* @var $searchForm \Symfony\Component\Form\FormInterface */
+        $searchForm = $builder->getForm();
+
+        $searchForm->handleRequest($request);
+
+        // paginator
+        $searchData = $searchForm->getData();
+        $TrainingTypes = $app['eccube.repository.master.training_type']->getList();
+        $TrainingTypes[] = null;
+
+        // addCart form
+        $forms = array();
+        $tainingCnt = 0;
+        $headerInfos = array();
+        $headerRow = array();
+        foreach ($TrainingTypes as $TrainingType) {
+            $TrainingTypeId = 0;
+            $TrainingTypeName = 'その他';
+            if (!is_null($TrainingType)) {
+                $TrainingTypeId = $TrainingType->getId();
+                $TrainingTypeName = $TrainingType->getName();
+                $Products = $app['eccube.repository.product']->getProductTrainingList($TrainingTypeId, $searchData, true);
+            } else {
+                $Products = $app['eccube.repository.product']->getProductTrainingList(null, $searchData, true);
+            }
+            $forms[$TrainingTypeId]['TrainingType'] = $TrainingType;
+            $productCnt = 0;
+            foreach ($Products as $Product) {
+                /* @var $builder \Symfony\Component\Form\FormBuilderInterface */
+                $builder = $app['form.factory']->createNamedBuilder('', 'add_cart', null, array(
+                    'product' => $Product,
+                    'allow_extra_fields' => true,
+                ));
+                $addCartForm = $builder->getForm();
+                if ($request->getMethod() === 'POST' && (string)$Product->getId() === $request->get('product_id')) {
+                    $addCartForm->handleRequest($request);
+                    if ($addCartForm->isValid()) {
+                        $addCartData = $addCartForm->getData();
+
+                        try {
+                            $app['eccube.service.cart']->addProduct($addCartData['product_class_id'], $addCartData['quantity'])->save();
+                        } catch (CartException $e) {
+                            $app->addRequestError($e->getMessage());
+                        }
+                        if ($event->getResponse() !== null) {
+                            return $event->getResponse();
+                        }
+                        return $app->redirect($app->url('cart'));
+                    }
+                }
+                $forms[$TrainingTypeId]['Product'][$Product->getId()] = $Product;
+                $forms[$TrainingTypeId]['CartFormView'][$Product->getId()] = $addCartForm->createView();
+                $forms[$TrainingTypeId]['Training_Date'][$Product->getId()] = date('Y年m月d日 H時i分', strtotime($Product->getProductTraining()->getTrainingDateStart())) . '～' . date('H時i分', strtotime($Product->getProductTraining()->getTrainingDateEnd()));
+                ++$tainingCnt;
+                ++$productCnt;
+            }
+            $forms[$TrainingTypeId]['ProductsCount'] = $productCnt;
+            $headerRow[] = array('id' => $TrainingTypeId, 'name' => $TrainingTypeName, 'ProductsCount' => $productCnt);
+            if (1 < count($headerRow)) {
+                $headerInfos[] = $headerRow;
+                $headerRow = array();
+            }
+        }
+
+        return $app->render('Product/training_history_list.twig', array(
+            'subtitle' => '過去講習会一覧',
+            'search_form' => $searchForm->createView(),
+            'forms' => $forms,
+            'headerInfos' => $headerInfos,
+            'tainingCnt' => $tainingCnt,
         ));
     }
 

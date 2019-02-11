@@ -35,7 +35,7 @@ class QuestionnaireDetail extends \Eccube\Entity\AbstractEntity
     private $QuestionnaireDetailChoices;
 
     /**
-     * @var \Eccube\Entity\QuestionnaireDetail
+     * @var \Eccube\Entity\Questionnaire
      */
     private $Questionnaire;
 
@@ -167,10 +167,10 @@ class QuestionnaireDetail extends \Eccube\Entity\AbstractEntity
     /**
      * Set Questionnaire
      *
-     * @param \Eccube\Entity\QuestionnaireDetail $questionnaire
-     * @return QuestionnaireDetail
+     * @param \Eccube\Entity\Questionnaire $questionnaire
+     * @return Questionnaire
      */
-    public function setQuestionnaire(\Eccube\Entity\QuestionnaireDetail $questionnaire)
+    public function setQuestionnaire(\Eccube\Entity\Questionnaire $questionnaire)
     {
         $this->Questionnaire = $questionnaire;
 
@@ -180,7 +180,7 @@ class QuestionnaireDetail extends \Eccube\Entity\AbstractEntity
     /**
      * Get Questionnaire
      *
-     * @return \Eccube\Entity\QuestionnaireDetail 
+     * @return \Eccube\Entity\Questionnaire 
      */
     public function getQuestionnaire()
     {
@@ -208,5 +208,33 @@ class QuestionnaireDetail extends \Eccube\Entity\AbstractEntity
     public function getCreator()
     {
         return $this->Creator;
+    }
+    /**
+     * @var string
+     */
+    private $detail_name;
+
+
+    /**
+     * Set detail_name
+     *
+     * @param string $detailName
+     * @return QuestionnaireDetail
+     */
+    public function setDetailName($detailName)
+    {
+        $this->detail_name = $detailName;
+
+        return $this;
+    }
+
+    /**
+     * Get detail_name
+     *
+     * @return string 
+     */
+    public function getDetailName()
+    {
+        return $this->detail_name;
     }
 }

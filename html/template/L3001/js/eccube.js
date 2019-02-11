@@ -382,6 +382,51 @@
         }
     };
 
+    // 2段階ログイン時の入力チェック
+    eccube.checkSecondLoginFormInputted = function(form, regularMemberIdKey, pinKey) {
+        var formElement = $("form#" + form);
+        var checkItems = [];
+
+        if (typeof emailKey === 'undefined') {
+            checkItems[0] = 'login_regular_member_id';
+        } else {
+            checkItems[0] = regularMemberIdKey;
+        }
+        if (typeof passKey === 'undefined') {
+            checkItems[1] = 'login_pin_code';
+        } else {
+            checkItems[1] = pinKey;
+        }
+
+        var max = checkItems.length;
+        var errorFlag = false;
+
+        //　必須項目のチェック
+        for(var cnt = 0; cnt < max; cnt++) {
+            if(formElement.find("input[name=" + checkItems[cnt] + "]").val() === "") {
+                errorFlag = true;
+                break;
+            }
+        }
+
+        // 必須項目が入力されていない場合
+        if(errorFlag === true) {
+            window.alert('ふまねっと会員ID/PINコードを入力して下さい。');
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    // 2段階ログイン時の入力チェック
+    eccube.cancelSecondLogin = function(form) {
+        var form = $("form#" + form)[0];
+        form.method = "POST";
+        form.target = "_self";
+        form.action = "/second_login/cancel";
+        form.submit();
+    };
+
     //親ウィンドウのページを変更する.
     eccube.changeParentUrl = function(url) {
         // 親ウィンドウの存在確認
